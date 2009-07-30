@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 
 class BuildComputer(models.Model):
     """
@@ -9,6 +8,45 @@ class BuildComputer(models.Model):
     description = models.TextField()
     hostname = models.CharField(max_length=255, unique=True)
 
+    username = models.CharField(max_length=40)
+    ssh_key = models.TextField()
+
     def __unicode__(self):
         return self.name
 
+class Command(models.Model):
+    name = models.CharField(max_length=40, unique=True)
+    command = models.TextField()
+
+class Project(models.Model):
+    name = models.CharField(max_length=40)
+    tracker_uri = models.URLField(max_length=255, verify_exists=False)
+    webstatus_port = models.PositiveIntegerField(unique=True)
+    buildmaster_port = models.PositiveIntegerField(unique=True)
+
+class NamedStep(models.Model):
+    name = models.CharField(max_length=255)
+
+class NamedFactory(models.Model):
+    name = models.CharField(max_length=40)
+    project = models.ForeignKey(Project)
+    steps = models.ManyToManyField(NamedStep)
+
+class Repository(models.Model):
+    uri = models.URLField(max_length=255, verify_exists=False, unique=True)
+
+class DedicatedVncNumber(models.Model):
+    computer = models.ForeignKey(BuildComputer)
+    number = models.PositiveIntegerField()
+
+    unique_together = (("computer", "number"),)
+
+class SeleniumProxy(models.Model):
+    name = models.CharField(max_length=40)
+    port = models.PositiveIntegerField()
+
+class WindowsSeleniumProxy(models.Model):
+    pass
+
+class UnixVncSeleniumProxy(SeleniumProxy):
+    pass

@@ -8,4 +8,6 @@ Licensed under BSD.
 
 .. toctree::
    :maxdepth: 2
-
+   
+   concepts
+   install

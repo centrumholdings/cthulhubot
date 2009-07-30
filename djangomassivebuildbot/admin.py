@@ -1,5 +1,5 @@
 from django.contrib import admin
-from djangobaselibrary.sample.models import Spam, Type
+from djangomassivebuildbot.models import BuildComputer, Command
 
-admin.site.register([Spam, Type])
+admin.site.register([BuildComputer, Command, Project])
 
