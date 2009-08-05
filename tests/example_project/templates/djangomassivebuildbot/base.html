@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{% block html_header_title %}Dashboard{% endblock html_header_title %}</title>
+	<link href="{{ MEDIA_URL }}/css/main.css" type="text/css" media="all" rel="stylesheet" />
+	<link rel="icon" href="{{ MEDIA_URL }}/images/favicon.ico" type="image/x-icon" />
+	<link rel="shortcut icon" href="{{ MEDIA_URL }}/images/favicon.ico" />
+    
+</head>
+<body {% block template-id %}id="dashboard"{% endblock template-id %}>
+
+    <div class="layout-holder">
+		<div class="header">
+			<h1 class="logo">Django Massive Buildbot</h1>
+		</div>
+
+		<div class="main-menu">
+			<div class="menu" id="menu">
+				<ul class="mnu0">
+					<li class="mnu-dashboard first">
+						<div><a title="Dashboard" href="{% url djangomassivebuildbot-dashboard %}">Dashboard</a></div>
+					</li>
+                    <li class="mnu-masters first">
+                        <div><a title="Masters" href="{% url djangomassivebuildbot-projects %}">Projects</a></div>
+                    </li>
+				</ul>
+			</div>
+		</div>
+		
+		<div class="content">
+			<div class="content-bg">
+				{% block content %}
+				{% endblock content %}
+			</div>
+			<div class="reset">&nbsp;</div>
+		</div> <!-- /content -->
+	</div>
+</body>
+</html>

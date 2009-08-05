@@ -3,9 +3,6 @@
 from os.path import dirname, join
 
 import django
-
-import djangobaselibrary
-
 import example_project
 
 
@@ -50,7 +47,7 @@ INSTALLED_APPS = (
 
 #    'south',
 
-    'django.contrib.admin',
+    'djangomassivebuildbot',
 )
 
 VERSION = 1

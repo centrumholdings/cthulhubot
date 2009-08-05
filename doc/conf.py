@@ -10,7 +10,7 @@ master_doc = 'index'
 project = u'Django: massive buildbot'
 copyright = u'2009, Centrum Holdings'
 
-import djangomassivebuildbot as soft
+import djangomassivebuildbot as project
 
-version = ".".join(map(str, soft.__version__[:-1]))
-release = soft.__versionstr__
+version = ".".join(map(str, project.__version__[:-1]))
+release = project.__versionstr__

@@ -21,8 +21,11 @@ class Command(models.Model):
 class Project(models.Model):
     name = models.CharField(max_length=40)
     tracker_uri = models.URLField(max_length=255, verify_exists=False)
+
+class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)
+    project = models.ForeignKey(Project)
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)

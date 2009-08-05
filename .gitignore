@@ -1,3 +1,5 @@
 *.py[co]
 .*.sw?
 *~
+build_doc
+nbproject
