@@ -1,0 +1,14 @@
+{% extends "djangomassivebuildbot/base.html" %}
+
+{% block content %}
+
+<h1>Available projects</h1>
+<ul id="projects-list" class="projects-list">
+{% for project in projects %}
+    <li><a href="{{ project.get_absolute_url }} ">{{ project.name }}</a></li>
+{% endfor %}
+</ul>
+
+<p><a href="{% url djangomassivebuildbot-create-project %}" id="link-create-project">Create new project</a></p>
+
+{% endblock %}

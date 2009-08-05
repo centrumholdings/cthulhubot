@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.db import models
@@ -26,13 +27,16 @@ class Project(models.Model):
     slug = models.CharField(max_length=40, unique=True)
     tracker_uri = models.URLField(max_length=255, verify_exists=False)
 
-
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
 
         super(Project, self).save(*args, **kwargs)
 
+    def get_absolute_url(self):
+        return reverse("djangomassivebuildbot-project-detail", kwargs={
+                "project" : self.slug,
+            })
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)

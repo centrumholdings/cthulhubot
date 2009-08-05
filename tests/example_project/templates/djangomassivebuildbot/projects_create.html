@@ -1,0 +1,14 @@
+{% extends "djangomassivebuildbot/base.html" %}
+
+{% block content %}
+
+<h1>Create new project</h1>
+
+<form action="." method="post" id="form-create-project">
+<table>
+    {{ form.as_table }}
+    <tr><td><input type="submit" value="Create" /></tr></td>
+</table>
+</form>
+
+{% endblock %}

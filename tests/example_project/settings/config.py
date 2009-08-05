@@ -61,3 +61,4 @@ MEDIA_URL = '/static'
 
 ADMIN_MEDIA_PREFIX = '/static/admin_media/'
 
+LOGIN_REDIRECT_URL = '/'
