@@ -1,1 +1,10 @@
-documentation for djangobaselibrary
+Cthulhu bot
+============
+
+Slightly more evil tentacles of Cthulhu, ruling over poor buildbot slaves.
+
+Project for managing large number of buildbots for web development, with some useful whistles. WIP, come back later.
+
+Dependencies:
+ * Buildbot 0.7.11
+ * buildbot-mongodb-status 0.2
