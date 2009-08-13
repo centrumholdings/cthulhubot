@@ -47,7 +47,7 @@ INSTALLED_APPS = (
 
 #    'south',
 
-    'djangomassivebuildbot',
+    'cthulhubot',
 )
 
 VERSION = 1

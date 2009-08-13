@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from djangosanetesting import DatabaseTestCase
 
-from djangomassivebuildbot.models import Project, Buildmaster
-from djangomassivebuildbot.project import create_project
+from cthulhubot.models import Project, Buildmaster
+from cthulhubot.project import create_project
 
 class TestProjectCreation(DatabaseTestCase):
 

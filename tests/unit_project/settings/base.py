@@ -37,7 +37,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 INSTALLED_APPS = (
-    'djangomassivebuildbot',
+    'cthulhubot',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

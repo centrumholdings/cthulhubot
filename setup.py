@@ -5,7 +5,7 @@ __version__ = VERSION
 __versionstr__ = '.'.join(map(str, VERSION))
 
 setup(
-    name = 'djangomassivebuildbot',
+    name = 'cthulhubot',
     version = __versionstr__,
     description = 'Django Massive Buildbot',
     long_description = '\n'.join((

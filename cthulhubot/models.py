@@ -34,7 +34,7 @@ class Project(models.Model):
         super(Project, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return reverse("djangomassivebuildbot-project-detail", kwargs={
+        return reverse("cthulhubot-project-detail", kwargs={
                 "project" : self.slug,
             })
 class Buildmaster(models.Model):
