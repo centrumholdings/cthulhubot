@@ -7,7 +7,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Django: massive buildbot'
+project = u'CthulhuBot'
 copyright = u'2009, Centrum Holdings'
 
 import cthulhubot as project

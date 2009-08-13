@@ -1,8 +1,13 @@
+import os
+
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.db import models
+
+
+DEFAULT_BUILDMASTER_BASEDIR = "/var/lib/buildmasters"
 
 class BuildComputer(models.Model):
     """
@@ -41,6 +46,7 @@ class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)
     project = models.ForeignKey(Project)
+    directory = models.CharField(unique=True, max_length=255)
 
     port_attributes = ("webstatus_port", "buildmaster_port")
 
@@ -51,6 +57,9 @@ class Buildmaster(models.Model):
         except IndexError:
             return getattr(settings, settings_attr, settings_default)
 
+    def generate_buildmaster_directory(self):
+        base_dir = getattr(settings, "CTHULHUBOT_BUILDMASTER_BASEDIR", DEFAULT_BUILDMASTER_BASEDIR)
+        return os.path.join(base_dir, self.project.slug)
 
     def check_port_uniqueness(self):
         # from database administrators POV, this is ugly & awful, but given
@@ -87,6 +96,9 @@ class Buildmaster(models.Model):
 
         if not self.buildmaster_port:
             self.buildmaster_port = self.generate_buildmaster_port()
+
+        if not self.directory:
+            self.directory = self.generate_buildmaster_directory()
 
         self.check_port_uniqueness()
 

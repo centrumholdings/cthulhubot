@@ -4,4 +4,10 @@
 
 <h1 id="project-name">{{ project.name }}</h1>
 
+{% if buildmaster %}
+    <p>Buildmaster status: {{ buildmaster.get_text_status }}</p>
+{% else %}
+    <p>Buildmaster not created yet.</p><form action="." method="post"><input type="submit" name="create_master" value="Create"></form>
+{% endif %}
+
 {% endblock %}

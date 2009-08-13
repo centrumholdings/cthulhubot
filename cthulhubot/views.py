@@ -7,6 +7,19 @@ from django.views.generic.simple import direct_to_template
 from cthulhubot.forms import CreateProjectForm
 from cthulhubot.models import Project
 from cthulhubot.project import create_project
+from cthulhubot.utils import dispatch_post
+from cthulhubot.buildbot import create_master
+
+
+
+########### Helper controller-model dispatchers
+
+def create_master(post, project, **kwargs):
+    create_master(project = project)
+
+
+
+########### VIEWS
 
 @transaction.commit_on_success
 def dashboard(request):
@@ -41,6 +54,17 @@ def projects_create(request):
 @transaction.commit_on_success
 def project_detail(request, project):
     project = get_object_or_404(Project, slug=project)
+
+    redirect = dispatch_post(request, {
+            "create_master" : create_master,
+        },
+        kwargs = {
+            "project" : project,
+        }
+    )
+    if redirect:
+        return redirect
+
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
         'project' : project
     })

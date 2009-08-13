@@ -34,3 +34,8 @@ class TestProjectCreation(DatabaseTestCase):
             tracker_uri="http://example.com",
             webstatus_port=51, buildmaster_port=52
         )
+
+    def test_buildmaster_directory_generated(self):
+        project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.assert_equals("/var/lib/buildmasters/project", Buildmaster.objects.all()[0].directory)
+
