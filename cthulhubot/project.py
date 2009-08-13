@@ -1,4 +1,5 @@
 from cthulhubot.models import Project, Buildmaster
+from cthulhubot.buildbot import create_master
 
 def create_project(name, tracker_uri, webstatus_port=None, buildmaster_port=None):
     """
@@ -9,10 +10,6 @@ def create_project(name, tracker_uri, webstatus_port=None, buildmaster_port=None
         tracker_uri = tracker_uri
     )
 
-    Buildmaster.objects.create(
-        project = project,
-        webstatus_port = webstatus_port,
-        buildmaster_port = buildmaster_port
-    )
+    create_master(project=project, webstatus_port=webstatus_port, buildmaster_port=buildmaster_port)
 
     return project

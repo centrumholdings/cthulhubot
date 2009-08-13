@@ -45,7 +45,7 @@ class Project(models.Model):
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, unique=True)
     directory = models.CharField(unique=True, max_length=255)
 
     port_attributes = ("webstatus_port", "buildmaster_port")
