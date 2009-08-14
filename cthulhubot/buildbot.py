@@ -1,4 +1,7 @@
-from cthulhubod.models import Buildmaster
+import os
+
+from shutil import rmtree
+from cthulhubot.models import Buildmaster
 
 def get_buildmaster_config(slug):
     master = Buildmaster.objects.get(slug=slug)
@@ -29,6 +32,9 @@ BuildmasterConfig = get_buildmaster_config(slug="%s")
 
 def create_buildmaster_directory_structure(slug, directory):
 
+    if not os.path.exists(directory):
+        os.mkdir(directory)
+
     # do we have master.cfg?
     if not os.path.exists(os.path.join(directory, "master.cfg")):
         f = open(os.path.join(directory, "master.cfg"), 'w')
@@ -48,4 +54,4 @@ def create_master(project, webstatus_port=None, buildmaster_port=None):
         buildmaster_port = buildmaster_port
     )
 
-    create_buildmaster_directory_structure(slug=master.slug, directory=master.directory)
+    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory)

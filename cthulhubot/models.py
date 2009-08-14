@@ -1,13 +1,15 @@
 import os
+from tempfile import gettempdir
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template.defaultfilters import slugify
+from shutil import rmtree
 from django.db import models
 
 
-DEFAULT_BUILDMASTER_BASEDIR = "/var/lib/buildmasters"
+DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
 class BuildComputer(models.Model):
     """
@@ -103,6 +105,11 @@ class Buildmaster(models.Model):
         self.check_port_uniqueness()
 
         super(Buildmaster, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        super(Buildmaster, self).delete(*args, **kwargs)
+        if os.path.exists(self.directory):
+            rmtree(self.directory)
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)
