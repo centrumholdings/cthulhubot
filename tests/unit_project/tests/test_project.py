@@ -16,7 +16,7 @@ class TestProjectCreation(DatabaseTestCase):
         create_project(name=self.project_name, tracker_uri="http://example.com")
         self.assert_equals(self.project_name, Project.objects.all()[0].name)
 
-    def test_buildmaster_createdwith_autodetected_values(self):
+    def test_buildmaster_created_with_autodetected_values(self):
         project = create_project(name=self.project_name, tracker_uri="http://example.com")
         self.assert_equals(project, Buildmaster.objects.all()[0].project)
 
@@ -39,6 +39,6 @@ class TestProjectCreation(DatabaseTestCase):
 
     def test_buildmaster_directory_generated(self):
         project = create_project(name=self.project_name, tracker_uri="http://example.com")
-        self.assert_true(os.path.exists(Buildmaster.objects.all()[0].directory))
-        self.assert_true(os.path.exists(os.path.join(Buildmaster.objects.all()[0].directory, "master.cfg")))
+        self.assert_true(os.path.exists(project.buildmaster_set.all()[0].directory))
+        self.assert_true(os.path.exists(os.path.join(project.buildmaster_set.all()[0].directory, "master.cfg")))
 

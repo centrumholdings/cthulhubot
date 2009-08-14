@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+
+from copy import copy
+from subprocess import check_call, PIPE
 import os
 from tempfile import gettempdir
 
@@ -7,7 +11,6 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 from shutil import rmtree
 from django.db import models
-
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
@@ -110,6 +113,11 @@ class Buildmaster(models.Model):
         super(Buildmaster, self).delete(*args, **kwargs)
         if os.path.exists(self.directory):
             rmtree(self.directory)
+
+    def start(self, env=None):
+        e = copy(os.environ)
+        e.update(env)
+        check_call(["buildbot", "start", self.directory], env=e)
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)

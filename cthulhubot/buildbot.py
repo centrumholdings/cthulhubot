@@ -1,10 +1,9 @@
 import os
 
-from shutil import rmtree
-from cthulhubot.models import Buildmaster
+from cthulhubot.models import Buildmaster, Project
 
 def get_buildmaster_config(slug):
-    master = Buildmaster.objects.get(slug=slug)
+    project = Project.objects.get(slug=slug)
 
     return {
     }
