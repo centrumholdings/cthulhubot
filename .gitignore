@@ -3,4 +3,6 @@
 *~
 build_doc
 nbproject
-tests/[example|unit]_project/settings/local.py
+tests/unit_project/settings/local.py
+tests/example_project/settings/local.py
+
