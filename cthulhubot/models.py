@@ -47,6 +47,13 @@ class Project(models.Model):
         return reverse("cthulhubot-project-detail", kwargs={
                 "project" : self.slug,
             })
+
+    def delete(self, *args, **kwargs):
+        for master in self.buildmaster_set.all():
+            master.delete()
+        
+        super(Project, self).delete(*args, **kwargs)
+
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)
@@ -117,7 +124,7 @@ class Buildmaster(models.Model):
     def start(self, env=None):
         e = copy(os.environ)
         e.update(env)
-        check_call(["buildbot", "start", self.directory], env=e)
+        check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory)
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)

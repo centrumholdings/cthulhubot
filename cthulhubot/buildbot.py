@@ -1,4 +1,8 @@
+from __future__ import absolute_import
+
 import os
+
+from buildbot.changes.pb import PBChangeSource
 
 from cthulhubot.models import Buildmaster, Project
 
@@ -6,6 +10,16 @@ def get_buildmaster_config(slug):
     project = Project.objects.get(slug=slug)
 
     return {
+        'slavePortnum' : 14042,
+        'slaves' : [],
+        'change_source' : PBChangeSource(),
+        'schedulers' : [],
+        'builders' : [],
+        'status' : [],
+        'projectName' : project.name,
+        'projectURL' : project.tracker_uri,
+        'buildbotURL' : 'uri',
+#        'buildbotURL' : project.get_absolute_url(),
     }
 
 def get_twisted_tac_config(directory):
@@ -44,6 +58,12 @@ def create_buildmaster_directory_structure(slug, directory):
     if not os.path.exists(os.path.join(directory, "buildbot.tac")):
         f = open(os.path.join(directory, "buildbot.tac"), 'w')
         f.write(get_twisted_tac_config(directory))
+        f.close()
+
+    # empty twistd.log so tail will not complain
+    if not os.path.exists(os.path.join(directory, "twistd.log")):
+        f = open(os.path.join(directory, "twistd.log"), 'w')
+        f.write('')
         f.close()
 
 def create_master(project, webstatus_port=None, buildmaster_port=None):

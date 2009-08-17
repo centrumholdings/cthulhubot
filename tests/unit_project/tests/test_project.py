@@ -11,10 +11,15 @@ class TestProjectCreation(DatabaseTestCase):
     def setUp(self):
         super(TestProjectCreation, self).setUp()
         self.project_name = u"project"
+        self.project_slug = self.project_name
 
     def test_project_created(self):
         create_project(name=self.project_name, tracker_uri="http://example.com")
         self.assert_equals(self.project_name, Project.objects.all()[0].name)
+
+    def test_project_created_and_retrievable_by_slug(self):
+        create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.assert_equals(self.project_name, Project.objects.get(slug=self.project_slug).name)
 
     def test_buildmaster_created_with_autodetected_values(self):
         project = create_project(name=self.project_name, tracker_uri="http://example.com")
