@@ -128,12 +128,14 @@ class Buildmaster(models.Model):
     def start(self, env=None):
         e = copy(os.environ)
         e.update(env)
-        check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory)
+        check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory,
+            stdout=PIPE, stderr=PIPE)
 
     def stop(self, env=None):
         e = copy(os.environ)
         e.update(env)
-        check_call(["buildbot", "stop", self.directory], env=e, cwd=self.directory)
+        check_call(["buildbot", "stop", self.directory], env=e, cwd=self.directory,
+            stdout=PIPE, stderr=PIPE)
 
     def is_running(self):
         """ Is buildmaster process running? Return True if process found, False otherwise.

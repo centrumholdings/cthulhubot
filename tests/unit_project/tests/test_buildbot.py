@@ -50,6 +50,8 @@ class TestBuildmaster(DestructiveDatabaseTestCase):
         self.stop_master()
         self.assert_false(self.buildmaster.is_running())
 
+    def test_master_not_started_after_creation(self):
+        self.assert_false(self.buildmaster.is_running())
 
     def tearDown(self):
         self.project.delete()
