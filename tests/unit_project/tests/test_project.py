@@ -47,3 +47,12 @@ class TestProjectCreation(DatabaseTestCase):
         self.assert_true(os.path.exists(project.buildmaster_set.all()[0].directory))
         self.assert_true(os.path.exists(os.path.join(project.buildmaster_set.all()[0].directory, "master.cfg")))
 
+    def test_buildmaster_available_as_property(self):
+        project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.assert_equals(project, project.buildmaster.project)
+
+    def tearDown(self):
+        for master in Buildmaster.objects.all():
+            master.delete()
+
+        super(TestProjectCreation, self).tearDown()

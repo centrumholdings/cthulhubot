@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 
 from copy import copy
-from subprocess import check_call, PIPE
 import os
+from subprocess import PIPE
+import sys
 from tempfile import gettempdir
 
 from django.core.exceptions import ValidationError
@@ -11,6 +12,9 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 from shutil import rmtree
 from django.db import models
+
+from cthulhubot.utils import check_call
+
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
@@ -47,6 +51,13 @@ class Project(models.Model):
         return reverse("cthulhubot-project-detail", kwargs={
                 "project" : self.slug,
             })
+
+    def get_buildmaster(self):
+        masters = self.buildmaster_set.all()
+        assert len(masters) == 1
+        return masters[0]
+
+    buildmaster = property(fget=get_buildmaster)
 
     def delete(self, *args, **kwargs):
         for master in self.buildmaster_set.all():
@@ -125,15 +136,36 @@ class Buildmaster(models.Model):
         if os.path.exists(self.directory):
             rmtree(self.directory)
 
-    def start(self, env=None):
+    def get_buildbot_environment(self, env):
         e = copy(os.environ)
+        env = env or {}
         e.update(env)
+
+        import cthulhubot
+        # PYTHONPATH and DJANGO_SETTINGS_MODULE must be present for child process
+        if not e.has_key('PYTHONPATH'):
+#            e.update({
+#                "PYTHONPATH" : os.path.abspath(os.path.join(os.path.dirname(cthulhubot.__file__), os.pardir))
+#            })
+            e.update({
+                "PYTHONPATH" : ":".join(sys.path)
+            })
+
+        if not e.has_key('DJANGO_SETTINGS_MODULE'):
+            e.update({
+                "DJANGO_SETTINGS_MODULE" : "settings"
+            })
+
+        return e
+
+    def start(self, env=None):
+        e = self.get_buildbot_environment(env)
+
         check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
 
     def stop(self, env=None):
-        e = copy(os.environ)
-        e.update(env)
+        e = self.get_buildbot_environment(env)
         check_call(["buildbot", "stop", self.directory], env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
 
@@ -163,6 +195,11 @@ class Buildmaster(models.Model):
         return os.path.exists("/proc/%s" % pid)
 
 
+    def get_text_status(self):
+        if self.is_running():
+            return "Running"
+        else:
+            return "Not running"
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)

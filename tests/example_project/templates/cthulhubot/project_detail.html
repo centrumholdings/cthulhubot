@@ -3,11 +3,17 @@
 {% block content %}
 
 <h1 id="project-name">{{ project.name }}</h1>
-
-{% if buildmaster %}
-    <p>Buildmaster status: {{ buildmaster.get_text_status }}</p>
+<form action="." method="post">
+{% if project.buildmaster %}
+    <p>Buildmaster status: {{ project.buildmaster.get_text_status }}</p>
+    {% ifequal project.buildmaster.get_text_status "Running" %}
+        <input type="submit" name="stop_master" value="Stop">
+    {% else %}
+        <input type="submit" name="start_master" value="Start">
+    {% endifequal %}
 {% else %}
-    <p>Buildmaster not created yet.</p><form action="." method="post"><input type="submit" name="create_master" value="Create"></form>
+    <p>Buildmaster not created yet.</p><input type="submit" name="create_master" value="Create">
 {% endif %}
+</form>
 
 {% endblock %}

@@ -16,7 +16,21 @@ from cthulhubot.buildbot import create_master
 
 def create_master(post, project, **kwargs):
     create_master(project = project)
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
 
+def start_master(post, project, **kwargs):
+    project.buildmaster.start()
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
+
+def stop_master(post, project, **kwargs):
+    project.buildmaster.stop()
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
 
 
 ########### VIEWS
@@ -57,6 +71,8 @@ def project_detail(request, project):
 
     redirect = dispatch_post(request, {
             "create_master" : create_master,
+            "start_master" : start_master,
+            "stop_master" : stop_master,
         },
         kwargs = {
             "project" : project,

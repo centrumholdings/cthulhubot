@@ -46,8 +46,12 @@ INSTALLED_APPS = (
     'django.contrib.redirects',
 
 #    'south',
+    'django_cpserver',
 
     'cthulhubot',
 )
+
+# some django will be blocked when creating buildmaster without this
+CHERRYPY_TEST_SERVER=True
 
 VERSION = 1
