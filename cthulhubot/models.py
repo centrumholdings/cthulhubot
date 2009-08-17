@@ -118,6 +118,10 @@ class Buildmaster(models.Model):
 
     def delete(self, *args, **kwargs):
         super(Buildmaster, self).delete(*args, **kwargs)
+
+        if self.is_running():
+            self.stop()
+
         if os.path.exists(self.directory):
             rmtree(self.directory)
 
@@ -125,6 +129,38 @@ class Buildmaster(models.Model):
         e = copy(os.environ)
         e.update(env)
         check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory)
+
+    def stop(self, env=None):
+        e = copy(os.environ)
+        e.update(env)
+        check_call(["buildbot", "stop", self.directory], env=e, cwd=self.directory)
+
+    def is_running(self):
+        """ Is buildmaster process running? Return True if process found, False otherwise.
+
+        #TODO: This will now work only for linux, which is my target platform.
+        It could probably be modified for BSD with os.kill(pid, 0), anyone to test it?
+        Also, any windows guru for a win way?
+        """
+        # This will work only on linux, which is my target platform
+        # for BSD,
+
+        pid_file = os.path.join(self.directory, 'twistd.pid')
+        if not os.path.exists(pid_file):
+            return False
+
+        f = open(pid_file)
+        pid = int(f.read())
+        f.close()
+
+        try:
+            pid = int(pid)
+        except ValueError:
+            return False
+
+        return os.path.exists("/proc/%s" % pid)
+
+
 
 class NamedStep(models.Model):
     name = models.CharField(max_length=255)
