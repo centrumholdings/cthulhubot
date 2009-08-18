@@ -1,0 +1,14 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Build computers</h1>
+<p><a href="{% url cthulhubot-add-computer %}" id="link-add-computer">Add new computer</a></p>
+<ul id="computers-list" class="computers-list">
+{% for computer in computers %}
+    <li><a href="{{ computer.get_absolute_url }} ">{{ computer.name }}</a></li>
+{% endfor %}
+</ul>
+
+
+{% endblock %}

@@ -23,14 +23,22 @@ class BuildComputer(models.Model):
     Computer with installed operating system we own
     """
     name = models.CharField(max_length=40, unique=True)
+    slug = models.CharField(max_length=40, unique=True)
     description = models.TextField()
     hostname = models.CharField(max_length=255, unique=True)
 
     username = models.CharField(max_length=40)
     ssh_key = models.TextField()
+    basedir = models.CharField(max_length=255, default="/var/buildslaves")
 
     def __unicode__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        super(BuildComputer, self).save(*args, **kwargs)
 
 class Command(models.Model):
     name = models.CharField(max_length=40, unique=True)

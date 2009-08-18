@@ -14,8 +14,8 @@ TEMPLATE_DEBUG = DEBUG
 DISABLE_CACHE_TEMPLATE = DEBUG
 
 DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = join(gettempdir(), 'djangobaselibrary_example_project.db')
-TEST_DATABASE_NAME =join(gettempdir(), 'test_djangobaselibrary_example_project.db')
+DATABASE_NAME = join(gettempdir(), 'cthulhubot.db')
+TEST_DATABASE_NAME =join(gettempdir(), 'test_cthulhubot.db')
 DATABASE_USER = ''
 DATABASE_PASSWORD = ''
 DATABASE_HOST = ''

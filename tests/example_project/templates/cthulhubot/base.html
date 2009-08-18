@@ -21,18 +21,21 @@
 					<li class="mnu-dashboard first">
 						<div><a title="Dashboard" href="{% url cthulhubot-dashboard %}">Dashboard</a></div>
 					</li>
-                    <li class="mnu-masters">
-                        <div><a title="Masters" href="{% url cthulhubot-projects %}" id="menu-link-projects">Projects</a></div>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="mnu-user last">
-                        <div>Logged in as {{ user.username }}</div>
-                    </li>
-                    {% else %}
-                    <li class="mnu-user last">
-                        <div><a title="Log in" href="{% url login %}" id="menu-link-login">Log in</a></div>
-                    </li>
-                    {% endif %}
+                                        <li class="mnu-masters">
+                                            <div><a title="Masters" href="{% url cthulhubot-projects %}" id="menu-link-projects">Projects</a></div>
+                                        </li>
+                                        <li class="mnu-masters">
+                                            <div><a title="Computers" href="{% url cthulhubot-computers %}" id="menu-link-computers">Computers</a></div>
+                                        </li>
+                                        {% if user.is_authenticated %}
+                                        <li class="mnu-user last">
+                                            <div>Logged in as {{ user.username }}</div>
+                                        </li>
+                                        {% else %}
+                                        <li class="mnu-user last">
+                                            <div><a title="Log in" href="{% url login %}" id="menu-link-login">Log in</a></div>
+                                        </li>
+                                        {% endif %}
 				</ul>
 			</div>
 		</div>

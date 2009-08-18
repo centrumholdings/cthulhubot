@@ -5,6 +5,7 @@ class WebTestCase(SeleniumTestCase):
         'menu' : {
             'login' : "menu-link-login",
             'projects' : "menu-link-projects",
+            'computers' : "menu-link-computers",
         },
         'login' : {
             'username' : "id_username",
@@ -22,6 +23,18 @@ class WebTestCase(SeleniumTestCase):
         },
         'project_detail' : {
             'name' : "project-name",
+        },
+        'computers' : {
+            "create" : "link-create-computer",
+            "list" : "id('computers-list')/li",
+            "computer_link" : "id('computers-list')/li[%(position)s]/a",
+            "computer_link_single" : "//ul[@class='computers-list']/li/a",
+        },
+        'computers_create' : {
+            'submit_form' : "//input[@type='submit']",
+        },
+        'computer_detail' : {
+            'name' : "computer-name",
         },
     }
 
