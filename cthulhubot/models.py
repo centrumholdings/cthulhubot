@@ -28,11 +28,16 @@ class BuildComputer(models.Model):
     hostname = models.CharField(max_length=255, unique=True)
 
     username = models.CharField(max_length=40)
-    ssh_key = models.TextField()
+    ssh_key = models.TextField(blank=True)
     basedir = models.CharField(max_length=255, default="/var/buildslaves")
 
     def __unicode__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("cthulhubot-computer-detail", kwargs={
+                "computer" : self.slug,
+            })
 
     def save(self, *args, **kwargs):
         if not self.slug:

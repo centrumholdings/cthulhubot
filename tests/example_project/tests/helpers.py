@@ -25,7 +25,7 @@ class WebTestCase(SeleniumTestCase):
             'name' : "project-name",
         },
         'computers' : {
-            "create" : "link-create-computer",
+            "create" : "link-add-computer",
             "list" : "id('computers-list')/li",
             "computer_link" : "id('computers-list')/li[%(position)s]/a",
             "computer_link_single" : "//ul[@class='computers-list']/li/a",
