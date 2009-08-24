@@ -39,5 +39,15 @@ setup(
     setup_requires = [
         'setuptools_dummy',
     ],
+
+    entry_points = {
+	'cthulhubot.jobs' : [
+	
+	],
+	'cthulhubot.steps' : [
+	
+	]
+    }
+
 )
 
