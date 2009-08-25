@@ -86,9 +86,7 @@ def project_detail(request, project):
             }))
     else:
         form = CreateProjectForm()
-    return direct_to_template(request, 'cthulhubot/projects_create.html', {
-        'form' : form
-    })
+
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
         'project' : project
     })
