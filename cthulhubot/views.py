@@ -73,19 +73,18 @@ def projects_create(request):
 @transaction.commit_on_success
 def project_detail(request, project):
     project = get_object_or_404(Project, slug=project)
-
-    if request.method == "POST":
-        form = CreateProjectForm(request.POST)
-        if form.is_valid():
-            project = create_project(
-                name = form.cleaned_data['name'],
-                tracker_uri = form.cleaned_data['issue_tracker']
-            )
-            return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
-                "project" : project.slug,
-            }))
-    else:
-        form = CreateProjectForm()
+    
+    redirect = dispatch_post(request, {
+            "create_master" : create_master,
+            "start_master" : start_master,
+            "stop_master" : stop_master,
+        },
+        kwargs = {
+            "project" : project,
+        }
+    )
+    if redirect:
+        return redirect
 
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
         'project' : project
