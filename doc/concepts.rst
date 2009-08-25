@@ -35,9 +35,12 @@ Vocabulary
     Buildslave
         As in BuildBot; client process running on Build Computer, connecting to correct Buildmaster port and listening to it's commands.
     
-    Job
-        In BuildBots speech: named factory. For normal people: sequence of (mostly) shell commands with assigned name, so they can be used across projects. 
+    Command
+        Step in buildbot dictionary. One (usually shell command) to be executed, as part of the job.
 
+    Job
+        In BuildBots speech: named factory. For normal people: sequence of commands with assigned name, so they can be used across projects.
+    
 ------------------------
 Software stages
 ------------------------
@@ -55,3 +58,12 @@ Dependency handling (aka applications and projects)
 ----------------------------------------------------
 
 TODO: -meta bots and master ping
+
+-----------------------------------------------
+Jobs and Commands creation and configuration
+-----------------------------------------------
+
+Commands are basically factories producing configurable buildbot steps. Difference is that steps command can populate configuration parameters. Parameter value could be specified either in Job in which Command is present, or in Project assigment (Parameters are then shown in CthulhuBot UI).
+
+Both commands and jobs are pluggable using setuptools entry points, under groups "cthulhubot.commands" and "cthulhubot.jobs". To avoid :cmd:`setup.py develop` requirement, all classes from "cthulhubot.commands" and "chtulhubot.jobs" with defined "slug" attribute are also resolved.
+

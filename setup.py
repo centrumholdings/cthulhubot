@@ -44,8 +44,8 @@ setup(
 	'cthulhubot.jobs' : [
 	
 	],
-	'cthulhubot.steps' : [
-	
+	'cthulhubot.commands' : [
+            "dummy_command = cthulhubot.commands:DummyCommand"	
 	]
     }
 

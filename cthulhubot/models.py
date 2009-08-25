@@ -214,13 +214,15 @@ class Buildmaster(models.Model):
         else:
             return "Not running"
 
-class NamedStep(models.Model):
-    name = models.CharField(max_length=255)
-
-class NamedFactory(models.Model):
-    name = models.CharField(max_length=40)
-    project = models.ForeignKey(Project)
-    steps = models.ManyToManyField(NamedStep)
+#class Job(models.Model):
+#    name = models.CharField(max_length=255, unique=True)
+#    slug = models.CharField(max_length=255, unique=True)
+#    entry_point = models.CharField(max_length=255)
+#
+#
+#class Command(models.Model):
+#    name = models.CharField(max_length=255, unique=True)
+#    slug = models.CharField(max_length=255, unique=True)
 
 class Repository(models.Model):
     uri = models.URLField(max_length=255, verify_exists=False, unique=True)

@@ -23,6 +23,8 @@ class WebTestCase(SeleniumTestCase):
         },
         'project_detail' : {
             'name' : "project-name",
+            'start_buildmaster' : 'submit-start-master',
+            'stop_buildmaster' : 'submit-stop-master',
         },
         'computers' : {
             "create" : "link-add-computer",
