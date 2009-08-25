@@ -197,7 +197,7 @@ class Buildmaster(models.Model):
             return False
 
         f = open(pid_file)
-        pid = int(f.read())
+        pid = f.read()
         f.close()
 
         try:
