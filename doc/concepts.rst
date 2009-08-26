@@ -67,3 +67,7 @@ Commands are basically factories producing configurable buildbot steps. Differen
 
 Both commands and jobs are pluggable using setuptools entry points, under groups "cthulhubot.commands" and "cthulhubot.jobs". To avoid :cmd:`setup.py develop` requirement, all classes from "cthulhubot.commands" and "chtulhubot.jobs" with defined "slug" attribute are also resolved.
 
+Command can be configured when assigned to Job, althrough Job can decide not to specify the options, but configure them when Job itself will be configured. Job is configured when put to work, which means when associated to Project and BuildComputer. Using ERD, this could be modelled as follows:
+    
+    .. image:: images/cthulhubot-job-command-configuration.png
+

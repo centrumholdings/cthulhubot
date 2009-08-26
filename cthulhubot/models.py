@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.template.defaultfilters import slugify
+from django.utils import simplejson
 from shutil import rmtree
 from django.db import models
 
@@ -54,8 +55,15 @@ class Command(models.Model):
 
         self._command = None
 
-    def get_command(self):
+    def get_command(self, config=None):
+        if config:
+            self.command.update_config(config)
         return self.command.get_command()
+
+    def get_command_config(self):
+        return None
+#        try:
+#            config = CommandConfiguration.objects.get()
 
     def get_command_class(self):
         if not self._command:
@@ -66,6 +74,41 @@ class Command(models.Model):
         return self._command
 
     command = property(fget=get_command_class)
+
+    def save_configuration(self, job, config_options):
+        command_config = {}
+        for config in config_options:
+            if config in self.command.parameters:
+                command_config[config] = config_options[config]
+
+        CommandConfiguration.objects.create(
+            job = job,
+            command = self,
+            config = simplejson.dumps(command_config)
+        )
+
+
+class Job(models.Model):
+    slug = models.CharField(max_length=255, unique=True)
+
+    def get_configured_command(self, command):
+        try:
+            config = CommandConfiguration.objects.get(
+                job = self,
+                command = command
+            )
+            config = simplejson.loads(config.config)
+        except CommandConfiguration.DoesNotExist:
+            config = {}
+            
+        return command.get_command(config=config)
+
+class CommandConfiguration(models.Model):
+    command = models.ForeignKey(Command)
+    job = models.ForeignKey(Job)
+    config = models.TextField()
+
+    unique_together = (("command", "job"),)
 
 
 

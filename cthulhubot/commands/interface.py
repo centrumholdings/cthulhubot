@@ -1,3 +1,5 @@
+from copy import copy
+
 class Command(object):
     """
     Those classes should be implemented on top of buildbot's steps
@@ -30,17 +32,31 @@ class Command(object):
     def __init__(self, config=None, **kwargs):
         super(Command, self).__init__()
 
-        self.config = config or {}
+        self.config = copy(config) or {}
+        self.fill_default_values()
+        if config:
+            self.update_config(config)
 
+    def fill_default_values(self):
+        for cmd in self.parameters:
+            if self.parameters[cmd].get('value') is not None:
+                self.config[cmd] = self.parameters[cmd]['value']
+
+    def update_config(self, config):
+        for command in config:
+            if command in self.parameters.keys():
+                self.config[command] = config[command]
+
+    def check_config(self):
         for command in self.parameters:
             if command not in self.config.keys():
                 if self.parameters[command]['required'] is True:
                     raise ValueError("Paramater %s required to be present in config" % command)
-                elif self.parameters[command]['value'] is not None:
-                    self.config[command] = self.parameters[command]['value']
 
     def get_command(self):
         command = []
+
+        self.check_config()
 
         for arg in self.command:
             try:
@@ -49,5 +65,4 @@ class Command(object):
                 command.append(arg)
                 
         return command
-
 
