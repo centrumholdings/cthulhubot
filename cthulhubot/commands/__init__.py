@@ -18,3 +18,8 @@ def get_available_commands():
         commands[dist.name] = dist.load()
 
     return commands
+
+def get_command(slug):
+    commands = get_available_commands()
+    if slug in commands:
+        return commands[slug]

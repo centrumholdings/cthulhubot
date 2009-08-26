@@ -14,6 +14,7 @@ from shutil import rmtree
 from django.db import models
 
 from cthulhubot.utils import check_call
+from cthulhubot.commands import get_command
 
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
@@ -46,8 +47,27 @@ class BuildComputer(models.Model):
         super(BuildComputer, self).save(*args, **kwargs)
 
 class Command(models.Model):
-    name = models.CharField(max_length=40, unique=True)
-    command = models.TextField()
+    slug = models.CharField(max_length=255, unique=True)
+
+    def __init__(self, *args, **kwargs):
+        super(Command, self).__init__(*args, **kwargs)
+
+        self._command = None
+
+    def get_command(self):
+        return self.command.get_command()
+
+    def get_command_class(self):
+        if not self._command:
+            self._command = get_command(slug=self.slug)()
+            if not self._command:
+                raise ValueError(u"Command %s cannot be resolved" % self.slug)
+
+        return self._command
+
+    command = property(fget=get_command_class)
+
+
 
 class Project(models.Model):
     name = models.CharField(max_length=40)

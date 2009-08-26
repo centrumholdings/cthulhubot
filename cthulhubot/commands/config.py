@@ -26,5 +26,3 @@ class DjangoUnitTestConfiguration(Command):
         "--database-config-file=%(database_config_file)s", "--django-settings-directory=%(django_settings_directory)s",
     ]
 
-
-

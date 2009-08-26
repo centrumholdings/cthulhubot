@@ -38,8 +38,6 @@ class Command(object):
                     raise ValueError("Paramater %s required to be present in config" % command)
                 elif self.parameters[command]['value'] is not None:
                     self.config[command] = self.parameters[command]['value']
-            
-
 
     def get_command(self):
         command = []
