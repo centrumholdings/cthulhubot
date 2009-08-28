@@ -37,4 +37,8 @@ class TestProjects(AuthenticatedWebTestCase):
         s.click(self.elements['project_detail']['start_buildmaster'])
         s.wait_for_page_to_load(30000)
 
+        self.assert_equals(u"Buildmaster status: Running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+
         # stop if after me ;)
+        s.click(self.elements['project_detail']['stop_buildmaster'])
+        s.wait_for_page_to_load(30000)

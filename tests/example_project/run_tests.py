@@ -13,7 +13,11 @@ import nose
 
 
 # django settings module
-DJANGO_SETTINGS_MODULE = '%s.%s' % (split(abspath(dirname(__file__)))[1], 'settings')
+#DJANGO_SETTINGS_MODULE = '%s.%s' % (split(abspath(dirname(__file__)))[1], 'settings')
+
+# because of buildbot child proccess, we must hack DATABASE_NAME = TEST_DATABASE_NAME
+DJANGO_SETTINGS_MODULE = "test_settings"
+
 # pythonpath dirs
 PYTHONPATH = [
     abspath(join( dirname(__file__), pardir, pardir)),
@@ -32,8 +36,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = DJANGO_SETTINGS_MODULE
 
 # TODO: ugly hack to inject required plugins to nose.run
 # Use --with-cherrypyliveserver instead of Django's as it will handle AJAX and stuff much better
-#for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django']:
-for i in ['--with-selenium', '--with-djangoliveserver', '--with-django',]:
+for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django']:
     if i not in sys.argv:
         sys.argv.insert(1, i)
 

@@ -220,9 +220,6 @@ class Buildmaster(models.Model):
         import cthulhubot
         # PYTHONPATH and DJANGO_SETTINGS_MODULE must be present for child process
         if not e.has_key('PYTHONPATH'):
-#            e.update({
-#                "PYTHONPATH" : os.path.abspath(os.path.join(os.path.dirname(cthulhubot.__file__), os.pardir))
-#            })
             e.update({
                 "PYTHONPATH" : ":".join(sys.path)
             })

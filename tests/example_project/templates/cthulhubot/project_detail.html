@@ -5,7 +5,7 @@
 <h1 id="project-name">{{ project.name }}</h1>
 <form action="." method="post">
 {% if project.buildmaster %}
-    <p>Buildmaster status: {{ project.buildmaster.get_text_status }}</p>
+    <p id="buildmaster-status">Buildmaster status: {{ project.buildmaster.get_text_status }}</p>
     {% ifequal project.buildmaster.get_text_status "Running" %}
         <input type="submit" name="stop_master" value="Stop" id="submit-stop-master">
     {% else %}
