@@ -6,7 +6,9 @@
 <p class="help">Commands are usual "shell" commands to be executed as part of a <a href="{% url cthulhubot-jobs %}">job</a>. Commands are deployed as plugins (administrator will be able to add them through web interface in the future, maybe) and to use them, you must <a href="{% url cthulhubot-commands-discover %}">discover</a> them.</p>
 <p><a id="link-discovery" href="{% url cthulhubot-commands-discover %}">Discover new commands</a></p>
 <ul id="commands-list" class="commands-list">
-
+{% for command in commands %}
+    <li>{{ command.slug }}</li>
+{% endfor %}
 </ul>
 
 {% endblock %}

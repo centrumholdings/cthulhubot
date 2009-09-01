@@ -3,10 +3,11 @@
 {% block content %}
 
 <h1>Discover new commands</h1>
-
+<form action="." method="POST">
 <ul id="commands-list" class="commands-list">
     {% for command in commands.values %}
-        <li>{{ command.slug }}</li>
+        <li>{{ command.slug }} <input type="submit" name="{{ command.slug }}" value="Configure" /></li>
     {% endfor %}
 </ul>
+</form>
 {% endblock %}

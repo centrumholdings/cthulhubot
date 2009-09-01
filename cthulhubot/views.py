@@ -1,3 +1,4 @@
+from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -124,20 +125,25 @@ def computer_detail(request, computer):
 
 @transaction.commit_on_success
 def commands(request):
-    commands = Command.objects.all().order_by('name')
+    commands = Command.objects.all().order_by('slug')
     return direct_to_template(request, 'cthulhubot/commands.html', {
         'commands' : commands,
     })
 
 @transaction.commit_on_success
 def commands_discover(request):
-    # commands to discover = commands_available - commands_configured
-    commands = get_undiscovered_commands()
+    if request.method == "POST":
+        if len(request.POST.keys()) == 1:
+            command_slug = request.POST.keys()[0]
+            command = get_undiscovered_commands().get(command_slug)
+            if command:
+                Command.objects.get_or_create(slug=command.slug)
+            return HttpResponseRedirect(reverse('cthulhubot-commands-discover'))
+
 
     return direct_to_template(request, 'cthulhubot/commands_discover.html', {
-        'commands' : commands,
+        'commands' : get_undiscovered_commands(),
     })
-
 
 @transaction.commit_on_success
 def jobs(request):

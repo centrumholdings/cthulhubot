@@ -4,7 +4,7 @@ from cthulhubot.views import (
     dashboard,
     projects, projects_create, project_detail,
     computers, computers_create, computer_detail,
-    commands, commands_discover, 
+    commands, commands_discover,
     jobs,
 )
 

@@ -17,4 +17,17 @@ class TestCommands(AuthenticatedWebTestCase):
         # our all-favourite build is there
         self.assert_equals(u'cthulhubot-debian-build-debian-package', s.get_text(self.elements['commands']['discovery']['list'] % {'position' : 1}))
 
+        # assign it
+        s.click(self.elements['commands']['discovery']['assign'] % {'position' : 1})
+        s.wait_for_page_to_load(30000)
+
+        # it's not here anymore
+        self.assert_not_equals(u'cthulhubot-debian-build-debian-package', s.get_text(self.elements['commands']['discovery']['list'] % {'position' : 1}))
         
+        # and it's in commands
+        s.click(self.elements['menu']['commands'])
+        s.wait_for_page_to_load(30000)
+
+        self.assert_equals(u'cthulhubot-debian-build-debian-package', s.get_text(self.elements['commands']['list'] % {'position' : 1}))
+
+

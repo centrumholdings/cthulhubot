@@ -42,8 +42,10 @@ class WebTestCase(SeleniumTestCase):
         },
         'commands' : {
             'link-discovery' : 'link-discovery',
+            'list' : 'commands-list',
             'discovery' : {
                 "list" : "//ul[@class='commands-list']/li[%(position)s]",
+                "assign" : "//ul[@class='commands-list']/li[%(position)s]//input[@type='submit']",
             },
         }
     }
