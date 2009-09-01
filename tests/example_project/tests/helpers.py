@@ -24,6 +24,7 @@ class WebTestCase(SeleniumTestCase):
         },
         'project_detail' : {
             'name' : "project-name",
+            'buildmaster_status' : "buildmaster-status",
             'start_buildmaster' : 'submit-start-master',
             'stop_buildmaster' : 'submit-stop-master',
         },

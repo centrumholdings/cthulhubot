@@ -31,10 +31,18 @@ class TestProjects(AuthenticatedWebTestCase):
         s.wait_for_page_to_load(30000)
 
         self.assert_equals(project_name, s.get_text(self.elements['project_detail']['name']))
+        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
         # start buildmaster
 
         s.click(self.elements['project_detail']['start_buildmaster'])
         s.wait_for_page_to_load(30000)
 
-        # stop if after me ;)
+        self.assert_equals(u"Buildmaster status: Running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+
+        # stop not to clash
+        s.click(self.elements['project_detail']['stop_buildmaster'])
+        s.wait_for_page_to_load(30000)
+
+        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+
