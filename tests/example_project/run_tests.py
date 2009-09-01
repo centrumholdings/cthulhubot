@@ -12,14 +12,11 @@ from os.path import join, pardir, abspath, dirname, split
 import nose
 
 
-# django settings module
-DJANGO_SETTINGS_MODULE = '%s.%s' % (split(abspath(dirname(__file__)))[1], 'settings')
 # pythonpath dirs
 PYTHONPATH = [
     abspath(join( dirname(__file__), pardir, pardir)),
     abspath(join( dirname(__file__), pardir)),
 ]
-
 
 # inject few paths to pythonpath
 for p in PYTHONPATH:
@@ -27,13 +24,12 @@ for p in PYTHONPATH:
         sys.path.insert(0, p)
 
 # django needs this env variable
-os.environ['DJANGO_SETTINGS_MODULE'] = DJANGO_SETTINGS_MODULE
+os.environ['DJANGO_SETTINGS_MODULE'] = "test_settings"
 
 
 # TODO: ugly hack to inject required plugins to nose.run
 # Use --with-cherrypyliveserver instead of Django's as it will handle AJAX and stuff much better
-#for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django']:
-for i in ['--with-selenium', '--with-djangoliveserver', '--with-django',]:
+for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django']:
     if i not in sys.argv:
         sys.argv.insert(1, i)
 
