@@ -6,6 +6,7 @@ class WebTestCase(SeleniumTestCase):
             'login' : "menu-link-login",
             'projects' : "menu-link-projects",
             'computers' : "menu-link-computers",
+            'commands' : "menu-link-commands",
         },
         'login' : {
             'username' : "id_username",
@@ -23,6 +24,7 @@ class WebTestCase(SeleniumTestCase):
         },
         'project_detail' : {
             'name' : "project-name",
+            'buildmaster_status' : "buildmaster-status",
             'start_buildmaster' : 'submit-start-master',
             'stop_buildmaster' : 'submit-stop-master',
             'buildmaster_status' : 'buildmaster-status',
@@ -39,6 +41,14 @@ class WebTestCase(SeleniumTestCase):
         'computer_detail' : {
             'name' : "computer-name",
         },
+        'commands' : {
+            'link-discovery' : 'link-discovery',
+            'list' : 'commands-list',
+            'discovery' : {
+                "list" : "//ul[@class='commands-list']/li[%(position)s]",
+                "assign" : "//ul[@class='commands-list']/li[%(position)s]//input[@type='submit']",
+            },
+        }
     }
 
     def setUp(self):

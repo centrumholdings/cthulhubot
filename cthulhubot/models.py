@@ -17,7 +17,6 @@ from django.db import models
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
 
-
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
 class BuildComputer(models.Model):
@@ -89,6 +88,7 @@ class Command(models.Model):
 
 
 class Job(models.Model):
+    name = models.CharField(max_length=255, unique=True)
     slug = models.CharField(max_length=255, unique=True)
 
     def get_configured_command(self, command):

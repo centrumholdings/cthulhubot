@@ -7,7 +7,7 @@ class TestProjects(AuthenticatedWebTestCase):
         s = self.selenium
 
         # create project
-        
+
         project_name = u"你好, řeřicha"
         tracker_uri = u"http://example.com"
 
@@ -31,6 +31,7 @@ class TestProjects(AuthenticatedWebTestCase):
         s.wait_for_page_to_load(30000)
 
         self.assert_equals(project_name, s.get_text(self.elements['project_detail']['name']))
+        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
         # start buildmaster
 
@@ -39,6 +40,9 @@ class TestProjects(AuthenticatedWebTestCase):
 
         self.assert_equals(u"Buildmaster status: Running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
-        # stop if after me ;)
+        # stop not to clash
         s.click(self.elements['project_detail']['stop_buildmaster'])
         s.wait_for_page_to_load(30000)
+
+        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+

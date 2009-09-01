@@ -1,9 +1,9 @@
 from djangosanetesting import UnitTestCase, DatabaseTestCase
 
-from cthulhubot.commands import get_available_commands, get_command
+from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
 from cthulhubot.models import Command, Job
 
-class TestCommandsDiscoverable(UnitTestCase):
+class TestCommandsDiscovery(UnitTestCase):
 
     def test_debian_package_creator_discovered(self):
         # aka basic discovering
@@ -35,6 +35,36 @@ class TestCommandsDiscoverable(UnitTestCase):
 
         self.assert_raises(ValueError, cmd.get_command)
 
+class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
+
+    def test_build_and_unit_discovered(self):
+        assert get_command('cthulhubot-debian-build-debian-package') is not None
+        assert get_command('cthulhubot-django-unit-test-config') is not None
+
+    def test_discovery_of_unconfigured_packages_misses_configured_ones(self):
+        cmd = get_command('cthulhubot-debian-build-debian-package')()
+        Command.objects.create(slug=cmd.slug)
+
+        commands = get_undiscovered_commands()
+        assert cmd.slug not in commands
+
+    def test_discovery_of_unconfigured_packages_matches_unconfigured(self):
+        slug = 'cthulhubot-debian-build-debian-package'
+        commands = get_undiscovered_commands()
+        self.assert_equals(slug, commands.get(slug).slug)
+
+    def test_discovery_of_unconfigured_packages_finding_configured_and_unconfigured(self):
+        slug = 'cthulhubot-debian-build-debian-package'
+        cmd = get_command(slug)()
+        Command.objects.create(slug=cmd.slug)
+
+        unconfigured_slug = 'cthulhubot-django-unit-test-config'
+
+        commands = get_undiscovered_commands()
+
+        self.assert_equals(None, commands.get(cmd.slug))
+        self.assert_equals(unconfigured_slug, commands.get(unconfigured_slug).slug)
+
 class TestCommandConfigurableFromDatabase(DatabaseTestCase):
     def test_database_association(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()
@@ -63,11 +93,6 @@ class TestCommandConfigurableFromDatabase(DatabaseTestCase):
 
             job.get_configured_command(unit_test)
         )
-
-
-
-        
-
 
 
         
