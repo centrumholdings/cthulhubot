@@ -4,6 +4,8 @@ from cthulhubot.views import (
     dashboard,
     projects, projects_create, project_detail,
     computers, computers_create, computer_detail,
+    commands, commands_discover, 
+    jobs,
 )
 
 urlpatterns = patterns('',
@@ -15,6 +17,11 @@ urlpatterns = patterns('',
     url(r'^computers/$', computers, name='cthulhubot-computers'),
     url(r'^computers/create/$', computers_create, name='cthulhubot-add-computer'),
     url(r'^computers/(?P<computer>[\w]+)/$', computer_detail, name='cthulhubot-computer-detail'),
+
+    url(r'^commands/$', commands, name='cthulhubot-commands'),
+    url(r'^commands/discover/$', commands_discover, name='cthulhubot-commands-discover'),
+
+    url(r'^jobs/$', jobs, name='cthulhubot-jobs'),
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name="login"),
 )

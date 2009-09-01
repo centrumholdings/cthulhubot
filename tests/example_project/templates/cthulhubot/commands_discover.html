@@ -1,0 +1,12 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Discover new commands</h1>
+
+<ul id="commands-list" class="commands-list">
+    {% for command in commands.values %}
+        <li>{{ command.slug }}</li>
+    {% endfor %}
+</ul>
+{% endblock %}

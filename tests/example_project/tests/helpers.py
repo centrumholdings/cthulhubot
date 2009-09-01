@@ -6,6 +6,7 @@ class WebTestCase(SeleniumTestCase):
             'login' : "menu-link-login",
             'projects' : "menu-link-projects",
             'computers' : "menu-link-computers",
+            'commands' : "menu-link-commands",
         },
         'login' : {
             'username' : "id_username",
@@ -38,6 +39,12 @@ class WebTestCase(SeleniumTestCase):
         'computer_detail' : {
             'name' : "computer-name",
         },
+        'commands' : {
+            'link-discovery' : 'link-discovery',
+            'discovery' : {
+                "list" : "//ul[@class='commands-list']/li[%(position)s]",
+            },
+        }
     }
 
     def setUp(self):

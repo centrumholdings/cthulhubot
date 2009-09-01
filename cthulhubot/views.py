@@ -5,11 +5,11 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 
 from cthulhubot.forms import CreateProjectForm, AddProjectForm
-from cthulhubot.models import BuildComputer, Project
+from cthulhubot.models import BuildComputer, Project, Job, Command
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
-
+from cthulhubot.commands import get_undiscovered_commands
 
 
 ########### Helper controller-model dispatchers
@@ -120,4 +120,28 @@ def computer_detail(request, computer):
 
     return direct_to_template(request, 'cthulhubot/computer_detail.html', {
         'computer' : computer,
+    })
+
+@transaction.commit_on_success
+def commands(request):
+    commands = Command.objects.all().order_by('name')
+    return direct_to_template(request, 'cthulhubot/commands.html', {
+        'commands' : commands,
+    })
+
+@transaction.commit_on_success
+def commands_discover(request):
+    # commands to discover = commands_available - commands_configured
+    commands = get_undiscovered_commands()
+
+    return direct_to_template(request, 'cthulhubot/commands_discover.html', {
+        'commands' : commands,
+    })
+
+
+@transaction.commit_on_success
+def jobs(request):
+    jobs = Job.objects.all().order_by('name')
+    return direct_to_template(request, 'cthulhubot/jobs.html', {
+        'jobs' : jobs,
     })

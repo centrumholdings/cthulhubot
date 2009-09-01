@@ -27,6 +27,12 @@
                                         <li class="mnu-masters">
                                             <div><a title="Computers" href="{% url cthulhubot-computers %}" id="menu-link-computers">Computers</a></div>
                                         </li>
+                                        <li class="mnu-commands">
+                                            <div><a title="Commands" href="{% url cthulhubot-commands %}" id="menu-link-commands">Commands</a></div>
+                                        </li>
+                                        <li class="mnu-jobs">
+                                            <div><a title="Jobs" href="{% url cthulhubot-jobs %}" id="menu-link-jobs">Jobs</a></div>
+                                        </li>
                                         {% if user.is_authenticated %}
                                         <li class="mnu-user last">
                                             <div>Logged in as {{ user.username }}</div>
