@@ -27,6 +27,7 @@ class WebTestCase(SeleniumTestCase):
             'buildmaster_status' : "buildmaster-status",
             'start_buildmaster' : 'submit-start-master',
             'stop_buildmaster' : 'submit-stop-master',
+            'buildmaster_status' : 'buildmaster-status',
         },
         'computers' : {
             "create" : "link-add-computer",

@@ -7,7 +7,7 @@ class TestProjects(AuthenticatedWebTestCase):
         s = self.selenium
 
         # create project
-        
+
         project_name = u"你好, řeřicha"
         tracker_uri = u"http://example.com"
 

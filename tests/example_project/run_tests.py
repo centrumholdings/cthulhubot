@@ -12,6 +12,9 @@ from os.path import join, pardir, abspath, dirname, split
 import nose
 
 
+# because of buildbot child proccess, we must hack DATABASE_NAME = TEST_DATABASE_NAME
+DJANGO_SETTINGS_MODULE = "test_settings"
+
 # pythonpath dirs
 PYTHONPATH = [
     abspath(join( dirname(__file__), pardir, pardir)),
