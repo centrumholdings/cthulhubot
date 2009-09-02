@@ -5,7 +5,7 @@ from cthulhubot.views import (
     projects, projects_create, project_detail,
     computers, computers_create, computer_detail,
     commands, commands_discover,
-    jobs,
+    jobs, jobs_configure,
 )
 
 urlpatterns = patterns('',
@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^commands/discover/$', commands_discover, name='cthulhubot-commands-discover'),
 
     url(r'^jobs/$', jobs, name='cthulhubot-jobs'),
+    url(r'^jobs/configure/$', jobs_configure, name='cthulhubot-jobs-configure'),
 
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name="login"),
 )

@@ -1,0 +1,15 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Jobs</h1>
+<p class="help">Job is a sequence of <a href="{% url cthulhubot-commands %}">commands</a> to be executed. When added to step, every command can be configured, or additional properties could be added (like timeout for command execution). After being discovered and configured, job can be assigned to work for given <a href="{% url cthulhubot-projects %}">project</a> on given <a href="{% url cthulhubot-computers %}">build computer</a>. </p>
+
+<p><a href="{% url cthulhubot-jobs-configure %}">Configure new job</a></p>
+<ul id="jobs-list" class="jobs-list">
+{% for job in jobs %}
+    <li><a href="{{ job.get_absolute_url }}">{{ job.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

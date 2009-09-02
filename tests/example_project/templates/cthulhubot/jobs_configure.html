@@ -1,0 +1,18 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>New job configuration</h1>
+<h2>Discover</h2>
+<form action="." method="POST">
+<ul id="commands-list" class="commands-list">
+    {% for job in discovered_jobs %}
+    <li>{{ job.slug }} <a href="{% url cthulhubot-job-add job=job.slug %}">Configure</a></li>
+    {% endfor %}
+</ul>
+</form>
+
+<h2>Manual configuration</h2>
+<p><em>TODO & will work with drag&amp;drop javascript only.</em></p>
+
+{% endblock %}

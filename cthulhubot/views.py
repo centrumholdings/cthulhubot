@@ -151,3 +151,13 @@ def jobs(request):
     return direct_to_template(request, 'cthulhubot/jobs.html', {
         'jobs' : jobs,
     })
+
+@transaction.commit_on_success
+def jobs_configure(request):
+    discovered_jobs = []
+    available_commands = []
+
+    return direct_to_template(request, 'cthulhubot/jobs_configure.html', {
+        'discovered_jobs' : discovered_jobs,
+        'available_commands' : available_commands,
+    })
