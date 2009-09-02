@@ -11,6 +11,7 @@ from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
+from cthulhubot.jobs import get_unconfigured_jobs
 
 
 ########### Helper controller-model dispatchers
@@ -154,10 +155,10 @@ def jobs(request):
 
 @transaction.commit_on_success
 def jobs_configure(request):
-    discovered_jobs = []
+    unconfigured_jobs = get_unconfigured_jobs()
     available_commands = []
 
     return direct_to_template(request, 'cthulhubot/jobs_configure.html', {
-        'discovered_jobs' : discovered_jobs,
+        'unconfigured_jobs' : unconfigured_jobs,
         'available_commands' : available_commands,
     })

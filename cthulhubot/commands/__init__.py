@@ -5,6 +5,7 @@ ENTRYPOINT = "chtulhubot.commands"
 
 from cthulhubot.commands.config import *
 from cthulhubot.commands.package import *
+from cthulhubot.commands.version import *
 
 log = logging.getLogger("cthulhubot.commands")
 

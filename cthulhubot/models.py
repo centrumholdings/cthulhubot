@@ -16,6 +16,7 @@ from django.db import models
 
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
+from cthulhubot.jobs import get_job
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
@@ -88,7 +89,6 @@ class Command(models.Model):
 
 
 class Job(models.Model):
-    name = models.CharField(max_length=255, unique=True)
     slug = models.CharField(max_length=255, unique=True)
 
     def get_configured_command(self, command):
@@ -102,6 +102,18 @@ class Job(models.Model):
             config = {}
             
         return command.get_command(config=config)
+
+    def get_commands(self):
+        job = get_job(self.slug)()
+        return [
+            self.get_configured_command(Command.objects.get(slug=command.slug))
+            for command in job.get_commands()
+        ]
+
+    def auto_discovery(self):
+        job = get_job(self.slug)()
+        for command in job.get_commands():
+            Command.objects.get_or_create(slug=command.slug)
 
 class CommandConfiguration(models.Model):
     command = models.ForeignKey(Command)

@@ -65,34 +65,11 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
         self.assert_equals(None, commands.get(cmd.slug))
         self.assert_equals(unconfigured_slug, commands.get(unconfigured_slug).slug)
 
-class TestCommandConfigurableFromDatabase(DatabaseTestCase):
+class TestDatabaseStore(DatabaseTestCase):
     def test_database_association(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()
         command = Command.objects.create(slug=cmd.slug)
 
         self.assert_equals(command.get_command(), cmd.get_command())
-
-    def test_saving_configuration(self):
-        # prepare jobs & commands
-        config_options = {
-            "database_config_file" : "fajl.py",
-            "django_settings_directory" : "dir"
-        }
-
-        job = Job.objects.create(slug='enterprise-unit-test-system')
-
-        unit_test = Command.objects.create(slug=get_command('cthulhubot-django-unit-test-config').slug)
-        unit_test.save_configuration(job=job, config_options=config_options)
-
-        # now check that job is aware of configuration
-        # and that configuration took only that config options it's interested in
-
-        self.assert_equals(["python", "setup.py", "configtest", "-f",
-                "--database-config-file=fajl.py", "--django-settings-directory=dir",
-            ],
-
-            job.get_configured_command(unit_test)
-        )
-
 
         
