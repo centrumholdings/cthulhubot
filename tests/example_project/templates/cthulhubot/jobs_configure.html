@@ -7,7 +7,7 @@
 <form action="." method="POST">
 <ul id="commands-list" class="commands-list">
     {% for job in discovered_jobs %}
-    <li>{{ job.slug }} <a href="{% url cthulhubot-job-add job=job.slug %}">Configure</a></li>
+        <li>{{ job }} <a href="{% url cthulhubot-job-add job=job%}">Configure</a></li>
     {% endfor %}
 </ul>
 </form>

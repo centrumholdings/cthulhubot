@@ -8,7 +8,7 @@
 <p><a href="{% url cthulhubot-jobs-configure %}">Configure new job</a></p>
 <ul id="jobs-list" class="jobs-list">
 {% for job in jobs %}
-    <li><a href="{{ job.get_absolute_url }}">{{ job.name }}</a></li>
+    <li><a href="{{ job.get_absolute_url }}">{{ job.slug }}</a></li>
 {% endfor %}
 </ul>
 

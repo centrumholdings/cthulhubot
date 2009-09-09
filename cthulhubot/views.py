@@ -148,17 +148,21 @@ def commands_discover(request):
 
 @transaction.commit_on_success
 def jobs(request):
-    jobs = Job.objects.all().order_by('name')
+    jobs = Job.objects.all().order_by('slug')
     return direct_to_template(request, 'cthulhubot/jobs.html', {
         'jobs' : jobs,
     })
 
 @transaction.commit_on_success
 def jobs_configure(request):
-    unconfigured_jobs = get_undiscovered_jobs()
+    discovered = get_undiscovered_jobs()
     available_commands = []
 
     return direct_to_template(request, 'cthulhubot/jobs_configure.html', {
-        'unconfigured_jobs' : unconfigured_jobs,
+        'discovered_jobs' : discovered,
         'available_commands' : available_commands,
     })
+
+@transaction.commit_on_success
+def job_add(request, job):
+    raise NotImplementedError()
