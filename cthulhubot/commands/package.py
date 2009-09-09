@@ -14,7 +14,7 @@ class BuildDebianPackage(Command):
     command = ["python", "setup.py", "create_debian_package"]
 
 class DebianPackageFtpUpload(Command):
-    slug = 'cthulhubot-debian-build-debian-package'
+    slug = 'cthulhubot-debian-package-ftp-upload'
     name = {
         'basic' : u"Build Debian Package",
         'running' : u'building debian package',
@@ -24,6 +24,6 @@ class DebianPackageFtpUpload(Command):
 
     parameters = {}
 
-    command = ["python", "setup.py", "create_debian_package"]
+    command = ["python", "setup.py", "upload_packages"]
 
 

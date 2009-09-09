@@ -87,6 +87,9 @@ class Command(models.Model):
             config = simplejson.dumps(command_config)
         )
 
+    def __unicode__(self):
+        return self.slug
+
 
 class Job(models.Model):
     slug = models.CharField(max_length=255, unique=True)
@@ -115,14 +118,15 @@ class Job(models.Model):
         for command in job.get_commands():
             Command.objects.get_or_create(slug=command.slug)
 
+    def __unicode__(self):
+        return self.slug
+
 class CommandConfiguration(models.Model):
     command = models.ForeignKey(Command)
     job = models.ForeignKey(Job)
     config = models.TextField()
 
     unique_together = (("command", "job"),)
-
-
 
 class Project(models.Model):
     name = models.CharField(max_length=40)
