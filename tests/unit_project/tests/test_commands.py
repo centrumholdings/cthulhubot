@@ -2,6 +2,7 @@ from djangosanetesting import UnitTestCase, DatabaseTestCase
 
 from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
 from cthulhubot.models import Command, Job
+from cthulhubot.err import UnconfiguredCommandError
 
 class TestCommandsDiscovery(UnitTestCase):
 
@@ -33,7 +34,7 @@ class TestCommandsDiscovery(UnitTestCase):
         klass = get_available_commands().get('cthulhubot-django-unit-test-config')
         cmd = klass(config={})
 
-        self.assert_raises(ValueError, cmd.get_command)
+        self.assert_raises(UnconfiguredCommandError, cmd.get_command)
 
 class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
 
