@@ -1,6 +1,6 @@
 from djangosanetesting import DatabaseTestCase
 
-from cthulhubot.jobs import get_job
+from cthulhubot.jobs import get_job, get_undiscovered_jobs
 from cthulhubot.commands import get_command
 from cthulhubot.models import Command, Job
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
@@ -68,3 +68,6 @@ class TestJobsDiscovery(DatabaseTestCase):
         self.assert_raises(UnconfiguredCommandError,
             job.get_configured_commands
         )
+
+    def test_undiscovered_jobs_retrieval(self):
+        assert 'cthulhubot-debian-package-creation' in get_undiscovered_jobs()

@@ -34,9 +34,9 @@ def get_undiscovered_jobs():
     @return dict {'slug' : job}
     """
     #FIXME: Circural dependency, domain vs. ORM object
-    from cthulhubot.models import job
+    from cthulhubot.models import Job
     available = get_available_jobs()
-    configured = [cmd.slug for cmd in job.objects.all()]
+    configured = [cmd.slug for cmd in Job.objects.all()]
     return dict([
         (job, available[job]) for job in available
         if job not in configured
