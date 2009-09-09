@@ -22,7 +22,28 @@ class DebianPackageFtpUpload(Command):
         'failed' : u'Failed to build debian package',
     }
 
-    parameters = {}
+    parameters = {
+        'ftp_host' : {
+            'help' : u'FTP server hostname',
+            'value' : None,
+            'required' : True,
+        },
+        'ftp_user' : {
+            'help' : u'User to login with. E-mail for anonymous login',
+            'value' : None,
+            'required' : True,
+        },
+        'ftp_password' : {
+            'help' : u'Password to use. Empty string for anonymous login',
+            'value' : None,
+            'required' : True,
+        },
+        'ftp_directory' : {
+            'help' : u'Directory to upload packages to',
+            'value' : None,
+            'required' : True,
+        },
+    }
 
     command = ["python", "setup.py", "upload_packages"]
 

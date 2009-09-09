@@ -1,8 +1,9 @@
-from djangosanetesting import UnitTestCase, DatabaseTestCase
+from djangosanetesting import DatabaseTestCase
 
 from cthulhubot.jobs import get_job
 from cthulhubot.commands import get_command
 from cthulhubot.models import Command, Job
+from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
 
 class TestJobsDiscovery(DatabaseTestCase):
 
@@ -49,7 +50,21 @@ class TestJobsDiscovery(DatabaseTestCase):
         commands = job.get_commands()
         self.assert_equals(3, len(commands))
 
-    def test_configuration_propagation_unconfigured_raises_configuration_error(self):
+    def test_usage_of_undiscovered_commands(self):
         # let's take DebianPackageFtpUpload, configure host and let every
         # project configure user & pass
-        pass
+        job = Job.objects.create(slug='cthulhubot-debian-package-creation')
+
+        self.assert_raises(UndiscoveredCommandError,
+            job.get_configured_commands
+        )
+
+    def test_configuration_propagation_unconfigured_raises_error(self):
+        # let's take DebianPackageFtpUpload, configure host and let every
+        # project configure user & pass
+        job = Job.objects.create(slug='cthulhubot-debian-package-creation')
+        job.auto_discovery()
+
+        self.assert_raises(UnconfiguredCommandError,
+            job.get_configured_commands
+        )

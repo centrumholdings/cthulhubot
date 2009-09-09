@@ -17,6 +17,7 @@ from django.db import models
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
 from cthulhubot.jobs import get_job
+from cthulhubot.err import UndiscoveredCommandError
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
@@ -106,12 +107,19 @@ class Job(models.Model):
             
         return command.get_command(config=config)
 
-    def get_commands(self):
+    def get_configured_commands(self):
         job = get_job(self.slug)()
-        return [
-            self.get_configured_command(Command.objects.get(slug=command.slug))
-            for command in job.get_commands()
-        ]
+        try:
+            return [
+                self.get_configured_command(Command.objects.get(slug=command.slug))
+                for command in job.get_commands()
+            ]
+        except Command.DoesNotExist:
+            raise UndiscoveredCommandError("Command %s not yet configured" % command.slug)
+
+
+    def get_commands(self):
+        return get_job(self.slug)().get_commands()
 
     def auto_discovery(self):
         job = get_job(self.slug)()

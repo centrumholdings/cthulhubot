@@ -1,5 +1,7 @@
 from copy import copy
 
+from cthulhubot.err import UnconfiguredCommandError
+
 class Command(object):
     """
     Those classes should be implemented on top of buildbot's steps
@@ -51,7 +53,7 @@ class Command(object):
         for command in self.parameters:
             if command not in self.config.keys():
                 if self.parameters[command]['required'] is True:
-                    raise ValueError("Paramater %s required to be present in config" % command)
+                    raise UnconfiguredCommandError("Parameter %s required to be present in config" % command)
 
     def get_command(self):
         command = []
