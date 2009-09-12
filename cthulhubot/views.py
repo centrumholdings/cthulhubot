@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -5,7 +6,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 
-from cthulhubot.forms import CreateProjectForm, AddProjectForm
+from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_job_configuration_form
 from cthulhubot.models import BuildComputer, Project, Job, Command
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
@@ -165,4 +166,16 @@ def jobs_configure(request):
 
 @transaction.commit_on_success
 def job_add(request, job):
-    raise NotImplementedError()
+    job_class = get_undiscovered_jobs().get(job)
+    if not job_class:
+        raise Http404()
+
+    job = job_class()
+
+    form = get_job_configuration_form(job)()
+
+    return direct_to_template(request, 'cthulhubot/job_add.html', {
+        'job' : job,
+        'form' : form,
+    })
+

@@ -46,14 +46,21 @@ class Command(object):
 
     def update_config(self, config):
         for command in config:
-            if command in self.parameters.keys():
+            if command in self.parameters.keys() and config[command] is not None:
                 self.config[command] = config[command]
 
-    def check_config(self):
+    def get_unconfigured_parameters(self):
+        params = []
         for command in self.parameters:
             if command not in self.config.keys():
                 if self.parameters[command]['required'] is True:
-                    raise UnconfiguredCommandError("Parameter %s required to be present in config" % command)
+                    params.append(command)
+        return params
+
+    def check_config(self):
+        params = self.get_unconfigured_parameters()
+        if len(params) > 0:
+            raise UnconfiguredCommandError("Parameters %s required to be present in config" % (','.join(params),))
 
     def get_command(self):
         command = []

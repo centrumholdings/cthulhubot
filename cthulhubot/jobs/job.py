@@ -33,3 +33,36 @@ class Job(object):
             commands.append(cmd)
 
         return commands
+
+    def get_configuration_parameters(self):
+        """
+        Return unconfigured parameters to be used for configuration
+
+        format:
+
+        [{
+            'slug' : 'command-slug',
+#           'command-name' : cmdname' : ,
+#            'help' : u'This help will be shown to user in some way. You should document what is command doing',
+#            # command name as shown on page
+#            'name' : {
+#                # 'basic' will be used for usual description and when command is to be run in future
+#                'basic' : u'run command',
+#                'running' : u'command is running, hide!',
+#                'succeeded' : u'World dominated successfully',
+#                'failed' : u'Developer suck and commited broken software',
+#            }
+#          }
+#       }]
+        """
+        params_list = []
+        for command in self.get_commands():
+            params = command.get_unconfigured_parameters()
+            if params:
+                params_list.append({
+                    'slug' : command.slug,
+                    'parameters' : dict([(param, command.parameters[param]) for param in params])
+                })
+
+        return params_list
+        

@@ -1,5 +1,5 @@
 from django.forms import (
-    Form, ModelForm,
+    Form, ModelForm, BaseForm,
     CharField, URLField
 )
 
@@ -12,3 +12,12 @@ class CreateProjectForm(Form):
 class AddProjectForm(ModelForm):
     class Meta:
         model = BuildComputer
+
+def get_job_configuration_form(job):
+    params = job.get_configuration_parameters()
+    fields = {}
+    for command in params:
+        for param in command['parameters']:
+            fields['%s-%s' % (command['slug'], param)] = CharField()
+    return type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
+

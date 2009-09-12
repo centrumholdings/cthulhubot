@@ -66,6 +66,12 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
         self.assert_equals(None, commands.get(cmd.slug))
         self.assert_equals(unconfigured_slug, commands.get(unconfigured_slug).slug)
 
+    def test_unconfigured_parameters_found(self):
+        cmd = get_command('cthulhubot-debian-package-ftp-upload')()
+
+        self.assert_equals(4, len(cmd.get_unconfigured_parameters()))
+
+
 class TestDatabaseStore(DatabaseTestCase):
     def test_database_association(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()

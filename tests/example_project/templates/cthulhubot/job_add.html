@@ -1,0 +1,14 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Discovering job {{ job.slug }}</h1>
+
+<p>When discovering job, You may configure it's commands. Those are then fixed (for now). Empty form means you have to configure them when assinging jobs to projects.</p>
+
+<form action="." method="POST">
+    {{ form.as_ul }}
+    <input type="submit" value="Discover" />
+</form>
+
+{% endblock %}

@@ -71,3 +71,13 @@ class TestJobsDiscovery(DatabaseTestCase):
 
     def test_undiscovered_jobs_retrieval(self):
         assert 'cthulhubot-debian-package-creation' in get_undiscovered_jobs()
+
+    def test_get_command_for_configuration(self):
+        job = get_undiscovered_jobs().get('cthulhubot-debian-package-creation')()
+        params = job.get_configuration_parameters()
+
+        # we're expecting configuration parameters for upload only
+        self.assert_equals(1, len(params))
+
+        # and 4 unconfigured commands in it
+        self.assert_equals(4, len(params[0]['parameters']))
