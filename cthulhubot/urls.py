@@ -14,8 +14,8 @@ urlpatterns = patterns('',
     url(r'^projects/create/$', projects_create, name='cthulhubot-create-project'),
     url(r'^project/(?P<project>[\w\-]+)/$', project_detail, name='cthulhubot-project-detail'),
     
+    url(r'^job-assigment/(?P<project>[\w\-]+)/(?P<job>[\w\-]+)/$', job_assigment_config, name='cthulhubot-job-assigment-add'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/$', job_assigment, name='cthulhubot-job-assigment'),
-    url(r'^job-assigment/(?P<project>[\w\-]+)/(?P<job>[\w\-]+)$', job_assigment_config, name='cthulhubot-job-assigment-add'),
 
     url(r'^computers/$', computers, name='cthulhubot-computers'),
     url(r'^computers/create/$', computers_create, name='cthulhubot-add-computer'),

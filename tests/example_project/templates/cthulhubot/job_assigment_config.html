@@ -1,0 +1,24 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Assign job {{ job.slug }} to work for project {{ project.name }}</h1>
+
+<form action="." method="POST">
+    <fieldset>
+        <legend>Build Computers</legend>
+        <ul>
+            {{ computer_form.as_ul }}
+        </ul>
+    </fieldset>
+    <fieldset>
+        <legend>Job configuration</legend>
+        <ul>
+            {{ job_form.as_ul }}
+        </ul>
+    </fieldset>
+
+    <input type="submit" value="Assign" />
+</form>
+
+{% endblock %}

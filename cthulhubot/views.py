@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 
-from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_job_configuration_form
+from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_build_computer_selection_form, get_job_configuration_form
 from cthulhubot.models import BuildComputer, Project, Job, Command
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
@@ -193,7 +193,6 @@ def job_assigment(request, project):
 
     return direct_to_template(request, 'cthulhubot/job_assigment.html', {
         'project' : project,
-        'computers' : computers,
         'jobs' : jobs,
     })
 
@@ -201,11 +200,16 @@ def job_assigment(request, project):
 def job_assigment_config(request, project, job):
     project = get_object_or_404(Project, slug=project)
     job = get_object_or_404(Job, slug=job)
-
     computers = BuildComputer.objects.all().order_by('name')
 
-    return direct_to_template(request, 'cthulhubot/job_assigment.html', {
+    computer_form = get_build_computer_selection_form(computers)
+    job_form = get_job_configuration_form(job.get_job_class())
+    
+
+    return direct_to_template(request, 'cthulhubot/job_assigment_config.html', {
         'project' : project,
         'job' : job,
+        'job_form' : job_form,
         'computers' : computers,
+        'computer_form' : computer_form,
     })

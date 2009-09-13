@@ -8,6 +8,8 @@ from tempfile import gettempdir
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.utils import simplejson
@@ -95,28 +97,43 @@ class Command(models.Model):
 class Job(models.Model):
     slug = models.CharField(max_length=255, unique=True)
 
-    def get_configured_command(self, command):
-        try:
-            config = CommandConfiguration.objects.get(
-                job = self,
-                command = command
-            )
-            config = simplejson.loads(config.config)
-        except CommandConfiguration.DoesNotExist:
-            config = {}
-            
-        return command.get_command(config=config)
+    def __init__(self, *args, **kwargs):
+        super(Job, self).__init__(*args, **kwargs)
 
-    def get_configured_commands(self):
-        job = get_job(self.slug)()
-        try:
-            return [
-                self.get_configured_command(Command.objects.get(slug=command.slug))
-                for command in job.get_commands()
-            ]
-        except Command.DoesNotExist:
-            raise UndiscoveredCommandError("Command %s not yet configured" % command.slug)
+        self._job = None
 
+#TODO: This is actually code scetch for configure-job-on-discovery use case,
+# not implemented yet
+#    def get_configured_command(self, command):
+#        try:
+#            config = CommandConfiguration.objects.get(
+#                job = self,
+#                command = command
+#            )
+#            config = simplejson.loads(config.config)
+#        except CommandConfiguration.DoesNotExist:
+#            config = {}
+#
+#        return command.get_command(config=config)
+#
+#    def get_configured_commands(self):
+#        job = get_job(self.slug)()
+#        try:
+#            return [
+#                self.get_configured_command(Command.objects.get(slug=command.slug))
+#                for command in job.get_commands()
+#            ]
+#        except Command.DoesNotExist:
+#            raise UndiscoveredCommandError("Command %s not yet configured" % command.slug)
+
+
+    def get_job_class(self):
+        if not self._job:
+            self._job = get_job(slug=self.slug)()
+            if not self._job:
+                raise ValueError(u"Job %s cannot be resolved" % self.slug)
+
+        return self._job
 
     def get_commands(self):
         return get_job(self.slug)().get_commands()
@@ -158,17 +175,23 @@ class Project(models.Model):
         
         super(Project, self).delete(*args, **kwargs)
 
+class CommandConfiguration(models.Model):
+    command = models.ForeignKey(Command)
+    config = models.TextField()
+    configuration_for = GenericForeignKey()
+
+    unique_together = (("command", "job"),)
+
+
 class JobAssigment(models.Model):
     job = models.ForeignKey(Job)
     computer = models.ForeignKey(BuildComputer)
     project = models.ForeignKey(Project)
+    config = GenericRelation(CommandConfiguration)
+    
 
-class CommandConfiguration(models.Model):
-    command = models.ForeignKey(Command)
-    job_assigment = models.ForeignKey(JobAssigment)
-    config = models.TextField()
+    unique_together = (("job", "project", "computer"),)
 
-    unique_together = (("command", "job"),)
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)

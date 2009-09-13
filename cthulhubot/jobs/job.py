@@ -5,6 +5,8 @@ class Job(object):
     # must be globally unique. Prefix with you own project.
     slug = 'cthulhubot-unique-identifier'
     name = u"I'm a job - a predefined set of commands"
+    register_as_job = True
+
 #    commands = [
 #        {
 #            'command' : ComputeGitVersion,
