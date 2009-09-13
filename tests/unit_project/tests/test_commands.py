@@ -1,8 +1,9 @@
 from djangosanetesting import UnitTestCase, DatabaseTestCase
 
 from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
-from cthulhubot.models import Command, Job
+from cthulhubot.models import Command
 from cthulhubot.err import UnconfiguredCommandError
+from cthulhubot.forms import get_command_params_from_form_data
 
 class TestCommandsDiscovery(UnitTestCase):
 
@@ -71,6 +72,18 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
 
         self.assert_equals(4, len(cmd.get_unconfigured_parameters()))
 
+
+    def test_form_back_translation(self):
+        form_data = {'Cthulhubot-debian-package-ftp-upload: ftp_host' : u'host' , 'Cthulhubot-debian-package-ftp-upload: ftp_password' : u'password'}
+        params = get_command_params_from_form_data(form_data)
+        expected_params = {
+            'cthulhubot-debian-package-ftp-upload' : {
+                'ftp_host' : u'host',
+                'ftp_password' : u'password',
+            }
+        }
+
+        self.assert_equals(expected_params, params)
 
 class TestDatabaseStore(DatabaseTestCase):
     def test_database_association(self):

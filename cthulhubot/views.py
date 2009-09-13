@@ -1,4 +1,4 @@
-from cthulhubot.models import JobAssigment
+from cthulhubot.models import JobAssignment, CommandConfiguration
 from django.http import Http404
 from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
@@ -6,8 +6,9 @@ from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
+from django.utils.simplejson import dumps
 
-from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_build_computer_selection_form, get_job_configuration_form
+from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
 from cthulhubot.models import BuildComputer, Project, Job, Command
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
@@ -90,8 +91,11 @@ def project_detail(request, project):
     if redirect:
         return redirect
 
+    assignments = JobAssignment.objects.filter(project=project)
+
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
-        'project' : project
+        'project' : project,
+        'job_assignments' : assignments,
     })
 
 
@@ -196,15 +200,37 @@ def job_assigment(request, project):
         'jobs' : jobs,
     })
 
+
 @transaction.commit_on_success
 def job_assigment_config(request, project, job):
     project = get_object_or_404(Project, slug=project)
     job = get_object_or_404(Job, slug=job)
     computers = BuildComputer.objects.all().order_by('name')
 
-    computer_form = get_build_computer_selection_form(computers)
-    job_form = get_job_configuration_form(job.get_job_class())
-    
+    computer_form = get_build_computer_selection_form(computers)()
+    job_form = get_job_configuration_form(job.get_job_class())()
+
+    if request.method == "POST":
+        computer_form = get_build_computer_selection_form(computers)(request.POST)
+        job_form = get_job_configuration_form(job.get_job_class())(request.POST)
+
+        if computer_form.is_valid() and job_form.is_valid():
+            computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])
+            params = get_command_params_from_form_data(job_form.cleaned_data)
+
+            assigmnent = JobAssignment.objects.create(
+                job = job,
+                project = project,
+                computer = computer
+            )
+
+            for command in params:
+                assigmnent.config.create(
+                    command = Command.objects.get(slug=command),
+                    config = dumps(params[command])
+                )
+            return HttpResponseRedirect(reverse('cthulhubot-project-detail', kwargs={'project' : project.slug}))
+
 
     return direct_to_template(request, 'cthulhubot/job_assigment_config.html', {
         'project' : project,

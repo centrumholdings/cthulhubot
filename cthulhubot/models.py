@@ -9,6 +9,7 @@ from tempfile import gettempdir
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -178,12 +179,14 @@ class Project(models.Model):
 class CommandConfiguration(models.Model):
     command = models.ForeignKey(Command)
     config = models.TextField()
+    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType)
     configuration_for = GenericForeignKey()
 
     unique_together = (("command", "job"),)
 
 
-class JobAssigment(models.Model):
+class JobAssignment(models.Model):
     job = models.ForeignKey(Job)
     computer = models.ForeignKey(BuildComputer)
     project = models.ForeignKey(Project)
