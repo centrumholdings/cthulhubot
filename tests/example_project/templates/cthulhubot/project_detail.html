@@ -3,6 +3,7 @@
 {% block content %}
 
 <h1 id="project-name">{{ project.name }}</h1>
+
 <form action="." method="post">
 {% if project.buildmaster %}
     <p id="buildmaster-status">Buildmaster status: {{ project.buildmaster.get_text_status }}</p>
@@ -16,4 +17,8 @@
 {% endif %}
 </form>
 
+<h2>Jobs</h2>
+<p class="help">Discovered <a href="{% url cthulhubot-jobs %}">jobs</a> can be configured to work for this project.</p>
+
+<p><a href="{% url cthulhubot-job-assigment project=project.slug %}">Configure new job assigment</a></p>
 {% endblock %}

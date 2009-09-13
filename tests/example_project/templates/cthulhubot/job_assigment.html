@@ -1,0 +1,16 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Assign new jobs for project {{ project.name }}</h1>
+
+<p>Available jobs:</p>
+<form action="." method="POST">
+<ul id="jobs-list" class="jobs-list">
+    {% for job in jobs %}
+        <li>{{ job }} <a href="{% url cthulhubot-job-assigment-add job=job.slug project=project.slug %}">Assign to work for project</a></li>
+    {% endfor %}
+</ul>
+</form>
+
+{% endblock %}

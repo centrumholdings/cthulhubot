@@ -40,7 +40,10 @@ Vocabulary
 
     Job
         In BuildBots speech: named factory. For normal people: sequence of commands with assigned name, so they can be used across projects.
-    
+
+    Job Assigment
+        Job, configured for given Project to work on given Build Computer. In BuildBot's speech, this roughly matches builder.
+
 ------------------------
 Software stages
 ------------------------

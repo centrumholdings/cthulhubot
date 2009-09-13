@@ -1,3 +1,4 @@
+from cthulhubot.models import JobAssigment
 from django.http import Http404
 from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
@@ -184,3 +185,27 @@ def job_add(request, job):
         'form' : form,
     })
 
+
+@transaction.commit_on_success
+def job_assigment(request, project):
+    project = get_object_or_404(Project, slug=project)
+    jobs = Job.objects.all().order_by('slug')
+
+    return direct_to_template(request, 'cthulhubot/job_assigment.html', {
+        'project' : project,
+        'computers' : computers,
+        'jobs' : jobs,
+    })
+
+@transaction.commit_on_success
+def job_assigment_config(request, project, job):
+    project = get_object_or_404(Project, slug=project)
+    job = get_object_or_404(Job, slug=job)
+
+    computers = BuildComputer.objects.all().order_by('name')
+
+    return direct_to_template(request, 'cthulhubot/job_assigment.html', {
+        'project' : project,
+        'job' : job,
+        'computers' : computers,
+    })

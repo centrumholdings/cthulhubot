@@ -129,13 +129,6 @@ class Job(models.Model):
     def __unicode__(self):
         return self.slug
 
-class CommandConfiguration(models.Model):
-    command = models.ForeignKey(Command)
-    job = models.ForeignKey(Job)
-    config = models.TextField()
-
-    unique_together = (("command", "job"),)
-
 class Project(models.Model):
     name = models.CharField(max_length=40)
     slug = models.CharField(max_length=40, unique=True)
@@ -164,6 +157,18 @@ class Project(models.Model):
             master.delete()
         
         super(Project, self).delete(*args, **kwargs)
+
+class JobAssigment(models.Model):
+    job = models.ForeignKey(Job)
+    computer = models.ForeignKey(BuildComputer)
+    project = models.ForeignKey(Project)
+
+class CommandConfiguration(models.Model):
+    command = models.ForeignKey(Command)
+    job_assigment = models.ForeignKey(JobAssigment)
+    config = models.TextField()
+
+    unique_together = (("command", "job"),)
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
@@ -297,16 +302,6 @@ class Buildmaster(models.Model):
             return "Running"
         else:
             return "Not running"
-
-#class Job(models.Model):
-#    name = models.CharField(max_length=255, unique=True)
-#    slug = models.CharField(max_length=255, unique=True)
-#    entry_point = models.CharField(max_length=255)
-#
-#
-#class Command(models.Model):
-#    name = models.CharField(max_length=255, unique=True)
-#    slug = models.CharField(max_length=255, unique=True)
 
 class Repository(models.Model):
     uri = models.URLField(max_length=255, verify_exists=False, unique=True)
