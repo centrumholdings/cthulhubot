@@ -5,9 +5,11 @@
 <h1>New job configuration</h1>
 <h2>Discover</h2>
 <form action="." method="POST">
-<ul id="commands-list" class="commands-list">
+<p><input type="submit" name="auto-discovery" id="auto-discovery" value="Discover all available jobs and commands" /></p>
+
+<ul id="jobs-list" class="jobs-list">
     {% for job in discovered_jobs %}
-        <li>{{ job }} <a href="{% url cthulhubot-job-add job=job%}">Configure</a></li>
+        <li>{{ job }} <!-- <a href="{% url cthulhubot-job-add job=job%}">Configure</a> --></li>
     {% endfor %}
 </ul>
 </form>

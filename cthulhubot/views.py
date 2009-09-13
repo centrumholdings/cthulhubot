@@ -159,6 +159,11 @@ def jobs_configure(request):
     discovered = get_undiscovered_jobs()
     available_commands = []
 
+    if request.method == "POST" and u'auto-discovery' in request.POST:
+        for job in get_undiscovered_jobs():
+            Job.objects.get_or_create(slug=job)
+        return HttpResponseRedirect(reverse('cthulhubot-jobs'))
+
     return direct_to_template(request, 'cthulhubot/jobs_configure.html', {
         'discovered_jobs' : discovered,
         'available_commands' : available_commands,

@@ -7,6 +7,7 @@ class WebTestCase(SeleniumTestCase):
             'projects' : "menu-link-projects",
             'computers' : "menu-link-computers",
             'commands' : "menu-link-commands",
+            'jobs' : "menu-link-jobs",
         },
         'login' : {
             'username' : "id_username",
@@ -47,6 +48,17 @@ class WebTestCase(SeleniumTestCase):
             'discovery' : {
                 "list" : "//ul[@class='commands-list']/li[%(position)s]",
                 "assign" : "//ul[@class='commands-list']/li[%(position)s]//input[@type='submit']",
+            },
+        },
+        'jobs' : {
+            'link-configuration' : 'link-configuration',
+            'list' : 'jobs-list',
+            'list-items' : "//ul[@class='jobs-list']/li",
+            'list-item' : "//ul[@class='jobs-list']/li[%(position)s]",
+            'discovery' : {
+                "list" : "//ul[@class='jobs-list']/li",
+                "list-item" : "//ul[@class='jobs-list']/li[%(position)s]",
+                "auto" : "auto-discovery",
             },
         }
     }
