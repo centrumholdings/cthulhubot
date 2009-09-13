@@ -4,12 +4,13 @@ import pkg_resources
 ENTRYPOINT = "chtulhubot.jobs"
 
 from cthulhubot.jobs.package import *
+from cthulhubot.jobs.job import Job
 
 log = logging.getLogger("cthulhubot.jobs")
 
 def get_core_jobs():
     return dict([
-        (globals()[candidate].slug, globals()[candidate]) for candidate in globals().keys() if hasattr(globals()[candidate], 'slug') and getattr(globals()[candidate], 'register_as_job', False)
+        (globals()[candidate].slug, globals()[candidate]) for candidate in globals().keys() if globals()[candidate] is not Job and hasattr(globals()[candidate], 'slug') and getattr(globals()[candidate], 'register_as_job', False)
     ])
 
 
