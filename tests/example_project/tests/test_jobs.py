@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
+from djangosanetesting.cases import DatabaseTestCase
 from helpers import AuthenticatedWebTestCase
+
+from cthulhubot.models import JobAssignment
+
+from example_project.tests.helpers import MockJob, MockBuildComputer, MockProject
 
 class TestJobs(AuthenticatedWebTestCase):
 
@@ -31,3 +36,26 @@ class TestJobs(AuthenticatedWebTestCase):
         discovered_jobs.sort()
 
         self.assert_equals(jobs, discovered_jobs)
+
+class TestJobsAssignment(DatabaseTestCase):
+    def test_uri_constructed(self):
+
+        job = MockJob()
+
+        job.pk.return_value = 1
+
+        computer = MockBuildComputer()
+        job.pk.return_value = 1
+
+        project = MockProject()
+        job.pk.return_value = 1
+
+        assignment = JobAssignment(
+            job = job,
+            computer = computer,
+            project = project,
+        )
+
+        assignment.id = 1
+
+        self.assert_true(assignment.get_absolute_url() is not None)

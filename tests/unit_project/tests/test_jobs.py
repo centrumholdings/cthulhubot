@@ -5,6 +5,7 @@ from cthulhubot.commands import get_command
 from cthulhubot.models import Command, Job
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
 
+
 class TestJobsDiscovery(DatabaseTestCase):
 
     def test_debian_package_creator_discovered(self):
@@ -85,3 +86,4 @@ class TestJobsDiscovery(DatabaseTestCase):
 
         # and 4 unconfigured commands in it
         self.assert_equals(4, len(params[0]['parameters']))
+

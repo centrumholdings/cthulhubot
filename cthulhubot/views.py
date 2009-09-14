@@ -201,7 +201,6 @@ def job_assigment(request, project):
     })
 
 
-@transaction.commit_on_success
 def job_assigment_config(request, project, job):
     project = get_object_or_404(Project, slug=project)
     job = get_object_or_404(Job, slug=job)
@@ -238,4 +237,12 @@ def job_assigment_config(request, project, job):
         'job_form' : job_form,
         'computers' : computers,
         'computer_form' : computer_form,
+    })
+
+@transaction.commit_on_success
+def job_assigment_detail(request, assignment_id):
+    assignment = get_object_or_404(JobAssignment, pk=assignment_id)
+    
+    return direct_to_template(request, 'cthulhubot/job_assignment_detail.html', {
+        'assignment' : assignment,
     })

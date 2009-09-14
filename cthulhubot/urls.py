@@ -5,7 +5,7 @@ from cthulhubot.views import (
     projects, projects_create, project_detail,
     computers, computers_create, computer_detail,
     commands, commands_discover,
-    jobs, jobs_configure, job_add, job_assigment, job_assigment_config,
+    jobs, jobs_configure, job_add, job_assigment, job_assigment_config, job_assigment_detail
 )
 
 urlpatterns = patterns('',
@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^projects/create/$', projects_create, name='cthulhubot-create-project'),
     url(r'^project/(?P<project>[\w\-]+)/$', project_detail, name='cthulhubot-project-detail'),
     
+    url(r'^assigment/(?P<assignment_id>[\d]+)/$', job_assigment_detail, name='cthulhubot-job-assignment-detail'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/(?P<job>[\w\-]+)/$', job_assigment_config, name='cthulhubot-job-assigment-add'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/$', job_assigment, name='cthulhubot-job-assigment'),
 

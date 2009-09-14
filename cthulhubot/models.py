@@ -195,6 +195,15 @@ class JobAssignment(models.Model):
 
     unique_together = (("job", "project", "computer"),)
 
+    def get_text_status(self):
+        return 'KO'
+
+    def get_absolute_url(self):
+        return reverse("cthulhubot-job-assignment-detail", kwargs={
+                "assignment_id" : self.pk,
+            })
+
+
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)

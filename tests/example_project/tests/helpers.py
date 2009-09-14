@@ -1,5 +1,10 @@
 from djangosanetesting.cases import SeleniumTestCase
 
+from cthulhubot.models import Project, Job, BuildComputer
+
+from mock import Mock
+
+
 class WebTestCase(SeleniumTestCase):
     elements = {
         'menu' : {
@@ -81,3 +86,13 @@ class AuthenticatedWebTestCase(WebTestCase):
         self.selenium.click(self.elements['login']['submit_form'])
         
         self.selenium.wait_for_page_to_load(30000)
+
+
+class MockJob(Mock): pass
+MockJob.__bases__ = (Mock, Job)
+
+class MockBuildComputer(Mock): pass
+MockBuildComputer.__bases__ = (Mock, BuildComputer)
+
+class MockProject(Mock): pass
+MockProject.__bases__ = (Mock, Project)

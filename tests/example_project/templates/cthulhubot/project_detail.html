@@ -23,7 +23,7 @@
 <p><a href="{% url cthulhubot-job-assigment project=project.slug %}">Configure new job assigment</a></p>
 <ul>
 {% for assignment in job_assignments %}
-    <li>{{ assignment.job }} running at {{ assignment.computer }}</li>
+    <li><a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }}</li>
 {% endfor %}
 </ul>
 {% endblock %}
