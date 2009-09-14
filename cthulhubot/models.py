@@ -331,19 +331,3 @@ class Buildmaster(models.Model):
 
 class Repository(models.Model):
     uri = models.URLField(max_length=255, verify_exists=False, unique=True)
-
-class DedicatedVncNumber(models.Model):
-    computer = models.ForeignKey(BuildComputer)
-    number = models.PositiveIntegerField()
-
-    unique_together = (("computer", "number"),)
-
-class SeleniumProxy(models.Model):
-    name = models.CharField(max_length=40)
-    port = models.PositiveIntegerField()
-
-class WindowsSeleniumProxy(models.Model):
-    pass
-
-class UnixVncSeleniumProxy(SeleniumProxy):
-    pass
