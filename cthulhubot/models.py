@@ -20,7 +20,8 @@ from django.db import models
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
 from cthulhubot.jobs import get_job
-from cthulhubot.err import UndiscoveredCommandError
+from cthulhubot.err import UndiscoveredCommandError, CommunicationError
+from cthulhubot.computer import Computer
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 
@@ -196,13 +197,27 @@ class JobAssignment(models.Model):
     unique_together = (("job", "project", "computer"),)
 
     def get_text_status(self):
-        return 'KO'
+        computer = Computer(host=self.computer.hostname, user=self.computer.username, key=self.computer.ssh_key)
+        try:
+            computer.connect()
+            if computer.builder_running(self.get_build_directory()):
+                status = 'Running'
+            elif not computer.build_directory_exists(self.get_build_directory()):
+                status = 'Not created yet'
+            else:
+                status = 'KO'
+        except CommunicationError, err:
+            status = 'Cannot communicate: %s' % str(err)
+        return status
 
     def get_absolute_url(self):
         return reverse("cthulhubot-job-assignment-detail", kwargs={
                 "assignment_id" : self.pk,
             })
 
+    def get_build_directory(self):
+        #FIXME: This is very tepmorary
+        return os.path.join(self.computer.basedir, self.project.name)
 
 
 class Buildmaster(models.Model):

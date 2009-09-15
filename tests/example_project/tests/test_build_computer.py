@@ -11,9 +11,9 @@ from cthulhubot.computer import Computer
 class TestLocalBuildComputer(DestructiveDatabaseTestCase):
     pass
 
-class TestRemoteBuildComputer(DestructiveDatabaseTestCase):
+class TestComputer(DestructiveDatabaseTestCase):
     def setUp(self):
-        super(TestRemoteBuildComputer, self).setUp()
+        super(TestComputer, self).setUp()
 
         self.key = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_KEY", None)
         if not self.key:
@@ -30,7 +30,6 @@ class TestRemoteBuildComputer(DestructiveDatabaseTestCase):
     def test_connection_without_exception(self):
         self.computer.connect()
         
-
     def test_check_build_directory_not_exists_by_default(self):
         self.computer.connect()
         self.assert_false(self.computer.build_directory_exists("/does/not/exists"))
@@ -38,7 +37,7 @@ class TestRemoteBuildComputer(DestructiveDatabaseTestCase):
     def tearDown(self):
         self.computer.disconnect()
 
-        super(TestRemoteBuildComputer, self).tearDown()
+        super(TestComputer, self).tearDown()
 
 
 class TestBuildComputerWebInterface(AuthenticatedWebTestCase):
