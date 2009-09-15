@@ -42,6 +42,10 @@ def add_computer(post, **kwargs):
         **kwargs
     )
 
+def check_builder(post, user, assignment, **kwargs):
+    user.message_set.create(message="Your playlist was added successfully.")
+
+    return HttpResponseRedirect(reverse("cthulhubot-job-assignment-detail", kwargs={"assignment_id" : assignment.pk}))
 
 ########### VIEWS
 
@@ -201,6 +205,7 @@ def job_assigment(request, project):
     })
 
 
+@transaction.commit_on_success
 def job_assigment_config(request, project, job):
     project = get_object_or_404(Project, slug=project)
     job = get_object_or_404(Job, slug=job)
@@ -242,7 +247,21 @@ def job_assigment_config(request, project, job):
 @transaction.commit_on_success
 def job_assigment_detail(request, assignment_id):
     assignment = get_object_or_404(JobAssignment, pk=assignment_id)
-    
+
+    redirect = dispatch_post(request, {
+            "builder-check" : check_builder,
+        },
+        kwargs = {
+            "user" : request.user,
+            "assignment" : assignment,
+        }
+    )
+    if redirect:
+        return redirect
+
     return direct_to_template(request, 'cthulhubot/job_assignment_detail.html', {
         'assignment' : assignment,
+        'project' : assignment.project,
+        'computer' : assignment.computer,
+        'job' : assignment.job,
     })

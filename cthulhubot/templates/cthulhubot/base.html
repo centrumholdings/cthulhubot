@@ -13,6 +13,15 @@
     <div class="layout-holder">
 		<div class="header">
 			<h1 class="logo">Cthulhubot</h1>
+                        {% if user.is_authenticated and messages %}
+                        <div class="messages">
+                            <ul>
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
 		</div>
 
 		<div class="main-menu">

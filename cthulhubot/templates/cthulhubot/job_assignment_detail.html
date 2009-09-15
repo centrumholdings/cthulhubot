@@ -1,0 +1,11 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Job {{ job.slug }} working for {{ project.name }} at {{ computer.name }}</h1>
+
+<form action="." method="POST">
+    <input type="submit" name="builder-check" value="Check builder" />
+</form>
+
+{% endblock %}

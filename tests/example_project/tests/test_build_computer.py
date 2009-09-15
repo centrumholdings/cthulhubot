@@ -6,16 +6,39 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from django.conf import settings
 
+from cthulhubot.computer import Computer
+
 class TestLocalBuildComputer(DestructiveDatabaseTestCase):
     pass
 
 class TestRemoteBuildComputer(DestructiveDatabaseTestCase):
     def setUp(self):
-        if not getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_KEY"):
+        super(TestRemoteBuildComputer, self).setUp()
+
+        self.key = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_KEY", None)
+        if not self.key:
             raise self.SkipTest()
 
-        if not getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_HOST"):
+        self.host = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_HOST")
+        if not self.host:
             raise self.SkipTest()
+
+        self.user = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_USERNAME", "buildbot")
+
+        self.computer = Computer(key=self.key, host=self.host, user=self.user)
+
+    def test_connection_without_exception(self):
+        self.computer.connect()
+        
+
+    def test_check_build_directory_not_exists_by_default(self):
+        self.computer.connect()
+        self.assert_false(self.computer.build_directory_exists("/does/not/exists"))
+
+    def tearDown(self):
+        self.computer.disconnect()
+
+        super(TestRemoteBuildComputer, self).tearDown()
 
 
 class TestBuildComputerWebInterface(AuthenticatedWebTestCase):

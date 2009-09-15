@@ -10,3 +10,6 @@ class UndiscoveredCommandError(ConfigurationError):
 
 class UnconfiguredCommandError(ConfigurationError):
     """ Trying to use command, but failed to provide enough configuration """
+
+class CommunicationError(CthulhuError):
+    """ Something went wrong when communicating with other side """
