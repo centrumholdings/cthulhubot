@@ -8,12 +8,9 @@ from django.conf import settings
 
 from cthulhubot.computer import Computer
 
-class TestLocalBuildComputer(DestructiveDatabaseTestCase):
-    pass
-
-class TestComputer(DestructiveDatabaseTestCase):
+class TestRemoteComputer(DestructiveDatabaseTestCase):
     def setUp(self):
-        super(TestComputer, self).setUp()
+        super(TestRemoteComputer, self).setUp()
 
         self.key = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_KEY", None)
         if not self.key:
@@ -37,8 +34,16 @@ class TestComputer(DestructiveDatabaseTestCase):
     def tearDown(self):
         self.computer.disconnect()
 
-        super(TestComputer, self).tearDown()
+        super(TestRemoteComputer, self).tearDown()
 
+class TestLocalBuildComputer(DestructiveDatabaseTestCase):
+    def setUp(self):
+        super(TestLocalBuildComputer, self).setUp()
+        self.computer = Computer(key=None, host="localhost", user=None)
+
+#    def test_exists_check(self):
+#        self.computer.connect()
+#        self.computer.create_build_directory()
 
 class TestBuildComputerWebInterface(AuthenticatedWebTestCase):
 

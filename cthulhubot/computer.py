@@ -1,3 +1,4 @@
+from subprocess import check_call
 import logging
 import os
 from StringIO import StringIO
@@ -13,18 +14,59 @@ from cthulhubot.err import CommunicationError
 logger = logging.getLogger("cthulhubot")
 
 class Computer(object):
+
     def __init__(self, host, user=None, key=None):
         super(Computer, self).__init__()
+
+        port = 22
+
+        if host in ("localhost", "127.0.0.1", "::1"):
+            self.adapter = LocalComputerAdapter()
+        else:
+            self.adapter = RemoteComputerAdapter(host=host, user=user, key=key, port=port)
+
+    def build_directory_exists(self, directory):
+        return self.get_command_return_status("test -d %s" % directory) == 0
+
+    def builder_running(self, directory):
+        pid_file = os.path.join(directory, 'twistd.pid')
+        cmd = "test -f \"%(pid)s\" && test -d /proc/`cat \"%(pid)s\"`" % {'pid  ' : pid_file}
+        return self.get_command_return_status(cmd) == 0
+
+    def create_build_directory(self):
+        pass
+
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError, e:
+            if hasattr(self.adapter, name):
+                return getattr(self.adapter, name)
+            raise
+
+
+class ComputerAdapter(object):
+    def __init__(self, host=None, user=None, key=None, port=None):
+        super(ComputerAdapter, self).__init__()
 
         self.host = host
         self.user = user
         self.key = key
-        self.port = 22
+        self.port = port
 
-    def connect(self, transport=Transport):
-        """
-        Connect to remote side. raise CommunicationError on problems
-        """
+    def connect(self):
+        raise NotImplementedError()
+
+    def disconnect(self):
+        raise NotImplementedError()
+
+    def execute_command(self):
+        raise NotImplementedError()
+
+
+class RemoteComputerAdapter(ComputerAdapter):
+    def connect(self):
+        self.transport = None
         try:
             key = RSAKey.from_private_key(StringIO(self.key))
         except SSHException:
@@ -36,7 +78,7 @@ class Computer(object):
         except (error, gaierror, timeout), e:
             raise CommunicationError(e)
 
-        self.transport = transport(sock)
+        self.transport = Transport(sock)
         try:
             self.transport.start_client()
             self.transport.auth_publickey(self.user, key)
@@ -66,20 +108,23 @@ class Computer(object):
 #        interactive.interactive_shell(chan)
 #        chan.close()
 
+    def disconnect(self):
+        if self.transport:
+            self.transport.close()
+
     def get_command_return_status(self, command):
         channel = self.transport.open_session()
-        channel.exec_command(command)
+        channel.exec_command(' '.join(command))
         rc = channel.recv_exit_status()
         channel.close()
         return rc
 
-    def build_directory_exists(self, directory):
-        return self.get_command_return_status("test -d %s" % directory) == 0
-
-    def builder_running(self, directory):
-        pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = "test -f \"%(pid)s\" && test -d /proc/`cat \"%(pid)s\"`" % {'pid  ' : pid_file}
-        return self.get_command_return_status(cmd) == 0
+class LocalComputerAdapter(ComputerAdapter):
+    def connect(self):
+        return True
 
     def disconnect(self):
-        self.transport.close()
+        return True
+
+    def get_command_return_status(self, command):
+        return check_call(command)

@@ -16,9 +16,6 @@ class AddProjectForm(ModelForm):
     class Meta:
         model = BuildComputer
 
-
-
-
 def get_job_configuration_form(job):
     params = job.get_configuration_parameters()
     fields = {}
