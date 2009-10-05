@@ -40,7 +40,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
     def test_dir_not_exists_by_default(self):
         self.assert_equals(0, len(os.listdir(self.base_directory)))
-        self.assert_false(self.assignment.build_directory_exists(self.build_directory))
+        self.assert_false(self.assignment.build_directory_exists())
 
     def test_creating_creates_dir(self):
         self.assert_equals(0, len(os.listdir(self.base_directory)))
@@ -53,7 +53,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
         self.assignment.create_build_directory()
 
-        self.assert_true(self.assignment.build_directory_exists(self.build_directory))
+        self.assert_true(self.assignment.build_directory_exists())
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME

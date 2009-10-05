@@ -33,8 +33,8 @@ class Assignment(object):
         return "%s:%s" % (host, self.job.buildmaster.buildmaster_port)
 
 
-    def build_directory_exists(self, directory):
-        return self.computer.get_command_return_status(["test", "-d", directory]) == 0
+    def build_directory_exists(self):
+        return self.computer.build_directory_exists(self.build_directory)
 
     def builder_running(self, directory):
         pid_file = os.path.join(directory, 'twistd.pid')

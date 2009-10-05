@@ -36,6 +36,9 @@ class Computer(object):
                 return getattr(self.adapter, name)
             raise
 
+    def build_directory_exists(self, directory):
+        return self.get_command_return_status(["test", "-d", directory]) == 0
+
     def get_base_build_directory(self):
         if not self._basedir:
             self._basedir = self.model.basedir
