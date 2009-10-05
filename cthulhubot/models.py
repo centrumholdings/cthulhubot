@@ -219,6 +219,7 @@ class JobAssignment(models.Model):
         #FIXME: This is very tepmorary
         return os.path.join(self.computer.basedir, self.project.name)
 
+    
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)

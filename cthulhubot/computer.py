@@ -1,4 +1,4 @@
-from subprocess import check_call
+from subprocess import Popen, PIPE
 import logging
 import os
 from StringIO import StringIO
@@ -26,15 +26,16 @@ class Computer(object):
             self.adapter = RemoteComputerAdapter(host=host, user=user, key=key, port=port)
 
     def build_directory_exists(self, directory):
-        return self.get_command_return_status("test -d %s" % directory) == 0
+        return self.get_command_return_status(["test", "-d", directory]) == 0
 
     def builder_running(self, directory):
         pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = "test -f \"%(pid)s\" && test -d /proc/`cat \"%(pid)s\"`" % {'pid  ' : pid_file}
+        cmd = ["test", "-f", "\"%(pid)s\"", "&&", "test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid  ' : pid_file},]
         return self.get_command_return_status(cmd) == 0
 
-    def create_build_directory(self):
-        pass
+    def create_build_directory(self, directory, master, username, password):
+        cmd = ["buildbot", "create-slave", directory, master, username, password]
+        return self.get_command_return_status(cmd) == 0
 
     def __getattribute__(self, name):
         try:
@@ -127,4 +128,6 @@ class LocalComputerAdapter(ComputerAdapter):
         return True
 
     def get_command_return_status(self, command):
-        return check_call(command)
+        proc = Popen(command, stdout=PIPE, stderr=PIPE)
+        proc.communicate()
+        return proc.returncode
