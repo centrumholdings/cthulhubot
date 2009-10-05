@@ -3,6 +3,7 @@ import os
 from platform import node
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from cthulhubot.err import RemoteCommandError
 
@@ -58,3 +59,9 @@ class Assignment(object):
 
         if status != 0:
             raise RemoteCommandError("Command '%s' exited with status %s" % (str(cmd), status))
+
+    def get_absolute_url(self):
+        return reverse("cthulhubot-job-assignment-detail", kwargs={
+                "assignment_id" : self.get_identifier(),
+            })
+

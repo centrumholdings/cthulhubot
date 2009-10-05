@@ -26,6 +26,7 @@ class Computer(object):
             self.adapter = RemoteComputerAdapter(host=host, user=user, key=key, port=port)
 
         self.model = model
+        self.host = host
         self._basedir = None
 
     def __getattribute__(self, name):
@@ -35,6 +36,12 @@ class Computer(object):
             if hasattr(self.adapter, name):
                 return getattr(self.adapter, name)
             raise
+
+    def __unicode__(self):
+        if self.model:
+            return self.model.name
+        else:
+            return u"Unsaved %s" % self.host
 
     def build_directory_exists(self, directory):
         return self.get_command_return_status(["test", "-d", directory]) == 0

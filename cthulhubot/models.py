@@ -138,13 +138,17 @@ class Job(models.Model):
 #            raise UndiscoveredCommandError("Command %s not yet configured" % command.slug)
 
 
-    def get_job_class(self):
+
+    def get_domain_object(self):
         if not self._job:
             self._job = get_job(slug=self.slug)()
             if not self._job:
                 raise ValueError(u"Job %s cannot be resolved" % self.slug)
 
         return self._job
+    
+    # backward compatibility
+    get_job_class = get_domain_object
 
     def get_commands(self):
         return get_job(self.slug)().get_commands()
@@ -219,14 +223,13 @@ class JobAssignment(models.Model):
             status = 'Cannot communicate: %s' % str(err)
         return status
 
-    def get_absolute_url(self):
-        return reverse("cthulhubot-job-assignment-detail", kwargs={
-                "assignment_id" : self.pk,
-            })
-
-    def get_build_directory(self):
-        #FIXME: This is very tepmorary
-        return os.path.join(self.computer.basedir, self.project.name)
+    def get_domain_object(self):
+        from cthulhubot.assignment import Assignment
+        return Assignment(
+            computer = self.computer.get_domain_object(),
+            job = self.job.get_domain_object,
+            model = self
+        )
 
     
 

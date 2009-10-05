@@ -25,6 +25,8 @@ class Job(object):
 #        },
 #    ]
 
+    def __unicode__(self):
+        return self.name
 
     def get_commands(self):
         commands = []
