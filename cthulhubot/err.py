@@ -13,3 +13,6 @@ class UnconfiguredCommandError(ConfigurationError):
 
 class CommunicationError(CthulhuError):
     """ Something went wrong when communicating with other side """
+
+class RemoteCommandError(CthulhuError):
+    """ When executing command on remote computer, something unpredictable there happened """

@@ -15,7 +15,7 @@ logger = logging.getLogger("cthulhubot")
 
 class Computer(object):
 
-    def __init__(self, host, user=None, key=None):
+    def __init__(self, host, user=None, key=None, model=None):
         super(Computer, self).__init__()
 
         port = 22
@@ -25,17 +25,8 @@ class Computer(object):
         else:
             self.adapter = RemoteComputerAdapter(host=host, user=user, key=key, port=port)
 
-    def build_directory_exists(self, directory):
-        return self.get_command_return_status(["test", "-d", directory]) == 0
-
-    def builder_running(self, directory):
-        pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = ["test", "-f", "\"%(pid)s\"", "&&", "test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid  ' : pid_file},]
-        return self.get_command_return_status(cmd) == 0
-
-    def create_build_directory(self, directory, master, username, password):
-        cmd = ["buildbot", "create-slave", directory, master, username, password]
-        return self.get_command_return_status(cmd) == 0
+        self.model = model
+        self._basedir = None
 
     def __getattribute__(self, name):
         try:
@@ -45,6 +36,16 @@ class Computer(object):
                 return getattr(self.adapter, name)
             raise
 
+    def get_base_build_directory(self):
+        if not self._basedir:
+            self._basedir = self.model.basedir
+
+        assert self._basedir is not None
+
+        return self._basedir
+
+    def create_build_directory(self, *args, **kwargs):
+        self.assignment.create_build_directory(*args, **kwargs)
 
 class ComputerAdapter(object):
     def __init__(self, host=None, user=None, key=None, port=None):

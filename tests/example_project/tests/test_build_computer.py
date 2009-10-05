@@ -36,29 +36,6 @@ class TestRemoteComputer(DestructiveDatabaseTestCase):
 
         super(TestRemoteComputer, self).tearDown()
 
-class TestLocalBuildComputer(DestructiveDatabaseTestCase):
-    def setUp(self):
-        super(TestLocalBuildComputer, self).setUp()
-        self.computer = Computer(key=None, host="localhost", user=None)
-        self.build_directory = mkdtemp()
-
-    def test_exists_check(self):
-        self.computer.connect()
-        self.computer.create_build_directory(
-            directory=self.build_directory,
-            master = "localhost:99999",
-            username = "notworking",
-            password = "badpassword"
-        )
-        self.assert_true(self.computer.build_directory_exists(self.build_directory))
-
-
-
-    def tearDown(self):
-        rmtree(self.build_directory)
-
-        super(TestLocalBuildComputer, self).tearDown()
-
 class TestBuildComputerWebInterface(AuthenticatedWebTestCase):
 
     def setUp(self):

@@ -46,6 +46,15 @@ class BuildComputer(models.Model):
                 "computer" : self.slug,
             })
 
+    def get_domain_object(self):
+        from cthulhubot.computer import Computer
+        return Computer(
+            host=self.hostname,
+            user=self.username,
+            key=self.ssh_key,
+            model=self
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)

@@ -1,6 +1,6 @@
 from djangosanetesting.cases import SeleniumTestCase
 
-from cthulhubot.models import Project, Job, BuildComputer
+from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
 
 from mock import Mock
 
@@ -96,3 +96,6 @@ MockBuildComputer.__bases__ = (Mock, BuildComputer)
 
 class MockProject(Mock): pass
 MockProject.__bases__ = (Mock, Project)
+
+class MockBuildmaster(Mock): pass
+MockJob.__bases__ = (Mock, Buildmaster)
