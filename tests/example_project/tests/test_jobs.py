@@ -37,30 +37,3 @@ class TestJobs(AuthenticatedWebTestCase):
 
         self.assert_equals(jobs, discovered_jobs)
 
-class TestJobsAssignment(UnitTestCase):
-    def setUp(self):
-        super(TestJobsAssignment, self).setUp()
-
-        self.construct_mocked_assignment()
-
-    def construct_mocked_assignment(self):
-        self.job = MockJob()
-
-        self.job.pk.return_value = 1
-
-        self.computer = MockBuildComputer()
-        self.computer.pk.return_value = 1
-
-        self.project = MockProject()
-        self.project.pk.return_value = 1
-
-        self.assignment = JobAssignment(
-            job = self.job,
-            computer = self.computer,
-            project = self.project,
-        )
-        self.assignment.id = 1
-
-    def test_uri_constructed(self):
-        self.assert_true(self.assignment.get_absolute_url() is not None)
-

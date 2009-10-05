@@ -63,6 +63,9 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
         self.assert_equals("%s:%s" % (master, port), self.assignment.get_master_connection_string())
 
+    def test_uri_constructed(self):
+        self.assert_true(self.assignment.get_absolute_url() is not None)
+
     def test_remote_error_on_bad_directory_nesting(self):
         self.computer._basedir = "/badly/nested/nonexistent/basedir"
         self.assert_raises(RemoteCommandError, self.assignment.create_build_directory)
