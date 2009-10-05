@@ -98,4 +98,4 @@ class MockProject(Mock): pass
 MockProject.__bases__ = (Mock, Project)
 
 class MockBuildmaster(Mock): pass
-MockJob.__bases__ = (Mock, Buildmaster)
+MockBuildmaster.__bases__ = (Mock, Buildmaster)
