@@ -20,8 +20,10 @@ class Assignment(object):
         self.job = job
         self.model = model
 
-        self.directory = computer.get_base_build_directory()
+    def get_build_directory(self):
+        return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
 
+    build_directory = property(fget=get_build_directory)
 
     def get_master_connection_string(self):
         host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
@@ -50,9 +52,8 @@ class Assignment(object):
 
         username = 'job@host'
         password = 'xxx'
-        directory = os.path.join(self.directory, self.get_identifier())
 
-        cmd = ["buildbot", "create-slave", directory, self.get_master_connection_string(), username, password]
+        cmd = ["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password]
         status = self.computer.get_command_return_status(cmd)
 
         if status != 0:

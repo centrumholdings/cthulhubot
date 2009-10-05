@@ -10,6 +10,7 @@ from django.conf import settings
 
 from cthulhubot.assignment import Assignment
 from cthulhubot.computer import Computer
+from cthulhubot.err import RemoteCommandError
 
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
@@ -62,6 +63,9 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
         self.assert_equals("%s:%s" % (master, port), self.assignment.get_master_connection_string())
 
+    def test_remote_error_on_bad_directory_nesting(self):
+        self.computer._basedir = "/badly/nested/nonexistent/basedir"
+        self.assert_raises(RemoteCommandError, self.assignment.create_build_directory)
 #    def test_exists_check(self):
 #        self.computer.connect()
 #        self.computer.create_build_directory(
