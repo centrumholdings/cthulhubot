@@ -8,15 +8,20 @@ from tempfile import mkdtemp
 
 from django.conf import settings
 
-from cthulhubot.assignment import Assignment
+from cthulhubot.assignment import Assignment, DirectoryNotCreated, BuildmasterOffline
 from cthulhubot.computer import Computer
 from cthulhubot.err import RemoteCommandError
-
+from cthulhubot.models import Buildmaster
+from cthulhubot.project import create_project
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
     def setUp(self):
         super(TestBuildDirectory, self).setUp()
 
+
+        self.project_name = u"project"
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
         self.computer = Computer(key=None, host="localhost", user=None)
@@ -28,15 +33,15 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assignment = Assignment(
             computer=self.computer,
             job = MockJob(),
+            project=self.project,
             model = mocked_assignment
         )
 
         self.build_directory = os.path.join(self.base_directory, str(mocked_assignment.pk))
 
-        default_buildmaster_port = 9000
+        self.assignment.job.buildmaster = self.buildmaster
 
-        self.assignment.job.buildmaster = MockBuildmaster()
-        self.assignment.job.buildmaster.buildmaster_port = default_buildmaster_port
+        self.transaction.commit()
 
     def test_dir_not_exists_by_default(self):
         self.assert_equals(0, len(os.listdir(self.base_directory)))
@@ -57,11 +62,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME
-        port = 9000
-        
-        self.assignment.job.buildmaster.buildmaster_port = port
-
-        self.assert_equals("%s:%s" % (master, port), self.assignment.get_master_connection_string())
+        self.assert_equals("%s:%s" % (master, self.buildmaster.buildmaster_port), self.assignment.get_master_connection_string())
 
     def test_uri_constructed(self):
         self.assert_true(self.assignment.get_absolute_url() is not None)
@@ -69,15 +70,13 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
     def test_remote_error_on_bad_directory_nesting(self):
         self.computer._basedir = "/badly/nested/nonexistent/basedir"
         self.assert_raises(RemoteCommandError, self.assignment.create_build_directory)
-#    def test_exists_check(self):
-#        self.computer.connect()
-#        self.computer.create_build_directory(
-#            directory=self.build_directory,
-#            master = "localhost:99999",
-#            username = "notworking",
-#            password = "badpassword"
-#        )
-#        self.assert_true(self.computer.build_directory_exists(self.build_directory))
+
+#    def test_builddir_not_created_test_status(self):
+#        self.assert_equals(DirectoryNotCreated.ID, self.assignment.get_status().ID)
+
+    def test_buildmaster_offline(self):
+        self.assert_equals(BuildmasterOffline.ID, self.assignment.get_status().ID)
+
 
     def tearDown(self):
         rmtree(self.base_directory)

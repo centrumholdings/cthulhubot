@@ -21,24 +21,24 @@ class TestBuildmaster(DestructiveDatabaseTestCase):
 
     def start_master(self):
         import cthulhubot
-        import unit_project
+        import example_project
         self.buildmaster.start(env={
             "PYTHONPATH" : ':'.join([
                 os.path.abspath(os.path.join(os.path.dirname(cthulhubot.__file__), os.pardir)),
-                os.path.abspath(os.path.join(os.path.dirname(unit_project.__file__), os.pardir))
+                os.path.abspath(os.path.join(os.path.dirname(example_project.__file__), os.pardir))
             ]),
-            "DJANGO_SETTINGS_MODULE" : "unit_project.buildbot_settings",
+            "DJANGO_SETTINGS_MODULE" : "example_project.buildbot_settings",
         })
 
     def stop_master(self):
         import cthulhubot
-        import unit_project
+        import example_project
         self.buildmaster.stop(env={
             "PYTHONPATH" : ':'.join([
                 os.path.abspath(os.path.join(os.path.dirname(cthulhubot.__file__), os.pardir)),
-                os.path.abspath(os.path.join(os.path.dirname(unit_project.__file__), os.pardir))
+                os.path.abspath(os.path.join(os.path.dirname(example_project.__file__), os.pardir))
             ]),
-            "DJANGO_SETTINGS_MODULE" : "unit_project.buildbot_settings",
+            "DJANGO_SETTINGS_MODULE" : "example_project.buildbot_settings",
         })
 
     def test_master_start(self):

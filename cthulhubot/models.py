@@ -230,8 +230,7 @@ class JobAssignment(models.Model):
             job = self.job.get_domain_object,
             model = self
         )
-
-    
+   
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
@@ -342,7 +341,6 @@ class Buildmaster(models.Model):
         Also, any windows guru for a win way?
         """
         # This will work only on linux, which is my target platform
-        # for BSD,
 
         pid_file = os.path.join(self.directory, 'twistd.pid')
         if not os.path.exists(pid_file):

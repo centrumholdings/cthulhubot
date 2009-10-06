@@ -1,4 +1,7 @@
+import logging
 from subprocess import Popen, CalledProcessError
+
+log = logging.getLogger("cthulhubot.utils")
 
 def dispatch_post(request, function_dict, kwargs=None):
     """
@@ -20,7 +23,7 @@ def dispatch_post(request, function_dict, kwargs=None):
 def check_call(*popenargs, **kwargs):
     """
     Like subproccess.check_call, but use communicate() instead of wait()
-    to avoid deadlock mentioned in docs.
+    to avoid deadlock mentioned in docs. Also logs on error.
 
     Returns tuple (stdoutdata, stderrdata)
     """
@@ -31,6 +34,7 @@ def check_call(*popenargs, **kwargs):
     if cmd is None:
         cmd = popenargs[0]
     if retcode:
+        log.error("Calling process failed. STDOUT: %s STDERR: %s" % (stdout, stderr))
         raise CalledProcessError(retcode, cmd)
 
     return (stdout, stderr)

@@ -14,11 +14,12 @@ class Assignment(object):
     Domain object for job assignment, i.e. configured job to be performed on a given computer
     """
 
-    def __init__(self, computer, job, model=None):
+    def __init__(self, computer, job, project, model=None):
         super(Assignment, self).__init__()
 
         self.computer = computer
         self.job = job
+        self.project = project
         self.model = model
 
     def get_build_directory(self):
@@ -65,3 +66,29 @@ class Assignment(object):
                 "assignment_id" : self.get_identifier(),
             })
 
+    def get_status(self):
+        # first ask buidmaster for OK status
+        master = self.project.buildmaster
+
+        if not master.is_running():
+            return BuildmasterOffline()
+        
+
+
+class AssignmentStatus(object):
+    ID = None
+
+class DirectoryNotCreated(AssignmentStatus):
+    ID = 1
+
+class AssignmentOffline(AssignmentStatus):
+    ID = 2
+
+class AssignmentRunning(AssignmentStatus):
+    ID = 3
+
+class AssignmentReady(AssignmentStatus):
+    ID = 4
+
+class BuildmasterOffline(AssignmentStatus):
+    ID = 5
