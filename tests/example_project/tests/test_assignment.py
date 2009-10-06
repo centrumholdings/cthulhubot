@@ -8,7 +8,7 @@ from tempfile import mkdtemp
 
 from django.conf import settings
 
-from cthulhubot.assignment import Assignment, DirectoryNotCreated, BuildmasterOffline
+from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.computer import Computer
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.models import Buildmaster
@@ -71,14 +71,26 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.computer._basedir = "/badly/nested/nonexistent/basedir"
         self.assert_raises(RemoteCommandError, self.assignment.create_build_directory)
 
-#    def test_builddir_not_created_test_status(self):
-#        self.assert_equals(DirectoryNotCreated.ID, self.assignment.get_status().ID)
+    def test_directory_not_created_by_default(self):
+        self.assert_equals(DirectoryNotCreated.ID, self.assignment.get_status().ID)
 
-    def test_buildmaster_offline(self):
-        self.assert_equals(BuildmasterOffline.ID, self.assignment.get_status().ID)
+    def test_bare_offline_after_directory_created(self):
+        self.assignment.create_build_directory()
+        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
 
+    def test_offline_after_master_started_without_slave(self):
+        self.assignment.create_build_directory()
+        self.buildmaster.start()
+        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
+
+    def test_ready_after_starting_up(self):
+        self.assignment.create_build_directory()
+        self.buildmaster.start()
+        self.assignment.start()
+        self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
 
     def tearDown(self):
+        self.buildmaster.stop(ignore_not_running=True)
         rmtree(self.base_directory)
 
         super(TestBuildDirectory, self).tearDown()

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from cthulhubot.err import RemoteCommandError
+from cthulhubot.mongo import get_database_connection
 
 log = logging.getLogger("cthulhubot.assignment")
 
@@ -38,9 +39,10 @@ class Assignment(object):
     def build_directory_exists(self):
         return self.computer.build_directory_exists(self.build_directory)
 
-    def builder_running(self, directory):
+    def builder_running(self, directory=None):
+        directory = directory or self.build_directory
         pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = ["test", "-f", "\"%(pid)s\"", "&&", "test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid  ' : pid_file},]
+        cmd = ["test", "-f", "\"%(pid)s\"", "&&", "test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file},]
         return self.computer.get_command_return_status(cmd) == 0
 
 
@@ -51,7 +53,6 @@ class Assignment(object):
         return str(id)
 
     def create_build_directory(self):
-
         username = 'job@host'
         password = 'xxx'
 
@@ -66,13 +67,23 @@ class Assignment(object):
                 "assignment_id" : self.get_identifier(),
             })
 
-    def get_status(self):
-        # first ask buidmaster for OK status
-        master = self.project.buildmaster
+    def get_status_from_database(self):
+        db = get_database_connection()
+        builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : None})
+        if not builder:
+            return AssignmentOffline()
+        else:
+            #TODO: map status from buildbot to result object
+            raise NotImplementedError()
 
-        if not master.is_running():
-            return BuildmasterOffline()
-        
+    def get_status(self):
+
+        if not self.builder_running() and not self.build_directory_exists():
+            status = DirectoryNotCreated()
+        else:
+            status = self.get_status_from_database()
+
+        return status
 
 
 class AssignmentStatus(object):
@@ -90,5 +101,3 @@ class AssignmentRunning(AssignmentStatus):
 class AssignmentReady(AssignmentStatus):
     ID = 4
 
-class BuildmasterOffline(AssignmentStatus):
-    ID = 5

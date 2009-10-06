@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 
 from copy import copy
+import logging
 import os
-from subprocess import PIPE
+from subprocess import PIPE, CalledProcessError, Popen
 import sys
 from tempfile import gettempdir
 
@@ -24,6 +25,8 @@ from cthulhubot.err import UndiscoveredCommandError, CommunicationError
 from cthulhubot.computer import Computer
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
+log = logging.getLogger("cthulhubot.models")
+
 
 class BuildComputer(models.Model):
     """
@@ -328,10 +331,17 @@ class Buildmaster(models.Model):
         check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
 
-    def stop(self, env=None):
+    def stop(self, env=None, ignore_not_running=False):
         e = self.get_buildbot_environment(env)
-        check_call(["buildbot", "stop", self.directory], env=e, cwd=self.directory,
+        cmd = ["buildbot", "stop", self.directory]
+        popen = Popen(cmd, env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
+        stdout, stderr = popen.communicate()
+        retcode = popen.returncode
+        if retcode:
+            log.error("Calling process failed. STDOUT: %s STDERR: %s" % (stdout, stderr))
+            if "BuildbotNotRunningError" not in stderr and not ignore_not_running:
+                raise CalledProcessError(retcode, cmd)
 
     def is_running(self):
         """ Is buildmaster process running? Return True if process found, False otherwise.
