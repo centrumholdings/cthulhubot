@@ -373,6 +373,6 @@ class Buildmaster(models.Model):
             return "Running"
         else:
             return "Not running"
-
+    
 class Repository(models.Model):
     uri = models.URLField(max_length=255, verify_exists=False, unique=True)

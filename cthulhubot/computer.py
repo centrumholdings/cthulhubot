@@ -139,7 +139,7 @@ class LocalComputerAdapter(ComputerAdapter):
         return True
 
     def get_command_return_status(self, command):
-        proc = Popen(command, stdout=PIPE, stderr=PIPE)
+        proc = Popen(' '.join(command), stdout=PIPE, stderr=PIPE, shell=True)
         stdout, stderr = proc.communicate()
         log.debug("Executed local command %s with return code %s. STDOUT: %s STDERR: %s" % (
             str(command), proc.returncode,

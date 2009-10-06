@@ -42,7 +42,10 @@ class Assignment(object):
     def builder_running(self, directory=None):
         directory = directory or self.build_directory
         pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = ["test", "-f", "\"%(pid)s\"", "&&", "test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file},]
+        cmd = ["test", "-f", pid_file]
+        if self.computer.get_command_return_status(cmd) != 0:
+            return False
+        cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
         return self.computer.get_command_return_status(cmd) == 0
 
 
