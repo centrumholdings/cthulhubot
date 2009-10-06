@@ -56,11 +56,8 @@ class Assignment(object):
         username = 'job@host'
         password = 'xxx'
 
-        cmd = ["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password]
-        status = self.computer.get_command_return_status(cmd)
-
-        if status != 0:
-            raise RemoteCommandError("Command '%s' exited with status %s" % (str(cmd), status))
+        self.execute_remote_command_for_success(["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password])
+        self.execute_remote_command_for_success(["touch", os.path.join(self.build_directory, 'twistd.log')])
 
     def get_absolute_url(self):
         return reverse("cthulhubot-job-assignment-detail", kwargs={
@@ -84,6 +81,18 @@ class Assignment(object):
             status = self.get_status_from_database()
 
         return status
+
+    def execute_remote_command_for_success(self, cmd):
+        status = self.computer.get_command_return_status(cmd)
+
+        if status != 0:
+            raise RemoteCommandError("Command '%s' exited with status %s." % (str(cmd), status))
+
+    def start(self):
+        self.execute_remote_command_for_success(["buildbot", "start", self.build_directory])
+
+    def stop(self):
+        self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
 
 
 class AssignmentStatus(object):

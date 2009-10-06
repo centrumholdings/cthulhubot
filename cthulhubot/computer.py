@@ -11,7 +11,7 @@ from paramiko.ssh_exception import BadAuthenticationType
 
 from cthulhubot.err import CommunicationError
 
-logger = logging.getLogger("cthulhubot")
+log = logger = logging.getLogger("cthulhubot")
 
 class Computer(object):
 
@@ -140,5 +140,9 @@ class LocalComputerAdapter(ComputerAdapter):
 
     def get_command_return_status(self, command):
         proc = Popen(command, stdout=PIPE, stderr=PIPE)
-        proc.communicate()
+        stdout, stderr = proc.communicate()
+        log.debug("Executed local command %s with return code %s. STDOUT: %s STDERR: %s" % (
+            str(command), proc.returncode,
+            stdout, stderr
+        ))
         return proc.returncode

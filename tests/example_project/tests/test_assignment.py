@@ -11,7 +11,6 @@ from django.conf import settings
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.computer import Computer
 from cthulhubot.err import RemoteCommandError
-from cthulhubot.models import Buildmaster
 from cthulhubot.project import create_project
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
@@ -87,10 +86,14 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assignment.create_build_directory()
         self.buildmaster.start()
         self.assignment.start()
-        self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
+        try:
+            self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
+        finally:
+            self.assignment.stop()
 
     def tearDown(self):
         self.buildmaster.stop(ignore_not_running=True)
+        self.buildmaster.delete()
         rmtree(self.base_directory)
 
         super(TestBuildDirectory, self).tearDown()
