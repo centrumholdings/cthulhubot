@@ -33,7 +33,7 @@ class Assignment(object):
         if not host:
             host = node() or "localhost"
             log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
-        return "%s:%s" % (host, self.job.buildmaster.buildmaster_port)
+        return "%s:%s" % (host, self.project.buildmaster.buildmaster_port)
 
 
     def build_directory_exists(self):
@@ -73,8 +73,18 @@ class Assignment(object):
         if not builder:
             return AssignmentOffline()
         else:
-            #TODO: map status from buildbot to result object
-            raise NotImplementedError()
+
+            BUILDBOT_ASSIGNMENT_STATUS_MAP = {
+                'offline' : AssignmentOffline,
+                'building' : AssignmentRunning,
+                'idle' : AssignmentReady
+            }
+
+            if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
+                raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
+
+            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]
+            
 
     def get_status(self):
 

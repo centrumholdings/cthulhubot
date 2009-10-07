@@ -9,9 +9,9 @@ from tempfile import mkdtemp
 from django.conf import settings
 
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
-from cthulhubot.computer import Computer
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.project import create_project
+from cthulhubot.models import Job, JobAssignment, BuildComputer
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
     def setUp(self):
@@ -23,22 +23,22 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
-        self.computer = Computer(key=None, host="localhost", user=None)
+        self.computer_model = BuildComputer.objects.create(hostname = "localhost")
+        self.computer = self.computer_model.get_domain_object()
         self.computer._basedir = self.base_directory
 
-        mocked_assignment = Mock()
-        mocked_assignment.pk = 1
+        job = Job.objects.create(slug='cthulhubot-debian-package-creation')
+        job.auto_discovery()
 
-        self.assignment = Assignment(
-            computer=self.computer,
-            job = MockJob(),
-            project=self.project,
-            model = mocked_assignment
+        self.assignment_model = JobAssignment.objects.create(
+            computer = self.computer_model,
+            job = job,
+            project = self.project
         )
 
-        self.build_directory = os.path.join(self.base_directory, str(mocked_assignment.pk))
+        self.assignment = self.assignment_model.get_domain_object()
 
-        self.assignment.job.buildmaster = self.buildmaster
+        self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
 
         self.transaction.commit()
 
@@ -93,7 +93,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
     def tearDown(self):
         self.buildmaster.stop(ignore_not_running=True)
-        #self.buildmaster.delete()
+        self.buildmaster.delete()
         rmtree(self.base_directory)
 
         super(TestBuildDirectory, self).tearDown()

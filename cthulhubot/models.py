@@ -51,6 +51,11 @@ class BuildComputer(models.Model):
     ssh_key = models.TextField(blank=True)
     basedir = models.CharField(max_length=255, default="/var/buildslaves")
 
+    def __init__(self, *args, **kwargs):
+        super(BuildComputer, self).__init__(*args, **kwargs)
+
+        self._domain_object = None
+
     def __unicode__(self):
         return self.name
 
@@ -61,13 +66,15 @@ class BuildComputer(models.Model):
 
     def get_domain_object(self):
         from cthulhubot.computer import Computer
-        return Computer(
-            host=self.hostname,
-            user=self.username,
-            key=self.ssh_key,
-            model=self
-        )
-
+        if not self._domain_object:
+            self._domain_object = Computer(
+                host=self.hostname,
+                user=self.username,
+                key=self.ssh_key,
+                model=self
+            )
+        return self._domain_object
+    
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
