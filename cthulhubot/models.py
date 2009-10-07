@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from copy import copy
 import logging
 import os
+from shutil import rmtree
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
 from tempfile import gettempdir
@@ -15,14 +16,23 @@ from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
 from django.template.defaultfilters import slugify
 from django.utils import simplejson
-from shutil import rmtree
 from django.db import models
 
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
-from cthulhubot.jobs import get_job
-from cthulhubot.err import UndiscoveredCommandError, CommunicationError
 from cthulhubot.computer import Computer
+from cthulhubot.err import UndiscoveredCommandError, CommunicationError
+from cthulhubot.jobs import get_job
+from cthulhubot.mongo import get_database_name
+
+from buildbot.changes.pb import PBChangeSource
+from buildbot.buildslave import BuildSlave
+from buildbot.scheduler import Scheduler
+
+from bbmongostatus.status import MongoDb
+
+from django.core.exceptions import ImproperlyConfigured
+from django.conf import settings
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 log = logging.getLogger("cthulhubot.models")
@@ -231,6 +241,7 @@ class JobAssignment(models.Model):
         return Assignment(
             computer = self.computer.get_domain_object(),
             job = self.job.get_domain_object,
+            project = self.project,
             model = self
         )
    
@@ -373,6 +384,41 @@ class Buildmaster(models.Model):
             return "Running"
         else:
             return "Not running"
-    
+
+    def get_config(self):
+
+        #computers = project.job_set.buildcomputer_set.all()
+        assignments = self.project.jobassignment_set.all()
+#        computers = assignments.computers_set.all()
+
+        from buildbot.process.factory import BuildFactory
+
+        config = {
+            'slavePortnum' : self.buildmaster_port,
+            'slaves' : [BuildSlave('job@host', 'xxx')],
+            'change_source' : PBChangeSource(),
+            'schedulers' : [
+                Scheduler(name="scheduler", branch="master", treeStableTimer=1, builderNames=[
+                    assignment.get_domain_object().get_identifier() for assignment in assignments
+                ])
+            ],
+            'builders' : [
+                {
+                      'name': assignment.get_domain_object().get_identifier(),
+                      'slavename': "job@host",
+                      'builddir': "unit-sqlite-master",
+                      'factory': BuildFactory()
+                }
+                for assignment in assignments
+            ],
+            'status' : [MongoDb(database=get_database_name())],
+            'projectName' : self.project.name,
+            'projectURL' : self.project.tracker_uri,
+            'buildbotURL' : 'uri',
+    #        'buildbotURL' : project.get_absolute_url(),
+        }
+        return config
+
+
 class Repository(models.Model):
     uri = models.URLField(max_length=255, verify_exists=False, unique=True)

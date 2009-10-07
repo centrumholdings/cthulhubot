@@ -21,6 +21,8 @@ DATABASE_PASSWORD = ''
 DATABASE_HOST = ''
 DATABASE_PORT = ''
 
+MONGODB_DATABASE_NAME = 'buildmaster'
+
 
 TIME_ZONE = 'Europe/Prague'
 

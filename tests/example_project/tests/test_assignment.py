@@ -93,7 +93,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
     def tearDown(self):
         self.buildmaster.stop(ignore_not_running=True)
-        self.buildmaster.delete()
+        #self.buildmaster.delete()
         rmtree(self.base_directory)
 
         super(TestBuildDirectory, self).tearDown()

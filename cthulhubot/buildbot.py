@@ -2,30 +2,13 @@ from __future__ import absolute_import
 
 import os
 
-from buildbot.changes.pb import PBChangeSource
-from buildbot.buildslave import BuildSlave
-
 from cthulhubot.models import Buildmaster, Project
 
 def get_buildmaster_config(slug):
     project = Project.objects.get(slug=slug)
     master = project.buildmaster_set.all()[0]
 
-    #computers = project.job_set.buildcomputer_set.all()
-    
-    config = {
-        'slavePortnum' : master.buildmaster_port,
-        'slaves' : [BuildSlave('job@host', 'xxx')],
-        'change_source' : PBChangeSource(),
-        'schedulers' : [],
-        'builders' : [],
-        'status' : [],
-        'projectName' : project.name,
-        'projectURL' : project.tracker_uri,
-        'buildbotURL' : 'uri',
-#        'buildbotURL' : project.get_absolute_url(),
-    }
-    return config
+    return master.get_config()
 
 def get_twisted_tac_config(directory):
     source="""from twisted.application import service
