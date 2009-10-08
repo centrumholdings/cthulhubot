@@ -1,10 +1,11 @@
 from djangosanetesting.cases import DatabaseTestCase
 
+from django.utils.simplejson import dumps
 from bbmongostatus.status import MongoDb
 
 from cthulhubot.assignment import Assignment
 from cthulhubot.buildbot import get_buildmaster_config
-from cthulhubot.models import BuildComputer, JobAssignment, Job
+from cthulhubot.models import BuildComputer, JobAssignment, Job, Command
 from cthulhubot.views import create_project
 
 from unit_project.tests.helpers import MockJob
@@ -21,11 +22,20 @@ class TestSchedulers(DatabaseTestCase):
 
         job = Job.objects.create(slug='cthulhubot-debian-package-creation')
         job.auto_discovery()
-
         self.assignment = JobAssignment.objects.create(
             job = job,
             computer = self.computer,
             project = self.project
+        )
+
+        self.assignment.config.create(
+            command = Command.objects.get(slug='cthulhubot-debian-package-ftp-upload'),
+            config = dumps({
+                'ftp_user' : 'xxx',
+                'ftp_password' : 'xxx',
+                'ftp_directory' : '',
+                'ftp_host' : ''
+            })
         )
 
 
