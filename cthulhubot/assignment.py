@@ -110,7 +110,7 @@ class Assignment(object):
         commands = self.job.get_commands()
 
         factory = BuildFactory()
-#        factory.addStep(Git())
+        factory.addStep(Git(self.project.repository_uri, branch="master"))
 
         for command in commands:
             try:

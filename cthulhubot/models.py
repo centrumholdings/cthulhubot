@@ -185,6 +185,7 @@ class Project(models.Model):
     name = models.CharField(max_length=40)
     slug = models.CharField(max_length=40, unique=True)
     tracker_uri = models.URLField(max_length=255, verify_exists=False)
+    repository_uri = models.TextField()
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -425,6 +426,3 @@ class Buildmaster(models.Model):
         }
         return config
 
-
-class Repository(models.Model):
-    uri = models.URLField(max_length=255, verify_exists=False, unique=True)
