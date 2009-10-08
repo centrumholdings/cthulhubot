@@ -1,9 +1,14 @@
+from __future__ import absolute_import
+
 import logging
 import os
 from platform import node
 
+from buildbot.process.factory import BuildFactory
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.simplejson import loads
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
@@ -83,7 +88,7 @@ class Assignment(object):
             if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
                 raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
 
-            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]
+            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
             
 
     def get_status(self):
@@ -94,6 +99,28 @@ class Assignment(object):
             status = self.get_status_from_database()
 
         return status
+
+    def get_factory(self):
+        from buildbot.steps.shell import ShellCommand
+        from buildbot.steps.source import Git
+
+        from cthulhubot.models import Command, CommandConfiguration
+
+        self.load_configuration()
+        commands = self.job.get_commands()
+
+        factory = BuildFactory()
+#        factory.addStep(Git())
+
+        for command in commands:
+            try:
+                config = self.model.config.get(command=Command(slug=command.slug))
+                command.update_config(config)
+            except CommandConfiguration.DoesNotExist:
+                pass
+            
+            factory.addStep(ShellCommand(command.get_command()))
+        return factory
 
     def execute_remote_command_for_success(self, cmd):
         status = self.computer.get_command_return_status(cmd)
@@ -106,6 +133,11 @@ class Assignment(object):
 
     def stop(self):
         self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
+
+    def load_configuration(self):
+        #TODO: apply also other configurations for given job
+        for config in self.model.config.select_related().all():
+            self.job.update_command_config(command_slug=config.command.slug, config=loads(config.config))
 
 
 class AssignmentStatus(object):

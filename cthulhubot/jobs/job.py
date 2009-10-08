@@ -1,4 +1,4 @@
-from copy import copy
+from copy import deepcopy
 
 class Job(object):
 
@@ -25,18 +25,31 @@ class Job(object):
 #        },
 #    ]
 
+    def __init__(self):
+        super(Job, self).__init__()
+
+        self.commands = deepcopy(self.__class__.commands)
+        for command in self.commands:
+            command['command'] = command['command']()
+
     def __unicode__(self):
         return self.name
 
     def get_commands(self):
         commands = []
         for config in self.commands:
-            cmd = config['command']()
+            cmd = config['command']
             if config.has_key('parameters'):
                 cmd.update_config(config['parameters'])
             commands.append(cmd)
 
         return commands
+
+    def update_command_config(self, command_slug, config):
+        for conf in self.commands:
+            if conf['command'].slug == command_slug:
+                conf['parameters'].update(config)
+
 
     def get_configuration_parameters(self):
         """

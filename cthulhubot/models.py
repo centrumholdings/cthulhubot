@@ -171,7 +171,7 @@ class Job(models.Model):
     get_job_class = get_domain_object
 
     def get_commands(self):
-        return get_job(self.slug)().get_commands()
+        return self.get_domain_object().get_commands()
 
     def auto_discovery(self):
         job = get_job(self.slug)()
@@ -212,6 +212,7 @@ class Project(models.Model):
 
 class CommandConfiguration(models.Model):
     command = models.ForeignKey(Command)
+    # config is dumped json object in form of {'key' : value'} configuration parameters for given command
     config = models.TextField()
     object_id = models.PositiveIntegerField()
     content_type = models.ForeignKey(ContentType)
@@ -247,7 +248,7 @@ class JobAssignment(models.Model):
         from cthulhubot.assignment import Assignment
         return Assignment(
             computer = self.computer.get_domain_object(),
-            job = self.job.get_domain_object,
+            job = self.job.get_domain_object(),
             project = self.project,
             model = self
         )
@@ -398,8 +399,6 @@ class Buildmaster(models.Model):
         assignments = self.project.jobassignment_set.all()
 #        computers = assignments.computers_set.all()
 
-        from buildbot.process.factory import BuildFactory
-
         config = {
             'slavePortnum' : self.buildmaster_port,
             'slaves' : [BuildSlave('job@host', 'xxx')],
@@ -413,15 +412,15 @@ class Buildmaster(models.Model):
                 {
                       'name': assignment.get_domain_object().get_identifier(),
                       'slavename': "job@host",
-                      'builddir': "unit-sqlite-master",
-                      'factory': BuildFactory()
+                      'builddir': assignment.get_domain_object().get_identifier(),
+                      'factory': assignment.get_domain_object().get_factory()
                 }
                 for assignment in assignments
             ],
             'status' : [MongoDb(database=get_database_name())],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
-            'buildbotURL' : 'uri',
+            'buildbotURL' : 'http://uri',
     #        'buildbotURL' : project.get_absolute_url(),
         }
         return config

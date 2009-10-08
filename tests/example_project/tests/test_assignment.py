@@ -7,11 +7,12 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from django.conf import settings
+from django.utils.simplejson import dumps
 
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
-from cthulhubot.err import RemoteCommandError
+from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.project import create_project
-from cthulhubot.models import Job, JobAssignment, BuildComputer
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, CommandConfiguration
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
     def setUp(self):
@@ -27,8 +28,8 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.computer = self.computer_model.get_domain_object()
         self.computer._basedir = self.base_directory
 
-        job = Job.objects.create(slug='cthulhubot-debian-package-creation')
-        job.auto_discovery()
+        self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation')
+        self.job.auto_discovery()
 
         self.assignment_model = JobAssignment.objects.create(
             computer = self.computer_model,
@@ -36,11 +37,28 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
             project = self.project
         )
 
+        self.assignment_model.config.create(
+            command = Command.objects.get(slug='cthulhubot-debian-package-ftp-upload'),
+            config = dumps({
+                'ftp_user' : 'xxx',
+                'ftp_password' : 'xxx',
+                'ftp_directory' : '',
+                'ftp_host' : ''
+            })
+        )
+
+
         self.assignment = self.assignment_model.get_domain_object()
 
         self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
 
         self.transaction.commit()
+
+    def get_shell_commands(self, job):
+        return [
+            command.get_command()
+            for command in job.get_commands()
+        ]
 
     def test_dir_not_exists_by_default(self):
         self.assert_equals(0, len(os.listdir(self.base_directory)))
@@ -58,6 +76,11 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assignment.create_build_directory()
 
         self.assert_true(self.assignment.build_directory_exists())
+
+    def test_loading_assignment_config_works(self):
+        self.assignment.load_configuration()
+        self.assert_equals(3, len(self.get_shell_commands(self.assignment.job)))
+        
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME
@@ -90,6 +113,10 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
             self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
         finally:
             self.assignment.stop()
+
+
+    def test_factory_retrieval(self):
+        self.assignment.get_factory()
 
     def tearDown(self):
         self.buildmaster.stop(ignore_not_running=True)
