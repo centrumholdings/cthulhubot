@@ -100,6 +100,9 @@ class Assignment(object):
 
         return status
 
+    def get_text_status(self):
+        return unicode(self.get_status())
+
     def get_factory(self):
         from buildbot.steps.shell import ShellCommand
         from buildbot.steps.source import Git
@@ -146,12 +149,23 @@ class AssignmentStatus(object):
 class DirectoryNotCreated(AssignmentStatus):
     ID = 1
 
+    def __unicode__(self):
+        return u"Buildslave directory not crated yet"
+
 class AssignmentOffline(AssignmentStatus):
     ID = 2
+
+    def __unicode__(self):
+        return u"Offline, not connected to buildmaster"
 
 class AssignmentRunning(AssignmentStatus):
     ID = 3
 
+    def __unicode__(self):
+        return u"Running"
+
 class AssignmentReady(AssignmentStatus):
     ID = 4
 
+    def __unicode__(self):
+        return u"Connected and ready"
