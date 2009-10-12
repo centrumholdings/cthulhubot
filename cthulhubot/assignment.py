@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+from django.utils.safestring import mark_safe
 import os
 from platform import node
 
@@ -12,6 +13,7 @@ from django.utils.simplejson import loads
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
+from cthulhubot.buildbot import BuildForcer
 
 log = logging.getLogger("cthulhubot.assignment")
 
@@ -92,7 +94,6 @@ class Assignment(object):
             
 
     def get_status(self):
-
         if not self.builder_running() and not self.build_directory_exists():
             status = DirectoryNotCreated()
         else:
@@ -102,6 +103,22 @@ class Assignment(object):
 
     def get_text_status(self):
         return unicode(self.get_status())
+
+    #TODO: Move HTML away
+    def get_status_action(self):
+        status = self.get_status()
+
+        INPUT_HTML_DICT = {
+            AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
+            DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
+            AssignmentReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
+        }
+
+        if status.ID in INPUT_HTML_DICT:
+            return INPUT_HTML_DICT[status.ID]
+        else:
+            return u''
+
 
     def get_factory(self):
         from buildbot.steps.shell import ShellCommand
@@ -142,30 +159,38 @@ class Assignment(object):
         for config in self.model.config.select_related().all():
             self.job.update_command_config(command_slug=config.command.slug, config=loads(config.config))
 
+    def force_build(self):
+        forcer = BuildForcer(master_string=self.get_master_connection_string())
+        forcer.run()
+        return forcer
 
 class AssignmentStatus(object):
     ID = None
 
-class DirectoryNotCreated(AssignmentStatus):
-    ID = 1
+    def __init__(self, status=None):
+        super(AssignmentStatus, self).__init__()
+        self.status = status
 
     def __unicode__(self):
-        return u"Buildslave directory not crated yet"
+        return self.status or self.DEFAULT_STATUS
+
+
+class DirectoryNotCreated(AssignmentStatus):
+    ID = 1
+    DEFAULT_STATUS = u"Buildslave directory not created yet"
 
 class AssignmentOffline(AssignmentStatus):
     ID = 2
-
-    def __unicode__(self):
-        return u"Offline, not connected to buildmaster"
+    DEFAULT_STATUS = u"Offline, not connected to buildmaster"
 
 class AssignmentRunning(AssignmentStatus):
     ID = 3
-
-    def __unicode__(self):
-        return u"Running"
+    DEFAULT_STATUS = u"Running"
 
 class AssignmentReady(AssignmentStatus):
     ID = 4
+    DEFAULT_STATUS = u"Connected and ready"
 
-    def __unicode__(self):
-        return u"Connected and ready"
+class AssignmentStatusError(AssignmentStatus):
+    ID = 4
+    DEFAULT_STATUS = u"Problem with assignment status"

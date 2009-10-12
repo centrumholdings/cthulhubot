@@ -1,9 +1,10 @@
+from django.http import HttpResponseBadRequest
 import logging
 from subprocess import Popen, CalledProcessError
 
 log = logging.getLogger("cthulhubot.utils")
 
-def dispatch_post(request, function_dict, kwargs=None):
+def dispatch_post(request, function_dict, kwargs=None, suspend_400=False):
     """
     Dispatch POST request according to function dictionary.
 
@@ -18,6 +19,7 @@ def dispatch_post(request, function_dict, kwargs=None):
         for recognized_post_value in function_dict:
             if request.POST.get(recognized_post_value, None):
                 return function_dict[recognized_post_value](request.POST, **(kwargs or {}))
+        return HttpResponseBadRequest("Action name not recognized")
 
 
 def check_call(*popenargs, **kwargs):

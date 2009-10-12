@@ -9,12 +9,13 @@ from django.views.generic.simple import direct_to_template
 from django.utils.simplejson import dumps
 
 from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
-from cthulhubot.models import BuildComputer, Project, Job, Command
+from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.jobs import get_undiscovered_jobs
+from cthulhubot.assignment import Assignment
 
 
 ########### Helper controller-model dispatchers
@@ -43,9 +44,31 @@ def add_computer(post, **kwargs):
     )
 
 def check_builder(post, user, assignment, **kwargs):
-    user.message_set.create(message="Your playlist was added successfully.")
+#    user.message_set.create(message="Your playlist was added successfully.")
 
     return HttpResponseRedirect(reverse("cthulhubot-job-assignment-detail", kwargs={"assignment_id" : assignment.pk}))
+
+def start_slave(post, project, **kwargs):
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment.start()
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
+
+def create_slave_dir(post, project, **kwargs):
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment.create_build_directory()
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
+
+def force_build(post, project, **kwargs):
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment.force_build()
+    return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
+        "project" : project.slug,
+    }))
+
 
 ########### VIEWS
 
@@ -87,6 +110,10 @@ def project_detail(request, project):
             "create_master" : create_master,
             "start_master" : start_master,
             "stop_master" : stop_master,
+            "stop_master" : stop_master,
+            "start_slave" : start_slave,
+            "create_slave_dir" : create_slave_dir,
+            "force_build" : force_build,
         },
         kwargs = {
             "project" : project,

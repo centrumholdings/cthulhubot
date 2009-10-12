@@ -21,9 +21,15 @@
 <p class="help">Discovered <a href="{% url cthulhubot-jobs %}">jobs</a> can be configured to work for this project.</p>
 
 <p><a href="{% url cthulhubot-job-assigment project=project.slug %}">Configure new job assigment</a></p>
+
 <ul>
 {% for assignment in job_assignments %}
-    <li><a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }}</li>
+    <li>
+        <form action="." method="post">
+            <input type="hidden" value="{{ assignment.get_identifier }}" name="assignment_id" />
+            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }}
+        </form>
+    </li>
 {% endfor %}
 </ul>
 {% endblock %}

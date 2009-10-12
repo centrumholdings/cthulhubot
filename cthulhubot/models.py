@@ -231,19 +231,23 @@ class JobAssignment(models.Model):
 
     unique_together = (("job", "project", "computer"),)
 
-    def get_text_status(self):
+    def get_status(self):
         computer = Computer(host=self.computer.hostname, user=self.computer.username, key=self.computer.ssh_key)
+        from cthulhubot.assignment import AssignmentRunning, DirectoryNotCreated, AssignmentOffline, AssignmentStatusError
         try:
             computer.connect()
             if computer.builder_running(self.get_build_directory()):
-                status = 'Running'
+                status = AssignmentRunning()
             elif not computer.build_directory_exists(self.get_build_directory()):
-                status = 'Not created yet'
+                status = DirectoryNotCreated()
             else:
-                status = 'KO'
+                status = AssignmentOffline()
         except CommunicationError, err:
-            status = 'Cannot communicate: %s' % str(err)
+            status = AssignmentStatusError(status = u'Cannot communicate: %s' % unicode(err))
         return status
+
+    def get_text_status(self):
+        return unicode(self.get_status())
 
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
