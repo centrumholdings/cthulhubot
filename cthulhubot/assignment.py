@@ -38,7 +38,7 @@ class Assignment(object):
     def get_master_connection_string(self):
         host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
         if not host:
-            host = node() or "localhost"
+            host = node() or "127.0.0.1"
             log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
         return "%s:%s" % (host, self.project.buildmaster.buildmaster_port)
 
