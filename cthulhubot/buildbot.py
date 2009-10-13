@@ -2,12 +2,43 @@ from __future__ import absolute_import
 
 import os
 
+from threading import Thread
+import logging
+
 from twisted.spread import pb
 from twisted.cred import credentials
-from twisted.internet import reactor, defer
-
+from twisted.internet import defer
+from twisted.internet.selectreactor import SelectReactor
+from twisted.internet import reactor as twsited_default_reactor
 
 from cthulhubot.models import Buildmaster, Project
+from buildbot.clients.sendchange import Sender
+
+class CustomReactorSender(Sender):
+    def __init__(self, master, user=None, reactor=None):
+        Sender.__init__(self, master, user=None)
+        self.reactor = reactor or twsited_default_reactor
+
+    def send(self, branch, revision, comments, files, user=None, category=None, when=None):
+        if user is None:
+            user = self.user
+        change = {'who': user, 'files': files, 'comments': comments,
+                  'branch': branch, 'revision': revision, 'category': category,
+                  'when': when}
+        self.num_changes += 1
+
+        f = pb.PBClientFactory()
+        d = f.login(credentials.UsernamePassword("change", "changepw"))
+        self.reactor.connectTCP(self.host, self.port, f)
+        d.addCallback(self.addChange, change)
+        return d
+
+    def stop(self, res):
+        self.reactor.stop()
+        return res
+
+    def run(self, installSignalHandlers=True):
+        self.reactor.run(installSignalHandlers)
 
 class BuildForcer(object):
     def __init__(self, master_string):
@@ -15,72 +46,22 @@ class BuildForcer(object):
 
         self.master_string = master_string
 
-    def createJob(self):
-        pass
-
+    def connect_failed(self, error):
+        logging.error("Could not connect: %s"
+            % error.getErrorMessage())
+        return error
 
     def run(self):
 
-        from buildbot.clients.sendchange import Sender
+        reactor = SelectReactor()
 
-        s = Sender(master=self.master_string, user="Sender")
+        s = CustomReactorSender(master=self.master_string, user="Sender", reactor=reactor)
         d = s.send(branch="master", revision="FETCH_HEAD", comments="Dummy", files="CHANGELOG", category=None, when=None)
+        d.addErrback(self.connect_failed)
         d.addBoth(s.stop)
-        reactor.run(False)
+        thread = Thread(target=s.run, args=(False,))
+        thread.start()
         return d
-
-
-
-#        master = 123
-#        host, port = master.split(":")
-#        port = int(port)
-#
-#        #FIXME TODO
-#        branch="master"
-#
-#        d = defer.Deferred()
-#        d.addCallback(lambda res: self.createJob())
-#        d.addCallback(lambda res: deliver())
-#        d.addCallback(lambda res: reactor.stop())
-#
-#        reactor.callLater(0, d.callback, None)
-#        reactor.run()
-#
-#        f = pb.PBClientFactory()
-#        d = f.login(credentials.UsernamePassword("statusClient", "clientpw"))
-#        reactor.connectTCP(host, port, f)
-#
-#        def connect_failed(error):
-#            logging.error("Could not connect to %s: %s"
-#                % (master, error.getErrorMessage()))
-#            return error
-#
-#        def cleanup(res):
-#            reactor.stop()
-#
-#        def add_change(remote, branch):
-#            change = {
-#                'revision': "FETCH_HEAD",
-#                'who' : 'BuildBot',
-#                'comments': "Forcing build by dummy commit",
-#                'branch': branch,
-#                'category' : 'auto',
-#                'files' : [
-#                    'CHANGELOG'
-#                ],
-#            }
-#            d = remote.callRemote('addChange', change)
-#            return d
-#
-#        def connected(remote, branch):
-#            return add_change(remote, branch)
-#
-#        d.addErrback(connect_failed)
-#        d.addCallback(connected, branch)
-#        d.addBoth(cleanup)
-#
-#        reactor.run()
-
 
 
 def get_buildmaster_config(slug):
