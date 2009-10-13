@@ -43,6 +43,10 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
         assert get_command('cthulhubot-debian-build-debian-package') is not None
         assert get_command('cthulhubot-django-unit-test-config') is not None
 
+    def test_sleep_discovered(self):
+        assert get_command('cthulhubot-sleep') is not None
+
+
     def test_discovery_of_unconfigured_packages_misses_configured_ones(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()
         Command.objects.create(slug=cmd.slug)
