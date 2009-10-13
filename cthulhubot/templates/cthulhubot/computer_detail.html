@@ -2,6 +2,8 @@
 
 {% block content %}
 
+<p><a href="{% url cthulhubot-computer-edit computer=computer.slug %}">Edit computer properties</a></p>
+
 <h1 id="computer-name">{{ computer.name }}</h1>
 <form action="." method="post">
 </form>

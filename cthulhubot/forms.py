@@ -12,7 +12,7 @@ class CreateProjectForm(Form):
     name = CharField(max_length=50)
     issue_tracker = URLField()
 
-class AddProjectForm(ModelForm):
+class ComputerForm(ModelForm):
     class Meta:
         model = BuildComputer
 

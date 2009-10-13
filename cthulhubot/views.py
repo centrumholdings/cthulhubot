@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 from django.utils.simplejson import dumps
 
-from cthulhubot.forms import CreateProjectForm, AddProjectForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
+from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
 from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
@@ -62,9 +62,12 @@ def create_slave_dir(post, project, **kwargs):
         "project" : project.slug,
     }))
 
-def force_build(post, project, **kwargs):
+def force_build(post, project, user, **kwargs):
     assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
     assignment.force_build()
+
+    user.message_set.create(message="Build forced")
+
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))
@@ -117,6 +120,7 @@ def project_detail(request, project):
         },
         kwargs = {
             "project" : project,
+            "user" : request.user,
         }
     )
     if redirect:
@@ -141,14 +145,14 @@ def computers(request):
 @transaction.commit_on_success
 def computers_create(request):
     if request.method == "POST":
-        form = AddProjectForm(request.POST)
+        form = ComputerForm(request.POST)
         if form.is_valid():
             computer = form.save()
             return HttpResponseRedirect(reverse("cthulhubot-computer-detail", kwargs={
                 "computer" : computer.slug,
             }))
     else:
-        form = AddProjectForm()
+        form = ComputerForm()
         
     return direct_to_template(request, 'cthulhubot/computers_create.html', {
         'form' : form
@@ -160,6 +164,23 @@ def computer_detail(request, computer):
 
     return direct_to_template(request, 'cthulhubot/computer_detail.html', {
         'computer' : computer,
+    })
+
+@transaction.commit_on_success
+def computer_edit(request, computer):
+    computer = get_object_or_404(BuildComputer, slug=computer)
+    if request.method == "POST":
+        form = ComputerForm(request.POST, instance=computer)
+        if form.is_valid():
+            computer = form.save()
+            return HttpResponseRedirect(reverse("cthulhubot-computer-detail", kwargs={
+                "computer" : computer.slug,
+            }))
+    else:
+        form = ComputerForm(instance=computer)
+
+    return direct_to_template(request, 'cthulhubot/computers_edit.html', {
+        'form' : form
     })
 
 @transaction.commit_on_success
