@@ -76,7 +76,7 @@ class Assignment(object):
 
     def get_status_from_database(self):
         db = get_database_connection()
-        builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : None})
+        builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.model.project.get_buildmaster().pk})
         if not builder:
             return AssignmentOffline()
         else:
@@ -130,7 +130,7 @@ class Assignment(object):
         commands = self.job.get_commands()
 
         factory = BuildFactory()
-        factory.addStep(Git(self.project.repository_uri, branch="master"))
+#        factory.addStep(Git(self.project.repository_uri, branch="master"))
 
         for command in commands:
             try:

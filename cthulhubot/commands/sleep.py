@@ -19,7 +19,7 @@ class Sleep(Command):
 
 
     def get_command(self):
-        return ["sleep", self.parameters['seconds']['value']]
+        return ["sleep", self.parameters['time']['value']]
 
     command = property(get_command)
 

@@ -422,7 +422,7 @@ class Buildmaster(models.Model):
                 }
                 for assignment in assignments
             ],
-            'status' : [MongoDb(database=get_database_name())],
+            'status' : [MongoDb(database=get_database_name(), master_id=self.pk)],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
             'buildbotURL' : 'http://uri',
