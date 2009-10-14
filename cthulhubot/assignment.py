@@ -139,7 +139,7 @@ class Assignment(object):
             except CommandConfiguration.DoesNotExist:
                 pass
             
-            factory.addStep(ShellCommand(command.get_command()))
+            factory.addStep(ShellCommand(command=command.get_command()))
         return factory
 
     def execute_remote_command_for_success(self, cmd):

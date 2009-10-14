@@ -12,7 +12,7 @@ class Sleep(Command):
     parameters = {
         'time' : {
             'help' : u'How long to sleep (in seconds)',
-            'value' : None,
+            'value' : 1,
             'required' : True,
         },
     }
