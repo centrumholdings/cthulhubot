@@ -81,6 +81,7 @@ class TestBuildmasterFrontend(DatabaseTestCase):
         for attr in ['projectURL', 'buildbotURL', 'slavePortnum', 'projectName']:
             self.assert_equals(model_config[attr], master_config[attr])
 
+
     def tearDown(self):
         self.buildmaster.delete()
         super(TestBuildmasterFrontend, self).tearDown()

@@ -9,7 +9,7 @@ from django.views.generic.simple import direct_to_template
 from django.utils.simplejson import dumps
 
 from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
-from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment
+from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
@@ -61,6 +61,27 @@ def create_slave_dir(post, project, **kwargs):
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))
+
+def create_job_assignment(job, computer, project, params=None):
+    assigmnent = JobAssignment.objects.create(
+        job = job,
+        project = project,
+        computer = computer
+    )
+
+    if params:
+        for command in params:
+            assigmnent.config.create(
+                command = Command.objects.get(slug=command),
+                config = dumps(params[command])
+            )
+
+    if len(ProjectClient.objects.filter(project=project, computer=computer)) == 0:
+        client = ProjectClient(project=project, computer=computer)
+        client.generate_password()
+        client.save()
+
+    return assigmnent
 
 def force_build(post, project, user, **kwargs):
     assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
@@ -271,17 +292,8 @@ def job_assigment_config(request, project, job):
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])
             params = get_command_params_from_form_data(job_form.cleaned_data)
 
-            assigmnent = JobAssignment.objects.create(
-                job = job,
-                project = project,
-                computer = computer
-            )
+            assignment = create_job_assignment(computer=computer, job=job, project=project, params=params)
 
-            for command in params:
-                assigmnent.config.create(
-                    command = Command.objects.get(slug=command),
-                    config = dumps(params[command])
-                )
             return HttpResponseRedirect(reverse('cthulhubot-project-detail', kwargs={'project' : project.slug}))
 
 

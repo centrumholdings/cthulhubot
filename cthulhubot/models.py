@@ -7,6 +7,7 @@ from shutil import rmtree
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
 from tempfile import gettempdir
+from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -227,7 +228,6 @@ class JobAssignment(models.Model):
     computer = models.ForeignKey(BuildComputer)
     project = models.ForeignKey(Project)
     config = GenericRelation(CommandConfiguration)
-    
 
     unique_together = (("job", "project", "computer"),)
 
@@ -258,6 +258,19 @@ class JobAssignment(models.Model):
             model = self
         )
    
+
+class ProjectClient(models.Model):
+    project = models.ForeignKey(Project)
+    computer = models.ForeignKey(BuildComputer)
+    password = models.CharField(max_length=36)
+
+    def generate_password(self):
+        if not self.password:
+            self.password = str(uuid4())
+
+    unique_together = (("project", "computer"),)
+
+
 
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
@@ -429,4 +442,5 @@ class Buildmaster(models.Model):
     #        'buildbotURL' : project.get_absolute_url(),
         }
         return config
+
 
