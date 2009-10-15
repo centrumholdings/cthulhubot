@@ -15,10 +15,10 @@ class TestCommands(AuthenticatedWebTestCase):
         s.wait_for_page_to_load(30000)
 
         # our all-favourite build is there
-        self.assert_equals(u'cthulhubot-debian-build-debian-package', s.get_text(self.elements['commands']['discovery']['list'] % {'position' : 1}))
+        self.assert_equals(u'cthulhubot-debian-build-debian-package', s.get_text(self.elements['commands']['discovery']['list'] % {'position' : 4}))
 
         # assign it
-        s.click(self.elements['commands']['discovery']['assign'] % {'position' : 1})
+        s.click(self.elements['commands']['discovery']['assign'] % {'position' : 4})
         s.wait_for_page_to_load(30000)
 
         # it's not here anymore
