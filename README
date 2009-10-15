@@ -7,7 +7,7 @@ Project for managing large number of buildbots for web development, with some us
 
 Dependencies for running:
  * Buildbot 0.7.11
- * buildbot-mongodb-status 0.2
+ * buildbot-mongodb-status 0.3
 
 For development
  * django-sane-testing for tests (http://pypi.python.org/pypi/djangosanetesting/)
