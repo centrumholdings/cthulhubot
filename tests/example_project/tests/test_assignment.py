@@ -13,6 +13,7 @@ from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOff
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.project import create_project
 from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, CommandConfiguration
+from cthulhubot.views import create_job_assignment
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
     def setUp(self):
@@ -31,10 +32,10 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation')
         self.job.auto_discovery()
 
-        self.assignment_model = JobAssignment.objects.create(
+        self.assignment_model = create_job_assignment(
             computer = self.computer_model,
             job = job,
-            project = self.project
+            project = self.project,
         )
 
         self.assignment_model.config.create(

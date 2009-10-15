@@ -14,6 +14,7 @@ from django.utils.simplejson import loads
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
 from cthulhubot.buildbot import BuildForcer
+from cthulhubot.models import ProjectClient
 
 log = logging.getLogger("cthulhubot.assignment")
 
@@ -62,9 +63,12 @@ class Assignment(object):
             raise ValueError("I need identifier for directory creation! (JobAssignment model has no ID. Not saved yet?)")
         return str(id)
 
-    def create_build_directory(self):
-        username = 'job@host'
-        password = 'xxx'
+    def get_client(self):
+        return ProjectClient.objects.get(project=self.model.project, computer=self.model.computer)
+
+    def create_build_directory(self, username=None, password=None):
+        username = username or self.get_client().get_name()
+        password = password or self.get_client().password
 
         self.execute_remote_command_for_success(["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password])
         self.execute_remote_command_for_success(["touch", os.path.join(self.build_directory, 'twistd.log')])

@@ -268,6 +268,9 @@ class ProjectClient(models.Model):
         if not self.password:
             self.password = str(uuid4())
 
+    def get_name(self):
+        return '%s-at-%s' % (self.project.slug, self.computer.slug)
+
     unique_together = (("project", "computer"),)
 
 
@@ -419,7 +422,7 @@ class Buildmaster(models.Model):
 
         config = {
             'slavePortnum' : self.buildmaster_port,
-            'slaves' : [BuildSlave('%s-at-%s' % (self.project.slug, client.computer.slug), client.password) for client in ProjectClient.objects.filter(project=self.project)],
+            'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
             'schedulers' : [
                 Scheduler(name="scheduler", branch="master", treeStableTimer=1, builderNames=[
@@ -429,7 +432,7 @@ class Buildmaster(models.Model):
             'builders' : [
                 {
                       'name': assignment.get_domain_object().get_identifier(),
-                      'slavename': "job@host",
+                      'slavename': ProjectClient.objects.get(project=self.project, computer=assignment.computer).get_name(),
                       'builddir': assignment.get_domain_object().get_identifier(),
                       'factory': assignment.get_domain_object().get_factory()
                 }

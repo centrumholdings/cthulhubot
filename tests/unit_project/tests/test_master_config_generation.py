@@ -5,7 +5,7 @@ from bbmongostatus.status import MongoDb
 
 from cthulhubot.assignment import Assignment
 from cthulhubot.buildbot import get_buildmaster_config
-from cthulhubot.models import BuildComputer, JobAssignment, Job, Command
+from cthulhubot.models import BuildComputer, JobAssignment, Job, Command, ProjectClient
 from cthulhubot.views import create_project, create_job_assignment
 
 from unit_project.tests.helpers import MockJob
@@ -19,6 +19,7 @@ class TestSchedulers(DatabaseTestCase):
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.computer = BuildComputer.objects.create(name="localhost")
+        ProjectClient.objects.create(project=self.project, computer=self.computer)
 
         job = Job.objects.create(slug='cthulhubot-debian-package-creation')
         job.auto_discovery()
@@ -92,6 +93,9 @@ class TestBuildmasterFrontend(DatabaseTestCase):
 
     def test_slave_retrieved(self):
         self.assert_equals(1, len(self.config['slaves']))
+
+    def test_slaves_with_proper_names(self):
+        self.assert_equals(ProjectClient.objects.all()[0].get_name(), self.config['builders'][0]['slavename'])
 
     def test_unique_slaves_retrieved(self):
         # duplicate project@computer
