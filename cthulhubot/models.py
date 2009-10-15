@@ -419,7 +419,7 @@ class Buildmaster(models.Model):
 
         config = {
             'slavePortnum' : self.buildmaster_port,
-            'slaves' : [BuildSlave('job@host', 'xxx')],
+            'slaves' : [BuildSlave('%s-at-%s' % (self.project.slug, client.computer.slug), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
             'schedulers' : [
                 Scheduler(name="scheduler", branch="master", treeStableTimer=1, builderNames=[

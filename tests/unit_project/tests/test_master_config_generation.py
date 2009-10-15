@@ -96,11 +96,10 @@ class TestBuildmasterFrontend(DatabaseTestCase):
     def test_unique_slaves_retrieved(self):
         # duplicate project@computer
         create_job_assignment(computer = self.computer_model, job = self.job, project = self.project)
-
         new_computer = BuildComputer.objects.create(name="blah", hostname="blah")
         create_job_assignment(computer = new_computer, job = self.job, project = self.project)
 
-        self.assert_equals(2, len(self.config['slaves']))
+        self.assert_equals(2, len(self.buildmaster.get_config()['slaves']))
 
 
     def tearDown(self):

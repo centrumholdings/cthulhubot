@@ -37,6 +37,14 @@ class TestCreation(DatabaseTestCase):
         self.create_assignment()
         self.assertEquals(1, len(ProjectClient.objects.all()))
 
+    def test_one_client_per_assigned_computer(self):
+        self.create_assignment()
+        new_computer = BuildComputer.objects.create(name="blah", hostname="blah")
+        create_job_assignment(computer = new_computer, job = self.job, project = self.project)
+
+        self.assertEquals(2, len(ProjectClient.objects.all()))
+
+
     def test_client_password_generated(self):
         self.create_assignment()
         assert len(ProjectClient.objects.all()[0].password) > 0
