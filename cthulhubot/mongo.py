@@ -1,7 +1,10 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+import logging
 
 from pymongo.connection import Connection, ConnectionFailure
+
+log = logging.getLogger("cthulhubot.mongo")
 
 MONGODB_DATABASE_TEST_PREFIX = "test_"
 
@@ -12,6 +15,7 @@ def is_test_database():
     if settings.TEST_DATABASE_NAME:
         test_database_name = settings.TEST_DATABASE_NAME
     else:
+        from django.db import TEST_DATABASE_PREFIX
         test_database_name = TEST_DATABASE_PREFIX + settings.DATABASE_NAME
 
     return settings.DATABASE_NAME == test_database_name
