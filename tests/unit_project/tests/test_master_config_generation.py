@@ -15,7 +15,7 @@ class TestSchedulers(DatabaseTestCase):
     def setUp(self):
         super(TestSchedulers, self).setUp()
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.computer = BuildComputer.objects.create(name="localhost")
@@ -72,7 +72,7 @@ class TestBuildmasterFrontend(DatabaseTestCase):
     def setUp(self):
         super(TestBuildmasterFrontend, self).setUp()
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = BuildComputer.objects.create(name="localhost", hostname="localhost")
         self.computer = self.computer_model.get_domain_object()

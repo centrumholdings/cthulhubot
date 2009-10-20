@@ -20,7 +20,7 @@ class TestCreation(DatabaseTestCase):
     def setUp(self):
         super(TestCreation, self).setUp()
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
         self.computer_model = BuildComputer.objects.create(hostname = "localhost")
         self.job = Job.objects.create(slug='cthulhubot-sleep')
         self.job.auto_discovery()
@@ -60,7 +60,7 @@ class TestProjectAssignment(DatabaseTestCase):
     def setUp(self):
         super(TestProjectAssignment, self).setUp()
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.computer_model = BuildComputer.objects.create(hostname = "localhost")

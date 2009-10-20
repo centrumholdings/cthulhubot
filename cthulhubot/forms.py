@@ -11,6 +11,7 @@ JOB_CONFIGURATION_FIELD_SEPARATOR = ': '
 class CreateProjectForm(Form):
     name = CharField(max_length=50)
     issue_tracker = URLField()
+    repository = CharField(max_length=50)
 
 class ComputerForm(ModelForm):
     class Meta:
