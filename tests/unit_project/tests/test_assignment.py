@@ -83,32 +83,28 @@ class TestResults(DatabaseTestCase):
 
         self.assignment = self.assignment_model.get_domain_object()
 
-    def test_build_results_before_first_run(self):
-        self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
-
-    def test_build_results_before_first_run_ended(self):
-        self.db.builds.insert({
-            'builder' : str(self.assignment.get_identifier()),
-            'slaves' : [ProjectClient.objects.all()[0].get_name()],
-            'number' : 1,
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : None,
-            'steps' : [],
-        })
-
-        self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
-
-    def test_failed_result(self):
+    def insert_initial_build(self, time_end=None):
         build = {
             'builder' : str(self.assignment.get_identifier()),
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : time_end,
             'steps' : [],
         }
-
         self.db.builds.insert(build)
+
+        return build
+
+    def test_build_results_before_first_run(self):
+        self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
+
+    def test_build_results_before_first_run_ended(self):
+        self.insert_initial_build()
+        self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
+
+    def test_failed_result(self):
+        build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
             'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
@@ -125,14 +121,7 @@ class TestResults(DatabaseTestCase):
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_failure_before_success_is_still_fails(self):
-        build = {
-            'builder' : str(self.assignment.get_identifier()),
-            'slaves' : [ProjectClient.objects.all()[0].get_name()],
-            'number' : 1,
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : None,
-            'steps' : [],
-        }
+        build = self.insert_initial_build()
 
         self.db.builds.insert(build)
 
@@ -165,16 +154,7 @@ class TestResults(DatabaseTestCase):
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_simple_success(self):
-        build = {
-            'builder' : str(self.assignment.get_identifier()),
-            'slaves' : [ProjectClient.objects.all()[0].get_name()],
-            'number' : 1,
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'steps' : [],
-        }
-
-        self.db.builds.insert(build)
+        build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
 
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
@@ -190,8 +170,6 @@ class TestResults(DatabaseTestCase):
         build['steps'].append(step)
         self.db.builds.save(build)
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
-
-
 
     def tearDown(self):
         self.buildmaster.stop(ignore_not_running=True)
