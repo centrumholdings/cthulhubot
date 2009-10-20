@@ -182,7 +182,7 @@ class Assignment(object):
     def get_last_build_status(self):
         db = get_database_connection()
         try:
-            build = db.builds.find({'builder' : self.get_identifier()}).sort([("time_end", -1)]).limit(1).next()
+            build = db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next()
         except StopIteration:
             return BUILD_RESULTS_DICT[None]
 

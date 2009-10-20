@@ -83,12 +83,18 @@ class TestResults(DatabaseTestCase):
 
         self.assignment = self.assignment_model.get_domain_object()
 
-    def insert_initial_build(self, time_end=None):
+    def insert_build(self, time_end=False, time_start=False):
+        if not time_start:
+            time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00)
+
+        if time_end is False:
+            time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
+
         build = {
             'builder' : str(self.assignment.get_identifier()),
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
+            'time_start' : time_start,
             'time_end' : time_end,
             'steps' : [],
         }
@@ -96,14 +102,19 @@ class TestResults(DatabaseTestCase):
 
         return build
 
-    def insert_step(self, build, result=False, successful=False):
+    def insert_step(self, build, result=False, successful=False, time_end=False, time_start=False):
         if result is False:
             result = FAILURE
-        else:
-            result = result
+
+        if time_end is False:
+            time_end = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
+
+        if time_start is False:
+            time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00)
+
         step = {
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_start' : time_start,
+            'time_end' : time_end,
             'stdout' : '',
             'stderr' : '',
             'headers' : '',
@@ -119,24 +130,33 @@ class TestResults(DatabaseTestCase):
         self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
 
     def test_build_results_before_first_run_ended(self):
-        self.insert_initial_build()
+        self.insert_build()
         self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
 
     def test_failed_result(self):
-        build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
+        build = self.insert_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
         self.insert_step(build)
 
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_failure_before_success_is_still_fails(self):
-        build = self.insert_initial_build()
+        build = self.insert_build()
         self.insert_step(build)
         self.insert_step(build, result=SUCCESS)
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_simple_success(self):
-        build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
+        build = self.insert_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
         self.insert_step(build, result=SUCCESS)
+        self.assert_equals(u"Success", self.assignment.get_last_build_status())
+
+    def test_last_finished_build_used_when_last_is_not_finished_yet(self):
+        build = self.insert_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
+        self.insert_step(build, result=SUCCESS)
+
+        build = self.insert_build(time_start=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=00), time_end=None)
+        self.insert_step(build, result=FAILURE, time_start = datetime(year=2009, month=01, day=01, hour=13, minute=00, second=00), time_end=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
+        self.insert_step(build, result=None, time_end=None, time_start=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
 
     def tearDown(self):
