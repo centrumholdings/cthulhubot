@@ -27,7 +27,7 @@
     <li>
         <form action="." method="post">
             <input type="hidden" value="{{ assignment.get_identifier }}" name="assignment_id" />
-            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }}
+            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }} Last build: {{ assignment.get_last_build_status }}
         </form>
     </li>
 {% endfor %}

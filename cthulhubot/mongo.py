@@ -3,6 +3,8 @@ from django.core.exceptions import ImproperlyConfigured
 import logging
 
 from pymongo.connection import Connection, ConnectionFailure
+from pymongo.son_manipulator import AutoReference, NamespaceInjector
+from pymongo import ASCENDING
 
 log = logging.getLogger("cthulhubot.mongo")
 
@@ -48,6 +50,10 @@ def get_database_connection():
 
     database = connection[db_info['database']]
 
+    database.add_son_manipulator(NamespaceInjector())
+    database.add_son_manipulator(AutoReference(database))
+
+
     if db_info['username'] or db_info['password']:
         auth = database.authenticate(db_info['username'], db_info['password'])
         if auth is not True:
@@ -55,4 +61,18 @@ def get_database_connection():
             raise AssertionError("Not authenticated to use selected database")
 
     return database
+
+
+def ensure_mongo_structure():
+    database = get_database_connection()
+    indexes = {
+        'builds' : ['builder', 'slave', 'time_stop'],
+        'steps' : ['build', 'time_stop', 'successful'],
+        'builders' : ['master_id']
+    }
+
+    for collection in indexes:
+        for index in indexes[collection]:
+            if index not in database[collection].index_information():
+                database[collection].create_index(index, ASCENDING)
 
