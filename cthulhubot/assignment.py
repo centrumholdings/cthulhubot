@@ -181,21 +181,23 @@ class Assignment(object):
 
     def get_last_build_status(self):
         db = get_database_connection()
-        build = db.builds.find({'builder' : self.get_identifier()}).sort([("time_stop", -1)]).limit(1).next()
-        result = None
+        try:
+            build = db.builds.find({'builder' : self.get_identifier()}).sort([("time_end", -1)]).limit(1).next()
+        except StopIteration:
+            return BUILD_RESULTS_DICT[None]
 
+        result = None
         priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
 
-        if build:
-            for step in build['steps']:
-                if step.get('time_stop', None):
-                    if not result:
-                        result = step['result']
-                    else:
-                        if priorities.index(step['result']) > priorities.index(result):
-                            result = step['result']
+        for step in build['steps']:
+            if step.get('time_end', None):
+                if not result:
+                    result = step['result']
                 else:
-                    log.debug("Step %s without time_stop, not considering" % str(step))
+                    if priorities.index(step['result']) > priorities.index(result):
+                        result = step['result']
+            else:
+                log.debug("Step %s without time_end, not considering" % str(step))
 
         return BUILD_RESULTS_DICT[result]
 

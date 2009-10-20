@@ -84,12 +84,15 @@ class TestResults(DatabaseTestCase):
         self.assignment = self.assignment_model.get_domain_object()
 
     def test_build_results_before_first_run(self):
+        self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
+
+    def test_build_results_before_first_run_ended(self):
         self.db.builds.insert({
             'builder' : str(self.assignment.get_identifier()),
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : None,
+            'time_end' : None,
             'steps' : [],
         })
 
@@ -101,14 +104,14 @@ class TestResults(DatabaseTestCase):
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'steps' : [],
         }
 
         self.db.builds.insert(build)
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'stdout' : '',
             'stderr' : '',
             'headers' : '',
@@ -127,7 +130,7 @@ class TestResults(DatabaseTestCase):
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : None,
+            'time_end' : None,
             'steps' : [],
         }
 
@@ -135,7 +138,7 @@ class TestResults(DatabaseTestCase):
 
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'stdout' : '',
             'stderr' : '',
             'headers' : '',
@@ -147,7 +150,7 @@ class TestResults(DatabaseTestCase):
         build['steps'].append(step)
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'stdout' : '',
             'stderr' : '',
             'headers' : '',
@@ -167,7 +170,7 @@ class TestResults(DatabaseTestCase):
             'slaves' : [ProjectClient.objects.all()[0].get_name()],
             'number' : 1,
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'steps' : [],
         }
 
@@ -175,7 +178,7 @@ class TestResults(DatabaseTestCase):
 
         step = {
             'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_stop' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
             'stdout' : '',
             'stderr' : '',
             'headers' : '',

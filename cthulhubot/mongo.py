@@ -66,8 +66,8 @@ def get_database_connection():
 def ensure_mongo_structure():
     database = get_database_connection()
     indexes = {
-        'builds' : ['builder', 'slave', 'time_stop'],
-        'steps' : ['build', 'time_stop', 'successful'],
+        'builds' : ['builder', 'slave', 'time_end'],
+        'steps' : ['build', 'time_end', 'successful'],
         'builders' : ['master_id']
     }
 
