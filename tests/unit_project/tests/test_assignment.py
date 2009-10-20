@@ -96,6 +96,25 @@ class TestResults(DatabaseTestCase):
 
         return build
 
+    def insert_step(self, build, result=False, successful=False):
+        if result is False:
+            result = FAILURE
+        else:
+            result = result
+        step = {
+            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
+            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
+            'stdout' : '',
+            'stderr' : '',
+            'headers' : '',
+            'successful' : successful,
+            'result' : result,
+        }
+        self.db.steps.insert(step)
+        build['steps'].append(step)
+        self.db.builds.save(build)
+        return step
+
     def test_build_results_before_first_run(self):
         self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
 
@@ -105,70 +124,19 @@ class TestResults(DatabaseTestCase):
 
     def test_failed_result(self):
         build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
-        step = {
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'stdout' : '',
-            'stderr' : '',
-            'headers' : '',
-            'successful' : False,
-            'result' : FAILURE,
-        }
+        self.insert_step(build)
 
-        self.db.steps.insert(step)
-        build['steps'].append(step)
-        self.db.builds.save(build)
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_failure_before_success_is_still_fails(self):
         build = self.insert_initial_build()
-
-        self.db.builds.insert(build)
-
-        step = {
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'stdout' : '',
-            'stderr' : '',
-            'headers' : '',
-            'successful' : False,
-            'result' : FAILURE,
-        }
-
-        self.db.steps.insert(step)
-        build['steps'].append(step)
-        step = {
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'stdout' : '',
-            'stderr' : '',
-            'headers' : '',
-            'successful' : False,
-            'result' : SUCCESS,
-        }
-        self.db.steps.insert(step)
-        build['steps'].append(step)
-
-
-        self.db.builds.save(build)
+        self.insert_step(build)
+        self.insert_step(build, result=SUCCESS)
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_simple_success(self):
         build = self.insert_initial_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
-
-        step = {
-            'time_start' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00),
-            'time_end' : datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01),
-            'stdout' : '',
-            'stderr' : '',
-            'headers' : '',
-            'successful' : True,
-            'result' : SUCCESS,
-        }
-
-        self.db.steps.insert(step)
-        build['steps'].append(step)
-        self.db.builds.save(build)
+        self.insert_step(build, result=SUCCESS)
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
 
     def tearDown(self):
