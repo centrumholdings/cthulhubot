@@ -6,7 +6,7 @@
 
 <form action="." method="post">
 {% if project.buildmaster %}
-    <p id="buildmaster-status">Buildmaster status: {{ project.buildmaster.get_text_status }}</p>
+    <p id="buildmaster-status">Buildmaster status: {{ project.buildmaster.get_text_status }} {% ifequal project.buildmaster.get_text_status "Running" %}<a href="{{ project.buildmaster.get_waterfall_uri }}">Waterfall</a>{% endifequal %}</p>
     {% ifequal project.buildmaster.get_text_status "Running" %}
         <input type="submit" name="stop_master" value="Stop" id="submit-stop-master">
     {% else %}
@@ -16,6 +16,8 @@
     <p>Buildmaster not created yet.</p><input type="submit" name="create_master" value="Create">
 {% endif %}
 </form>
+
+<p></p>
 
 <h2>Jobs</h2>
 <p class="help">Discovered <a href="{% url cthulhubot-jobs %}">jobs</a> can be configured to work for this project.</p>
@@ -27,7 +29,7 @@
     <li>
         <form action="." method="post">
             <input type="hidden" value="{{ assignment.get_identifier }}" name="assignment_id" />
-            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }}
+            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }} Last build: {{ assignment.get_last_build_status }}
         </form>
     </li>
 {% endfor %}

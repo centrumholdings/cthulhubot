@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from copy import copy
 import logging
 import os
+from platform import node
 from shutil import rmtree
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
@@ -29,6 +30,7 @@ from cthulhubot.mongo import get_database_name
 from buildbot.changes.pb import PBChangeSource
 from buildbot.buildslave import BuildSlave
 from buildbot.scheduler import Scheduler
+from buildbot.status import html
 
 from bbmongostatus.status import MongoDb
 
@@ -323,6 +325,18 @@ class Buildmaster(models.Model):
     def generate_buildmaster_port(self):
         return self.generate_new_port("buildmaster_port", "GENERATED_BUILDMASTER_PORT_START", 12000)
 
+    def get_webstatus_uri(self):
+        host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
+        if not host:
+            host = node() or "127.0.0.1"
+            log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
+        return 'http://%s:%s/' % (host, self.webstatus_port)
+
+    webstatus_uri = property(fget=get_webstatus_uri)
+
+    def get_waterfall_uri(self):
+        return self.get_webstatus_uri() + "waterfall"
+
     def save(self, *args, **kwargs):
         if not self.webstatus_port:
             self.webstatus_port = self.generate_webstatus_port()
@@ -438,11 +452,10 @@ class Buildmaster(models.Model):
                 }
                 for assignment in assignments
             ],
-            'status' : [MongoDb(database=get_database_name(), master_id=self.pk)],
+            'status' : [html.WebStatus(http_port=self.webstatus_port), MongoDb(database=get_database_name(), master_id=self.pk)],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
-            'buildbotURL' : 'http://uri',
-    #        'buildbotURL' : project.get_absolute_url(),
+            'buildbotURL' : self.get_webstatus_uri()
         }
         return config
 

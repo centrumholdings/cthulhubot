@@ -115,7 +115,8 @@ def projects_create(request):
         if form.is_valid():
             project = create_project(
                 name = form.cleaned_data['name'],
-                tracker_uri = form.cleaned_data['issue_tracker']
+                tracker_uri = form.cleaned_data['issue_tracker'],
+                repository_uri = form.cleaned_data['repository']
             )
             return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
                 "project" : project.slug,

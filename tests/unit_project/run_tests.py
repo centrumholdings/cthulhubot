@@ -29,16 +29,38 @@ for p in PYTHONPATH:
 # django needs this env variable
 os.environ['DJANGO_SETTINGS_MODULE'] = DJANGO_SETTINGS_MODULE
 
+from nose.plugins import Plugin
 
-# TODO: ugly hack to inject django plugin to nose.run
-#
-#
-for i in ['--with-django',]:
+class MongoDatabasePlugin(Plugin):
+    name = 'mongo-database'
+    score = 79
+
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)
+
+    def configure(self, options, config):
+        Plugin.configure(self, options, config)
+
+    def _drop_database(self):
+        from cthulhubot.mongo import get_database_connection
+        db = get_database_connection()
+        conn = db.connection()
+        conn.drop_database(db)
+
+    def begin(self):
+        self._drop_database()
+
+    def stopTest(self, test):
+        self._drop_database()
+
+
+for i in ['--with-django', '--with-mongo-database']:
     if i not in sys.argv:
         sys.argv.insert(1, i)
 
 
 nose.run_exit(
     defaultTest=dirname(__file__),
+    addplugins = [MongoDatabasePlugin()]
 )
 

@@ -55,8 +55,8 @@ class BuildForcer(object):
 
         reactor = SelectReactor()
 
-        s = CustomReactorSender(master=self.master_string, user="Sender", reactor=reactor)
-        d = s.send(branch="master", revision="FETCH_HEAD", comments="Dummy", files="CHANGELOG", category=None, when=None)
+        s = CustomReactorSender(master=self.master_string, user="BuildBot", reactor=reactor)
+        d = s.send(branch="master", revision="FETCH_HEAD", comments="Dummy", files="CHANGELOG", category=None, when=None, user="BuildBot")
         d.addErrback(self.connect_failed)
         d.addBoth(s.stop)
         thread = Thread(target=s.run, args=(False,))

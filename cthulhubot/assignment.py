@@ -18,6 +18,17 @@ from cthulhubot.models import ProjectClient
 
 log = logging.getLogger("cthulhubot.assignment")
 
+from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
+
+BUILD_RESULTS_DICT = {
+    SUCCESS : "Success",
+    WARNINGS : "Warning",
+    FAILURE : "Failure",
+    SKIPPED : "Skipped",
+    EXCEPTION : "Exception",
+    None : "No result yet",
+}
+
 class Assignment(object):
     """
     Domain object for job assignment, i.e. configured job to be performed on a given computer
@@ -167,6 +178,30 @@ class Assignment(object):
         forcer = BuildForcer(master_string=self.get_master_connection_string())
         forcer.run()
         return forcer
+
+    def get_last_build_status(self):
+        db = get_database_connection()
+        try:
+            build = db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next()
+        except StopIteration:
+            return BUILD_RESULTS_DICT[None]
+
+        result = None
+        priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
+
+        for step in build['steps']:
+            if step.get('time_end', None):
+                if not result:
+                    result = step['result']
+                else:
+                    if priorities.index(step['result']) > priorities.index(result):
+                        result = step['result']
+            else:
+                log.debug("Step %s without time_end, not considering" % str(step))
+
+        return BUILD_RESULTS_DICT[result]
+
+
 
 class AssignmentStatus(object):
     ID = None
