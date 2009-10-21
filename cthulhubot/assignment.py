@@ -136,7 +136,6 @@ class Assignment(object):
 
 
     def get_factory(self):
-        from buildbot.steps.shell import ShellCommand
         from buildbot.steps.source import Git
 
         from cthulhubot.models import Command, CommandConfiguration
@@ -154,7 +153,7 @@ class Assignment(object):
             except CommandConfiguration.DoesNotExist:
                 pass
             
-            factory.addStep(ShellCommand(command=command.get_command()))
+            factory.addStep(command.get_buildbot_command())
         return factory
 
     def execute_remote_command_for_success(self, cmd):

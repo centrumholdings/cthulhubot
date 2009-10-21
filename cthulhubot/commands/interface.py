@@ -2,6 +2,8 @@ from copy import copy
 
 from cthulhubot.err import UnconfiguredCommandError
 
+from buildbot.steps.shell import ShellCommand
+
 class Command(object):
     """
     Those classes should be implemented on top of buildbot's steps
@@ -74,4 +76,6 @@ class Command(object):
                 command.append(arg)
                 
         return command
-
+    
+    def get_buildbot_command(self):
+        return ShellCommand(command=self.get_command())

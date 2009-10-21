@@ -96,4 +96,10 @@ class TestDatabaseStore(DatabaseTestCase):
 
         self.assert_equals(command.get_command(), cmd.get_command())
 
-        
+
+class TestGit(DatabaseTestCase):
+    def test_git_repository_uri_propagation(self):
+        cmd = get_command('cthulhubot-git')()
+        cmd.update_config(config={'repository' : '/tmp/repo'})
+
+        self.assert_equals('/tmp/repo', cmd.get_buildbot_command().args['repourl'])
