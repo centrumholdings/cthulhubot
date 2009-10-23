@@ -4,6 +4,11 @@ from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
 
 from mock import Mock
 
+from cthulhubot.project import create_project as cthulhu_create_project
+
+def create_project(case, name=None, tracker_uri=None, repository_uri=None):
+    return cthulhu_create_project(name=name or case.project_name, tracker_uri=tracker_uri or "http://example.com", repository_uri=repository_uri or "/tmp/test")
+
 
 class WebTestCase(SeleniumTestCase):
     elements = {

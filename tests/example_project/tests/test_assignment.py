@@ -11,9 +11,10 @@ from django.utils.simplejson import dumps
 
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
-from cthulhubot.project import create_project
 from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, CommandConfiguration
 from cthulhubot.views import create_job_assignment
+
+from tests.helpers import create_project
 
 class TestBuildDirectory(DestructiveDatabaseTestCase):
     def setUp(self):
@@ -21,7 +22,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
 
 
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com")
+        self.project = create_project(self)
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
