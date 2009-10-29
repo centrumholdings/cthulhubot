@@ -49,14 +49,14 @@ def check_builder(post, user, assignment, **kwargs):
     return HttpResponseRedirect(reverse("cthulhubot-job-assignment-detail", kwargs={"assignment_id" : assignment.pk}))
 
 def start_slave(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
     assignment.start()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))
 
 def create_slave_dir(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
     assignment.create_build_directory()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
@@ -84,7 +84,7 @@ def create_job_assignment(job, computer, project, params=None):
     return assigmnent
 
 def force_build(post, project, user, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
     assignment.force_build()
 
     user.message_set.create(message="Build forced")
@@ -148,7 +148,7 @@ def project_detail(request, project):
     if redirect:
         return redirect
 
-    assignments = [assignment.get_domain_object() for assignment in JobAssignment.objects.filter(project=project)]
+    assignments = JobAssignment.objects.filter(project=project)
 
 
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
@@ -283,11 +283,11 @@ def job_assigment_config(request, project, job):
     computers = BuildComputer.objects.all().order_by('name')
 
     computer_form = get_build_computer_selection_form(computers)()
-    job_form = get_job_configuration_form(job.get_job_class())()
+    job_form = get_job_configuration_form(job)()
 
     if request.method == "POST":
         computer_form = get_build_computer_selection_form(computers)(request.POST)
-        job_form = get_job_configuration_form(job.get_job_class())(request.POST)
+        job_form = get_job_configuration_form(job)(request.POST)
 
         if computer_form.is_valid() and job_form.is_valid():
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])

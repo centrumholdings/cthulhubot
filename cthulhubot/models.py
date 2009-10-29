@@ -56,11 +56,7 @@ class BuildComputer(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(BuildComputer, self).__init__(*args, **kwargs)
-
         self._domain_object = None
-
-    def __unicode__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse("cthulhubot-computer-detail", kwargs={
@@ -83,6 +79,8 @@ class BuildComputer(models.Model):
             self.slug = slugify(self.name)
 
         super(BuildComputer, self).save(*args, **kwargs)
+
+
 
 class Command(models.Model):
     slug = models.CharField(max_length=255, unique=True)
@@ -233,19 +231,75 @@ class JobAssignment(models.Model):
 
     unique_together = (("job", "project", "computer"),)
 
+    def get_build_directory(self):
+        return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
+
+    build_directory = property(fget=get_build_directory)
+
+    def get_master_connection_string(self):
+        host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
+        if not host:
+            host = node() or "127.0.0.1"
+            log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
+        return "%s:%s" % (host, self.project.buildmaster.buildmaster_port)
+
+
+    def build_directory_exists(self):
+        return self.computer.build_directory_exists(self.build_directory)
+
+    def builder_running(self, directory=None):
+        directory = directory or self.build_directory
+        pid_file = os.path.join(directory, 'twistd.pid')
+        cmd = ["test", "-f", pid_file]
+        if self.computer.get_command_return_status(cmd) != 0:
+            return False
+        cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
+        return self.computer.get_command_return_status(cmd) == 0
+
+
+    def get_identifier(self):
+        return str(self.pk)
+
+    def get_client(self):
+        return ProjectClient.objects.get(project=self.project, computer=self.computer)
+
+    def create_build_directory(self, username=None, password=None):
+        username = username or self.get_client().get_name()
+        password = password or self.get_client().password
+
+        self.execute_remote_command_for_success(["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password])
+        self.execute_remote_command_for_success(["touch", os.path.join(self.build_directory, 'twistd.log')])
+
+    def get_absolute_url(self):
+        return reverse("cthulhubot-job-assignment-detail", kwargs={
+                "assignment_id" : self.get_identifier(),
+            })
+
+    def get_status_from_database(self):
+        db = get_database_connection()
+        builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.project.get_buildmaster().pk})
+        from cthulhubot.assignment import *
+        if not builder:
+            return AssignmentOffline()
+        else:
+
+            BUILDBOT_ASSIGNMENT_STATUS_MAP = {
+                'offline' : AssignmentOffline,
+                'building' : AssignmentRunning,
+                'idle' : AssignmentReady
+            }
+
+            if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
+                raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
+
+            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
+
+
     def get_status(self):
-        computer = Computer(host=self.computer.hostname, user=self.computer.username, key=self.computer.ssh_key)
-        from cthulhubot.assignment import AssignmentRunning, DirectoryNotCreated, AssignmentOffline, AssignmentStatusError
-        try:
-            computer.connect()
-            if computer.builder_running(self.get_build_directory()):
-                status = AssignmentRunning()
-            elif not computer.build_directory_exists(self.get_build_directory()):
-                status = DirectoryNotCreated()
-            else:
-                status = AssignmentOffline()
-        except CommunicationError, err:
-            status = AssignmentStatusError(status = u'Cannot communicate: %s' % unicode(err))
+        if not self.builder_running() and not self.build_directory_exists():
+            status = DirectoryNotCreated()
+        else:
+            status = self.get_status_from_database()
         return status
 
     def get_text_status(self):
@@ -260,6 +314,85 @@ class JobAssignment(models.Model):
             model = self
         )
    
+    #TODO: Move HTML away
+    def get_status_action(self):
+        status = self.get_status()
+
+        INPUT_HTML_DICT = {
+            AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
+            DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
+            AssignmentReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
+        }
+
+        if status.ID in INPUT_HTML_DICT:
+            return INPUT_HTML_DICT[status.ID]
+        else:
+            return u''
+
+
+    def get_factory(self):
+        from buildbot.steps.source import Git
+
+        self.load_configuration()
+        commands = self.job.get_commands()
+
+        factory = BuildFactory()
+#        factory.addStep(Git(self.project.repository_uri, branch="master"))
+
+        for command in commands:
+            try:
+                config = self.config.get(command=Command(slug=command.slug))
+                command.update_config(config)
+            except CommandConfiguration.DoesNotExist:
+                pass
+
+            factory.addStep(command.get_buildbot_command())
+        return factory
+
+    def execute_remote_command_for_success(self, cmd):
+        status = self.computer.get_command_return_status(cmd)
+
+        if status != 0:
+            raise RemoteCommandError("Command '%s' exited with status %s." % (str(cmd), status))
+
+    def start(self):
+        self.execute_remote_command_for_success(["buildbot", "start", self.build_directory])
+
+    def stop(self):
+        self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
+
+    def load_configuration(self):
+        #TODO: apply also other configurations for given job
+        for config in self.config.select_related().all():
+            self.job.update_command_config(command_slug=config.command.slug, config=loads(config.config))
+
+    def force_build(self):
+        from cthulhubot.buildbot import BuildForcer
+        forcer = BuildForcer(master_string=self.get_master_connection_string())
+        forcer.run()
+        return forcer
+
+    def get_last_build_status(self):
+        db = get_database_connection()
+        try:
+            build = db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next()
+        except StopIteration:
+            return BUILD_RESULTS_DICT[None]
+
+        result = None
+        priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
+
+        for step in build['steps']:
+            if step.get('time_end', None):
+                if not result:
+                    result = step['result']
+                else:
+                    if priorities.index(step['result']) > priorities.index(result):
+                        result = step['result']
+            else:
+                log.debug("Step %s without time_end, not considering" % str(step))
+
+        return BUILD_RESULTS_DICT[result]
 
 class ProjectClient(models.Model):
     project = models.ForeignKey(Project)

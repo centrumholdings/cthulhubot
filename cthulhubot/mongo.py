@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 import logging
 
+from threading import currentThread
+
 from pymongo.connection import Connection, ConnectionFailure
 from pymongo.son_manipulator import AutoReference, NamespaceInjector
 from pymongo import ASCENDING
@@ -9,6 +11,20 @@ from pymongo import ASCENDING
 log = logging.getLogger("cthulhubot.mongo")
 
 MONGODB_DATABASE_TEST_PREFIX = "test_"
+
+class DummyConnectionPool(object):
+    def __init__(self):
+        super(DummyConnectionPool, self).__init__()
+
+        self.pool = {}
+
+    def get_connection(self):
+        if currentThread() not in self.pool:
+            self.pool[currentThread()] = get_new_database_connection()
+
+        return self.pool[currentThread()]
+
+pool = DummyConnectionPool()
 
 def is_test_database():
     # This is hacky, but fact we're running tests is determined by _create_test_db call.
@@ -33,7 +49,7 @@ def get_database_name():
             db_name = MONGODB_DATABASE_TEST_PREFIX + settings.MONGODB_DATABASE_NAME
     return db_name
 
-def get_database_connection():
+def get_new_database_connection():
     db_name = get_database_name()
     
     try:
@@ -62,6 +78,8 @@ def get_database_connection():
 
     return database
 
+def get_database_connection():
+    return pool.get_connection()
 
 def ensure_mongo_structure():
     database = get_database_connection()
