@@ -26,8 +26,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
-        self.computer_model = BuildComputer.objects.create(hostname = "localhost")
-        self.computer = self.computer_model.get_domain_object()
+        self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost")
         self.computer._basedir = self.base_directory
 
         self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation')

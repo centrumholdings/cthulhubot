@@ -74,8 +74,7 @@ class TestBuildmasterFrontend(DatabaseTestCase):
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
-        self.computer_model = BuildComputer.objects.create(name="localhost", hostname="localhost")
-        self.computer = self.computer_model.get_domain_object()
+        self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
         self.job = job = Job.objects.create(slug='cthulhubot-sleep')
         self.job.auto_discovery()
         self.assignment_model = create_job_assignment(

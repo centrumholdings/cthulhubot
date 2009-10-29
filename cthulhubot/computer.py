@@ -13,57 +13,13 @@ from cthulhubot.err import CommunicationError
 
 log = logger = logging.getLogger("cthulhubot")
 
-class Computer(object):
-
-    def __init__(self, host, user=None, key=None, model=None):
-        super(Computer, self).__init__()
-
-        port = 22
-
-        if host in ("localhost", "127.0.0.1", "::1"):
-            self.adapter = LocalComputerAdapter()
-        else:
-            self.adapter = RemoteComputerAdapter(host=host, user=user, key=key, port=port)
-
-        self.model = model
-        self.host = host
-        self._basedir = None
-
-    def __getattribute__(self, name):
-        try:
-            return object.__getattribute__(self, name)
-        except AttributeError, e:
-            if hasattr(self.adapter, name):
-                return getattr(self.adapter, name)
-            raise
-
-    def __unicode__(self):
-        if self.model:
-            return self.model.name
-        else:
-            return u"Unsaved %s" % self.host
-
-    def build_directory_exists(self, directory):
-        return self.get_command_return_status(["test", "-d", directory]) == 0
-
-    def get_base_build_directory(self):
-        if not self._basedir:
-            self._basedir = self.model.basedir
-
-        assert self._basedir is not None
-
-        return self._basedir
-
-    def create_build_directory(self, *args, **kwargs):
-        self.assignment.create_build_directory(*args, **kwargs)
-
 class ComputerAdapter(object):
-    def __init__(self, host=None, user=None, key=None, port=None):
+    def __init__(self, hostname=None, username=None, ssh_key=None, port=None):
         super(ComputerAdapter, self).__init__()
 
-        self.host = host
-        self.user = user
-        self.key = key
+        self.host = hostname
+        self.user = username
+        self.key = ssh_key
         self.port = port
 
     def connect(self):

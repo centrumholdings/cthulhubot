@@ -6,7 +6,7 @@ from shutil import rmtree
 from tempfile import mkdtemp
 from django.conf import settings
 
-from cthulhubot.computer import Computer
+from cthulhubot.models import BuildComputer
 
 class TestRemoteComputer(DestructiveDatabaseTestCase):
     def setUp(self):
@@ -22,7 +22,7 @@ class TestRemoteComputer(DestructiveDatabaseTestCase):
 
         self.user = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_USERNAME", "buildbot")
 
-        self.computer = Computer(key=self.key, host=self.host, user=self.user)
+        self.computer = BuildComputer(ssh_key=self.key, hostname=self.host, username=self.user)
 
     def test_connection_without_exception(self):
         self.computer.connect()

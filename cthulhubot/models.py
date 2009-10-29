@@ -22,10 +22,10 @@ from django.db import models
 
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
-from cthulhubot.computer import Computer
 from cthulhubot.err import UndiscoveredCommandError, CommunicationError
 from cthulhubot.jobs import get_job
 from cthulhubot.mongo import get_database_name
+from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
 
 from buildbot.changes.pb import PBChangeSource
 from buildbot.buildslave import BuildSlave
@@ -58,22 +58,47 @@ class BuildComputer(models.Model):
         super(BuildComputer, self).__init__(*args, **kwargs)
         self._domain_object = None
 
+        port = 22
+
+        if self.hostname in ("localhost", "127.0.0.1", "::1"):
+            self.adapter = LocalComputerAdapter()
+        else:
+            self.adapter = RemoteComputerAdapter(hostname=self.hostname, username=self.username, ssh_key=self.ssh_key, port=port)
+
     def get_absolute_url(self):
         return reverse("cthulhubot-computer-detail", kwargs={
                 "computer" : self.slug,
             })
 
-    def get_domain_object(self):
-        from cthulhubot.computer import Computer
-        if not self._domain_object:
-            self._domain_object = Computer(
-                host=self.hostname,
-                user=self.username,
-                key=self.ssh_key,
-                model=self
-            )
-        return self._domain_object
-    
+    def __getattribute__(self, name):
+        try:
+            return object.__getattribute__(self, name)
+        except AttributeError, e:
+            if hasattr(self.adapter, name):
+                return getattr(self.adapter, name)
+            raise
+
+    def __unicode__(self):
+        if self.model:
+            return self.model.name
+        else:
+            return u"Unsaved %s" % self.host
+
+    def build_directory_exists(self, directory):
+        return self.get_command_return_status(["test", "-d", directory]) == 0
+
+    def get_base_build_directory(self):
+        if not self._basedir:
+            self._basedir = self.model.basedir
+
+        assert self._basedir is not None
+
+        return self._basedir
+
+
+    def create_build_directory(self, *args, **kwargs):
+        self.assignment.create_build_directory(*args, **kwargs)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -308,7 +333,7 @@ class JobAssignment(models.Model):
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
         return Assignment(
-            computer = self.computer.get_domain_object(),
+            computer = self.computer,
             job = self.job.get_domain_object(),
             project = self.project,
             model = self
