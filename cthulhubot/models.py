@@ -261,12 +261,7 @@ class JobAssignment(models.Model):
 
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
-        return Assignment(
-            computer = self.computer,
-            job = self.job.get_domain_object(),
-            project = self.project,
-            model = self
-        )
+        return Assignment(model = self)
 
 
 class ProjectClient(models.Model):

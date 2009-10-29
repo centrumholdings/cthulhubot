@@ -34,13 +34,13 @@ class Assignment(object):
     Domain object for job assignment, i.e. configured job to be performed on a given computer
     """
 
-    def __init__(self, computer, job, project, model=None):
+    def __init__(self, model):
         super(Assignment, self).__init__()
 
-        self.computer = computer
-        self.job = job
-        self.project = project
         self.model = model
+        self.computer = model.computer
+        self.job = model.job.get_domain_object()
+        self.project = model.project
 
     def get_build_directory(self):
         return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
