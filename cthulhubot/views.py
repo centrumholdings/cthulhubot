@@ -49,14 +49,14 @@ def check_builder(post, user, assignment, **kwargs):
     return HttpResponseRedirect(reverse("cthulhubot-job-assignment-detail", kwargs={"assignment_id" : assignment.pk}))
 
 def start_slave(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
     assignment.start()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))
 
 def create_slave_dir(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
     assignment.create_build_directory()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
@@ -84,7 +84,7 @@ def create_job_assignment(job, computer, project, params=None):
     return assigmnent
 
 def force_build(post, project, user, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id')))
+    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
     assignment.force_build()
 
     user.message_set.create(message="Build forced")
