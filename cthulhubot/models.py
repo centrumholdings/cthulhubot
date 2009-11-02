@@ -151,32 +151,6 @@ class Job(models.Model):
 
         self._job = None
 
-#TODO: This is actually code scetch for configure-job-on-discovery use case,
-# not implemented yet
-#    def get_configured_command(self, command):
-#        try:
-#            config = CommandConfiguration.objects.get(
-#                job = self,
-#                command = command
-#            )
-#            config = simplejson.loads(config.config)
-#        except CommandConfiguration.DoesNotExist:
-#            config = {}
-#
-#        return command.get_command(config=config)
-#
-#    def get_configured_commands(self):
-#        job = get_job(self.slug)()
-#        try:
-#            return [
-#                self.get_configured_command(Command.objects.get(slug=command.slug))
-#                for command in job.get_commands()
-#            ]
-#        except Command.DoesNotExist:
-#            raise UndiscoveredCommandError("Command %s not yet configured" % command.slug)
-
-
-
     def get_domain_object(self):
         if not self._job:
             self._job = get_job(slug=self.slug)(model=self)
