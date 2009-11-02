@@ -148,7 +148,7 @@ def project_detail(request, project):
     if redirect:
         return redirect
 
-    assignments = [assignment.get_domain_object for assignment in JobAssignment.objects.filter(project=project)]
+    assignments = [assignment.get_domain_object() for assignment in JobAssignment.objects.filter(project=project)]
 
 
     return direct_to_template(request, 'cthulhubot/project_detail.html', {

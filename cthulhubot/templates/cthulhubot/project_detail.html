@@ -6,7 +6,7 @@
 
 <form action="." method="post">
 {% if project.buildmaster %}
-    <p id="buildmaster-status">Buildmaster status: {{ project.buildmaster.get_text_status }} {% ifequal project.buildmaster.get_text_status "Running" %}<a href="{{ project.buildmaster.get_waterfall_uri }}">Waterfall</a>{% endifequal %}</p>
+    <p>Buildmaster status: <span id="buildmaster-status">{{ project.buildmaster.get_text_status }}</span> {% ifequal project.buildmaster.get_text_status "Running" %}<a href="{{ project.buildmaster.get_waterfall_uri }}">Waterfall</a>{% endifequal %}</p>
     {% ifequal project.buildmaster.get_text_status "Running" %}
         <input type="submit" name="stop_master" value="Stop" id="submit-stop-master">
     {% else %}

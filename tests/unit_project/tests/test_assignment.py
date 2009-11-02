@@ -1,5 +1,5 @@
 from djangosanetesting.cases import DatabaseTestCase
-from example_project.tests.helpers import MockJob, MockBuildmaster
+from unit_project.tests.helpers import MockJob, MockBuildComputer, MockProject
 from mock import Mock
 
 import os, os.path
@@ -9,6 +9,8 @@ from datetime import datetime
 
 from django.conf import settings
 from django.utils.simplejson import dumps
+from django.core import urlresolvers
+from django.core.urlresolvers import get_script_prefix
 
 from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
@@ -48,6 +50,14 @@ class TestCreation(DatabaseTestCase):
 
         self.assertEquals(2, len(ProjectClient.objects.all()))
 
+    def test_identification_generated_from_pk(self):
+        self.create_assignment()
+        self.assert_equals(str(self.assignment_model.pk), self.assignment_model.get_identifier())
+
+    def test_identification_raises_value_error_when_not_available(self):
+        assignment = JobAssignment(project=self.project, computer=self.computer_model, job=self.job)
+        self.assert_raises(ValueError, assignment.get_identifier)
+
 
     def test_client_password_generated(self):
         self.create_assignment()
@@ -59,6 +69,39 @@ class TestCreation(DatabaseTestCase):
         self.create_assignment()
         self.assert_equals(password, ProjectClient.objects.all()[0].password)
 
+class TestAssignment(DatabaseTestCase):
+    def setUp(self):
+        super(TestAssignment, self).setUp()
+
+        self.computer = MockBuildComputer()
+        self.computer.adapter = Mock()
+        self.job = MockJob()
+        self.project = MockProject()
+
+        self.assignment = JobAssignment(pk=1, project=self.project, computer=self.computer, job=self.job)
+
+        self._mock_resolver()
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
+        self._original_resolver = None
+
+    def test_url_retrieving(self):
+        self.assert_equals(self.prefix+self.mocked_uri, self.assignment.get_absolute_url())
+
+    def tearDown(self):
+        super(TestAssignment, self).tearDown()
+
+        self._unmock_resolver()
 
 class TestResults(DatabaseTestCase):
     def setUp(self):

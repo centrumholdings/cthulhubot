@@ -67,12 +67,8 @@ class Assignment(object):
         cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
         return self.computer.get_command_return_status(cmd) == 0
 
-
     def get_identifier(self):
-        id = self.model.pk
-        if not id:
-            raise ValueError("I need identifier for directory creation! (JobAssignment model has no ID. Not saved yet?)")
-        return str(id)
+        return self.model.get_identifier()
 
     def get_client(self):
         return ProjectClient.objects.get(project=self.model.project, computer=self.model.computer)
@@ -243,7 +239,6 @@ class Assignment(object):
     def get_status_from_database(self):
         db = get_database_connection()
         builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.project.get_buildmaster().pk})
-        from cthulhubot.assignment import *
         if not builder:
             return AssignmentOffline()
         else:

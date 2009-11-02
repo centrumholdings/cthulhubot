@@ -102,3 +102,19 @@ class TestJobsDiscovery(DatabaseTestCase):
         # and 4 unconfigured commands in it
         self.assert_equals(4, len(params[0]['parameters']))
 
+
+
+class TestJob(DatabaseTestCase):
+    def setUp(self):
+        super(TestJob, self).setUp()
+
+        self.job_model = Job.objects.create(slug='cthulhubot-sleep')
+        self.job_model.auto_discovery()
+
+        self.job = self.job_model.get_domain_object()
+
+    def test_unicode_on_job_returns_proper_text(self):
+        self.assert_equals(u"Sleep for a sec", unicode(self.job))
+
+    def test_unicode_on_model_returns_slug(self):
+        self.assert_equals(u"cthulhubot-sleep", unicode(self.job_model))

@@ -253,11 +253,15 @@ class JobAssignment(models.Model):
 
     unique_together = (("job", "project", "computer"),)
 
+    def get_identifier(self):
+        if not self.pk:
+            raise ValueError("Cannot identify myself yet!")
+        return str(self.pk)
+
     def get_absolute_url(self):
         return reverse("cthulhubot-job-assignment-detail", kwargs={
                 "assignment_id" : self.get_identifier(),
             })
-
 
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
