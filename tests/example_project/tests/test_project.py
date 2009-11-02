@@ -10,6 +10,7 @@ class TestProjects(AuthenticatedWebTestCase):
 
         project_name = u"你好, řeřicha"
         tracker_uri = u"http://example.com"
+        repository_uri = u"/tmp/repo"
 
         s.click(self.elements['menu']['projects'])
         s.wait_for_page_to_load(30000)
@@ -19,6 +20,7 @@ class TestProjects(AuthenticatedWebTestCase):
 
         s.type(u"id_name", project_name)
         s.type(u"id_issue_tracker", tracker_uri)
+        s.type(u"id_repository", repository_uri)
         s.click(self.elements['projects_create']['submit_form'])
         s.wait_for_page_to_load(30000)
 
@@ -31,18 +33,18 @@ class TestProjects(AuthenticatedWebTestCase):
         s.wait_for_page_to_load(30000)
 
         self.assert_equals(project_name, s.get_text(self.elements['project_detail']['name']))
-        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+        self.assert_equals(u"Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
         # start buildmaster
 
         s.click(self.elements['project_detail']['start_buildmaster'])
         s.wait_for_page_to_load(30000)
 
-        self.assert_equals(u"Buildmaster status: Running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+        self.assert_equals(u"Running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
         # stop not to clash
         s.click(self.elements['project_detail']['stop_buildmaster'])
         s.wait_for_page_to_load(30000)
 
-        self.assert_equals(u"Buildmaster status: Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+        self.assert_equals(u"Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
 
