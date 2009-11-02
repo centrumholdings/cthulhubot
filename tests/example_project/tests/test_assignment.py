@@ -26,8 +26,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
-        self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost")
-        self.computer._basedir = self.base_directory
+        self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost", basedir=self.base_directory)
 
         self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation')
         self.job.auto_discovery()
@@ -81,7 +80,6 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
     def test_loading_assignment_config_works(self):
         self.assignment.load_configuration()
         self.assert_equals(3, len(self.get_shell_commands(self.assignment.job)))
-        
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME
@@ -91,11 +89,15 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assert_true(self.assignment.get_absolute_url() is not None)
 
     def test_remote_error_on_bad_directory_nesting(self):
-        self.computer._basedir = "/badly/nested/nonexistent/basedir"
+        self.computer.basedir = "/badly/nested/nonexistent/basedir"
         self.assert_raises(RemoteCommandError, self.assignment.create_build_directory)
 
     def test_directory_not_created_by_default(self):
         self.assert_equals(DirectoryNotCreated.ID, self.assignment.get_status().ID)
+
+    def test_directory_not_created_by_default_in_text(self):
+        assert len(unicode(DirectoryNotCreated)) > 0
+        self.assert_equals(DirectoryNotCreated.DEFAULT_STATUS, self.assignment.get_text_status())
 
     def test_bare_offline_after_directory_created(self):
         self.assignment.create_build_directory()

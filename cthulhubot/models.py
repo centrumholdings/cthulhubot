@@ -85,12 +85,7 @@ class BuildComputer(models.Model):
         return self.get_command_return_status(["test", "-d", directory]) == 0
 
     def get_base_build_directory(self):
-        if not self._basedir:
-            self._basedir = self.model.basedir
-
-        assert self._basedir is not None
-
-        return self._basedir
+        return self.basedir
 
 
     def create_build_directory(self, *args, **kwargs):

@@ -150,7 +150,6 @@ def project_detail(request, project):
 
     assignments = [assignment.get_domain_object() for assignment in JobAssignment.objects.filter(project=project)]
 
-
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
         'project' : project,
         'job_assignments' : assignments,
