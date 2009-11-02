@@ -184,7 +184,7 @@ class Job(models.Model):
 
     def get_domain_object(self):
         if not self._job:
-            self._job = get_job(slug=self.slug)()
+            self._job = get_job(slug=self.slug)(model=self)
             if not self._job:
                 raise ValueError(u"Job %s cannot be resolved" % self.slug)
 
@@ -199,7 +199,7 @@ class Job(models.Model):
     def auto_discovery(self):
         job = get_job(self.slug)()
         for command in job.get_commands():
-            Command.objects.get_or_create(slug=command.slug)
+            Command.objects.get_or_create(slug=command.identifier)
 
     def __unicode__(self):
         return self.slug

@@ -1,7 +1,7 @@
 from cthulhubot.commands.interface import Command
 
 class BuildDebianPackage(Command):
-    slug = 'cthulhubot-debian-build-debian-package'
+    identifier = 'cthulhubot-debian-build-debian-package'
     name = {
         'basic' : u"Build Debian Package",
         'running' : u'building debian package',
@@ -14,7 +14,7 @@ class BuildDebianPackage(Command):
     command = ["python", "setup.py", "create_debian_package"]
 
 class DebianPackageFtpUpload(Command):
-    slug = 'cthulhubot-debian-package-ftp-upload'
+    identifier = 'cthulhubot-debian-package-ftp-upload'
     name = {
         'basic' : u"Build Debian Package",
         'running' : u'building debian package',

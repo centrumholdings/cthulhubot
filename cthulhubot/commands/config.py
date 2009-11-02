@@ -1,7 +1,7 @@
 from cthulhubot.commands.interface import Command
 
 class DjangoUnitTestConfiguration(Command):
-    slug = 'cthulhubot-django-unit-test-config'
+    identifier = 'cthulhubot-django-unit-test-config'
     name = {
         'basic' : u"update from repository",
         'running' : u'updating repository',

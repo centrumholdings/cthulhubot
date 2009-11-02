@@ -10,7 +10,7 @@ class Command(object):
     """
 
     # must be globally unique. Prefix with you own project.
-    slug = 'cthulhubot-unique-identifier'
+    identifier = 'cthulhubot-unique-identifier'
     name = u"I'm a command to use for jobs "
 
     # parameters should be in form:

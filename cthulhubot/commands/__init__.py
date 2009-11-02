@@ -13,7 +13,7 @@ log = logging.getLogger("cthulhubot.commands")
 
 def get_core_commands():
     return dict([
-        (globals()[candidate].slug, globals()[candidate]) for candidate in globals().keys() if hasattr(globals()[candidate], 'slug')
+        (globals()[candidate].identifier, globals()[candidate]) for candidate in globals().keys() if hasattr(globals()[candidate], 'identifier')
     ])
 
 

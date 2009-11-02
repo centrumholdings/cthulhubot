@@ -3,7 +3,7 @@ from cthulhubot.commands.interface import Command
 from buildbot.steps.source import Git as BuildbotGit
 
 class ComputeGitVersion(Command):
-    slug = 'cthulhubot-compute-git'
+    identifier = 'cthulhubot-compute-git'
     name = {
         'basic' : u"Compute version from git",
         'running' : u'Computing version from git',
@@ -16,7 +16,7 @@ class ComputeGitVersion(Command):
     command = ["python", "setup.py", "compute_version_git"]
 
 class Git(Command):
-    slug = 'cthulhubot-git'
+    identifier = 'cthulhubot-git'
     name = {
         'basic' : u"Compute version from git",
         'running' : u'Computing version from git',

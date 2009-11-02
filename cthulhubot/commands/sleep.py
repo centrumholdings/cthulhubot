@@ -1,7 +1,7 @@
 from cthulhubot.commands.interface import Command
 
 class Sleep(Command):
-    slug = 'cthulhubot-sleep'
+    identifier = 'cthulhubot-sleep'
     name = {
         'basic' : u"Sleep",
         'running' : u'Sleeping',

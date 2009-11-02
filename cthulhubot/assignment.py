@@ -144,7 +144,7 @@ class Assignment(object):
 
         for command in commands:
             try:
-                config = self.model.config.get(command=Command(slug=command.slug))
+                config = self.model.config.get(command=Command(slug=command.identifier))
                 command.update_config(config)
             except CommandConfiguration.DoesNotExist:
                 pass

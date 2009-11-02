@@ -3,7 +3,7 @@ from cthulhubot.commands import BuildDebianPackage, ComputeGitVersion, DebianPac
 from cthulhubot.jobs.job import Job
 
 class CreateDebianPackage(Job):
-    slug = 'cthulhubot-debian-package-creation'
+    identifier = 'cthulhubot-debian-package-creation'
     name = u'Create Debian package'
 
     commands = [

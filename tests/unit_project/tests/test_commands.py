@@ -49,27 +49,27 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
 
     def test_discovery_of_unconfigured_packages_misses_configured_ones(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()
-        Command.objects.create(slug=cmd.slug)
+        Command.objects.create(slug=cmd.identifier)
 
         commands = get_undiscovered_commands()
-        assert cmd.slug not in commands
+        assert cmd.identifier not in commands
 
     def test_discovery_of_unconfigured_packages_matches_unconfigured(self):
         slug = 'cthulhubot-debian-build-debian-package'
         commands = get_undiscovered_commands()
-        self.assert_equals(slug, commands.get(slug).slug)
+        self.assert_equals(slug, commands.get(slug).identifier)
 
     def test_discovery_of_unconfigured_packages_finding_configured_and_unconfigured(self):
         slug = 'cthulhubot-debian-build-debian-package'
         cmd = get_command(slug)()
-        Command.objects.create(slug=cmd.slug)
+        Command.objects.create(slug=cmd.identifier)
 
         unconfigured_slug = 'cthulhubot-django-unit-test-config'
 
         commands = get_undiscovered_commands()
 
-        self.assert_equals(None, commands.get(cmd.slug))
-        self.assert_equals(unconfigured_slug, commands.get(unconfigured_slug).slug)
+        self.assert_equals(None, commands.get(cmd.identifier))
+        self.assert_equals(unconfigured_slug, commands.get(unconfigured_slug).identifier)
 
     def test_unconfigured_parameters_found(self):
         cmd = get_command('cthulhubot-debian-package-ftp-upload')()
@@ -92,7 +92,7 @@ class TestCommandsConfigurationAndDiscovery(DatabaseTestCase):
 class TestDatabaseStore(DatabaseTestCase):
     def test_database_association(self):
         cmd = get_command('cthulhubot-debian-build-debian-package')()
-        command = Command.objects.create(slug=cmd.slug)
+        command = Command.objects.create(slug=cmd.identifier)
 
         self.assert_equals(command.get_command(), cmd.get_command())
 

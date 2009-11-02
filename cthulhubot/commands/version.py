@@ -1,7 +1,7 @@
 from cthulhubot.commands.interface import Command
 
 class ComputeGitVersion(Command):
-    slug = 'cthulhubot-version-compute-git'
+    identifier = 'cthulhubot-version-compute-git'
     name = {
         'basic' : u"Compute version from git",
         'running' : u'Computing version from git',

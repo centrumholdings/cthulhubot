@@ -3,7 +3,7 @@ from copy import deepcopy
 class Job(object):
 
     # must be globally unique. Prefix with you own project.
-    slug = 'cthulhubot-unique-identifier'
+    identifier = 'cthulhubot-unique-identifier'
     name = u"I'm a job - a predefined set of commands"
     register_as_job = True
 
@@ -25,8 +25,10 @@ class Job(object):
 #        },
 #    ]
 
-    def __init__(self):
+    def __init__(self, model=None):
         super(Job, self).__init__()
+
+        self.model = model
 
         self.commands = deepcopy(self.__class__.commands)
         for command in self.commands:
@@ -47,7 +49,7 @@ class Job(object):
 
     def update_command_config(self, command_slug, config):
         for conf in self.commands:
-            if conf['command'].slug == command_slug:
+            if conf['command'].identifier == command_slug:
                 conf['parameters'].update(config)
 
 
@@ -77,7 +79,7 @@ class Job(object):
             params = command.get_unconfigured_parameters()
             if params:
                 params_list.append({
-                    'slug' : command.slug,
+                    'slug' : command.identifier,
                     'parameters' : dict([(param, command.parameters[param]) for param in params])
                 })
 
