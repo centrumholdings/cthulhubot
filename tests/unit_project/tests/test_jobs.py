@@ -44,26 +44,6 @@ class TestJobsConfiguration(DatabaseTestCase):
         self.assignment.load_configuration()
         self.assert_raises(UnconfiguredCommandError, self.get_shell_commands, self.job)
 
-
-    def test_job_configuration_propagates_to_command(self):
-        # create config
-        self.assignment_model.config.create(
-            command = Command.objects.get(slug='cthulhubot-debian-package-ftp-upload'),
-            config = dumps({
-                'ftp_user' : 'xxx',
-                'ftp_password' : 'xxx',
-                'ftp_directory' : '',
-                'ftp_host' : ''
-            })
-        )
-
-
-        self.assignment.load_configuration()
-        ftp_command = self.get_shell_commands(self.assignment.job)[-1:][0]
-
-        #TODO: assert after configuration propagated to command line
-        #TODO: even better, use some mock commands to perform initialization
-
 class TestJobsDiscovery(DatabaseTestCase):
 
     def test_debian_package_creator_discovered(self):
