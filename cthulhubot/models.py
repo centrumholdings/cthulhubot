@@ -203,22 +203,24 @@ class Project(models.Model):
         
         super(Project, self).delete(*args, **kwargs)
 
-class CommandConfiguration(models.Model):
-    command = models.ForeignKey(Command)
-    # config is dumped json object in form of {'key' : value'} configuration parameters for given command
-    config = models.TextField()
-    object_id = models.PositiveIntegerField()
-    content_type = models.ForeignKey(ContentType)
-    configuration_for = GenericForeignKey()
-
-    unique_together = (("command", "job"),)
-
-
 class JobAssignment(models.Model):
     job = models.ForeignKey(Job)
     computer = models.ForeignKey(BuildComputer)
     project = models.ForeignKey(Project)
-    config = GenericRelation(CommandConfiguration)
+    config = models.TextField()
+
+    # config structure:
+#    config = {
+#        'slots' : {
+#            '$slot' : '$command-slug'
+#        },
+#        'commands' : {
+#            '$command-slugname' : {
+#                '$param' : '$value'
+#            }
+#        }
+#    }
+
 
     unique_together = (("job", "project", "computer"),)
 

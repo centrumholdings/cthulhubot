@@ -134,20 +134,19 @@ class Assignment(object):
     def get_factory(self):
         from buildbot.steps.source import Git
 
-        from cthulhubot.models import Command, CommandConfiguration
+        from cthulhubot.models import Command
 
-        self.load_configuration()
         commands = self.job.get_commands()
 
         factory = BuildFactory()
 #        factory.addStep(Git(self.project.repository_uri, branch="master"))
 
         for command in commands:
-            try:
-                config = self.model.config.get(command=Command(slug=command.identifier))
-                command.update_config(config)
-            except CommandConfiguration.DoesNotExist:
-                pass
+#            try:
+#                config = self.model.config.get(command=Command(slug=command.identifier))
+#                command.update_config(config)
+#            except CommandConfiguration.DoesNotExist:
+#                pass
             
             factory.addStep(command.get_buildbot_command())
         return factory

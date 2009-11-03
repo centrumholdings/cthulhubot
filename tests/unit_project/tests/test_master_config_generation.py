@@ -26,16 +26,16 @@ class TestSchedulers(DatabaseTestCase):
         self.assignment = JobAssignment.objects.create(
             job = job,
             computer = self.computer,
-            project = self.project
-        )
-
-        self.assignment.config.create(
-            command = Command.objects.get(slug='cthulhubot-debian-package-ftp-upload'),
+            project = self.project,
             config = dumps({
-                'ftp_user' : 'xxx',
-                'ftp_password' : 'xxx',
-                'ftp_directory' : '',
-                'ftp_host' : ''
+                'commands' : {
+                    'cthulhubot-debian-package-ftp-upload' : {
+                        'ftp_user' : 'xxx',
+                        'ftp_password' : 'xxx',
+                        'ftp_directory' : '',
+                        'ftp_host' : ''
+                    }
+                }
             })
         )
 

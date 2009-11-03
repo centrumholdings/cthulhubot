@@ -1,4 +1,4 @@
-from cthulhubot.models import JobAssignment, CommandConfiguration
+from cthulhubot.models import JobAssignment
 from django.http import Http404
 from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
@@ -15,7 +15,6 @@ from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.jobs import get_undiscovered_jobs
-from cthulhubot.assignment import Assignment
 
 
 ########### Helper controller-model dispatchers

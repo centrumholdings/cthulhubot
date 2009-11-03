@@ -17,10 +17,44 @@ from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTI
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.project import create_project
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, CommandConfiguration, ProjectClient
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
 from cthulhubot.views import create_job_assignment
 from cthulhubot.mongo import get_database_connection
 
+class TestJobsConfiguration(DatabaseTestCase):
+    def setUp(self):
+        super(TestJobsConfiguration, self).setUp()
+
+        self.job_model = Job.objects.create(slug='cthulhubot-debian-package-creation')
+        self.job_model.auto_discovery()
+
+        self.job = self.job_model.get_domain_object()
+
+        computer = MockBuildComputer()
+        computer.id = 1
+
+        project = MockProject()
+        project.id = 1
+
+        self.assignment_model = JobAssignment.objects.create(
+             computer=computer,
+             job=self.job_model,
+             project=project,
+             config = dumps({})
+        )
+        self.assignment = self.assignment_model.get_domain_object()
+
+    def get_shell_commands(self, job):
+        return [
+            command.get_command()
+            for command in job.get_commands()
+        ]
+
+    def test_unconfigured_job_retrieval(self):
+        self.assert_raises(UnconfiguredCommandError, self.get_shell_commands, self.job)
+
+    def test_loading_empty_configuration_still_raises_error(self):
+        self.assert_raises(UnconfiguredCommandError, self.get_shell_commands, self.job)
 
 class TestCreation(DatabaseTestCase):
     def setUp(self):
