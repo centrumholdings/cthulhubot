@@ -1,6 +1,9 @@
 from djangosanetesting.cases import DatabaseTestCase
-from unit_project.tests.helpers import MockJob, MockBuildComputer, MockProject
 from mock import Mock
+from unit_project.tests.helpers import (
+    MockJob, MockBuildComputer, MockProject,
+    EchoJob
+)
 
 import os, os.path
 from shutil import rmtree
@@ -25,10 +28,10 @@ class TestJobsConfiguration(DatabaseTestCase):
     def setUp(self):
         super(TestJobsConfiguration, self).setUp()
 
-        self.job_model = Job.objects.create(slug='cthulhubot-debian-package-creation')
-        self.job_model.auto_discovery()
+        job_model = Mock()
+        self.job = EchoJob(model=job_model)
 
-        self.job = self.job_model.get_domain_object()
+        job_model.get_domain_object.return_value = self.job
 
         computer = MockBuildComputer()
         computer.id = 1
@@ -36,25 +39,32 @@ class TestJobsConfiguration(DatabaseTestCase):
         project = MockProject()
         project.id = 1
 
-        self.assignment_model = JobAssignment.objects.create(
-             computer=computer,
-             job=self.job_model,
-             project=project,
-             config = dumps({})
-        )
-        self.assignment = self.assignment_model.get_domain_object()
-
-    def get_shell_commands(self, job):
-        return [
-            command.get_command()
-            for command in job.get_commands()
-        ]
+        assignment_model = Mock()
+        assignment_model.computer = computer
+        assignment_model.job = self.job.model
+        assignment_model.project = project,
+        assignment_model.config = dumps({})
+        self.assignment = Assignment(model=assignment_model)
 
     def test_unconfigured_job_retrieval(self):
-        self.assert_raises(UnconfiguredCommandError, self.get_shell_commands, self.job)
+        self.assert_raises(UnconfiguredCommandError, self.assignment.get_shell_commands)
 
     def test_loading_empty_configuration_still_raises_error(self):
-        self.assert_raises(UnconfiguredCommandError, self.get_shell_commands, self.job)
+        self.assert_raises(UnconfiguredCommandError, self.assignment.get_shell_commands)
+
+    def test_configuration_propageted_to_command(self):
+        text = 'bazaah!'
+        self.assignment.model.config = dumps({
+            'commands' : [
+                {
+                    'identifier' : 'cthulhubot-test-helper-echo',
+                    'parameters' : {
+                        'what' : text
+                    }
+                }
+            ]
+        })
+        self.assert_equals([['echo', text]], self.assignment.get_shell_commands())
 
 class TestCreation(DatabaseTestCase):
     def setUp(self):
@@ -91,7 +101,6 @@ class TestCreation(DatabaseTestCase):
     def test_identification_raises_value_error_when_not_available(self):
         assignment = JobAssignment(project=self.project, computer=self.computer_model, job=self.job)
         self.assert_raises(ValueError, assignment.get_identifier)
-
 
     def test_client_password_generated(self):
         self.create_assignment()

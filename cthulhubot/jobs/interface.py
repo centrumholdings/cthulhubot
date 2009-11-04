@@ -1,0 +1,1 @@
+from cthulhubot.jobs.job import *

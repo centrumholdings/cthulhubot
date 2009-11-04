@@ -141,14 +141,23 @@ class Assignment(object):
         factory = BuildFactory()
 #        factory.addStep(Git(self.project.repository_uri, branch="master"))
 
+        if self.model.config:
+            config = loads(self.model.config)
+        else:
+            config = {}
+        i = 0
         for command in commands:
 #            try:
 #                config = self.model.config.get(command=Command(slug=command.identifier))
 #                command.update_config(config)
 #            except CommandConfiguration.DoesNotExist:
 #                pass
-            
-            factory.addStep(command.get_buildbot_command())
+            try:
+                conf = config['commands'][i]['parameters']
+            except KeyError:
+                conf = {}
+            factory.addStep(command.get_buildbot_command(config=conf))
+            i += 1
         return factory
 
     def execute_remote_command_for_success(self, cmd):
@@ -162,6 +171,9 @@ class Assignment(object):
 
     def stop(self):
         self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
+
+    def get_shell_commands(self):
+        return self.job.get_configured_shell_commands(config=loads(self.model.config))
 
     def load_configuration(self):
         #TODO: apply also other configurations for given job

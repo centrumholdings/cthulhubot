@@ -51,31 +51,42 @@ class Command(object):
             if command in self.parameters.keys() and config[command] is not None:
                 self.config[command] = config[command]
 
-    def get_unconfigured_parameters(self):
+    def get_unconfigured_parameters(self, config=None):
         params = []
+        config = config or {}
         for command in self.parameters:
-            if command not in self.config.keys():
+            if command not in self.config.keys()+config.keys():
                 if self.parameters[command]['required'] is True:
                     params.append(command)
         return params
 
-    def check_config(self):
-        params = self.get_unconfigured_parameters()
+    def check_config(self, config=None):
+        params = self.get_unconfigured_parameters(config=config)
         if len(params) > 0:
             raise UnconfiguredCommandError("Parameters %s required to be present in config" % (','.join(params),))
 
     def get_command(self):
-        command = []
+        return self.get_shell_command()
 
-        self.check_config()
+    def get_shell_command(self, config=None):
+        command = []
+        self.check_config(config=config)
+        if config:
+            orig_config = copy(self.config)
+            orig_config.update(config)
+            config = orig_config
+        else:
+            config = self.config
 
         for arg in self.command:
             try:
-                command.append(arg % self.config)
+                cmd = str(arg) % config
+                command.append(cmd)
             except KeyError:
                 command.append(arg)
-                
+
         return command
+
     
-    def get_buildbot_command(self):
-        return ShellCommand(command=self.get_command())
+    def get_buildbot_command(self, config=None):
+        return ShellCommand(command=self.get_shell_command(config=config))

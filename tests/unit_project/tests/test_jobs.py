@@ -7,7 +7,11 @@ from cthulhubot.commands import get_command
 from cthulhubot.models import Command, Job, JobAssignment
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
 
-from unit_project.tests.helpers import MockBuildComputer, MockProject
+from unit_project.tests.helpers import (
+    MockJob, MockBuildComputer, MockProject,
+    EchoJob
+)
+
 
 class TestJobsDiscovery(DatabaseTestCase):
 
@@ -47,7 +51,13 @@ class TestJobsDiscovery(DatabaseTestCase):
         # and 4 unconfigured commands in it
         self.assert_equals(4, len(params[0]['parameters']))
 
+class TestHelperJobCreation(DatabaseTestCase):
+    def setUp(self):
+        super(TestHelperJobCreation, self).setUp()
+        self.job = EchoJob()
 
+    def test_commands_retrieved(self):
+        self.assert_equals(1, len(self.job.get_commands()))
 
 class TestJob(DatabaseTestCase):
     def setUp(self):

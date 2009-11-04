@@ -52,6 +52,24 @@ class Job(object):
             if conf['command'].identifier == command_slug:
                 conf['parameters'].update(config)
 
+    def get_configured_shell_commands(self, config):
+        #FIXME: we should use config directly, not introducing state
+        commands = []
+
+        i = 0
+        for command_dict in self.commands:
+            command_config = {}
+            if command_dict.has_key('parameters'):
+                command_config.update(command_dict['parameters'])
+
+            if config.has_key('commands') and config['commands'][i].has_key('parameters'):
+                command_config.update(config['commands'][i]['parameters'])
+
+            command = command_dict['command'].get_shell_command(config=command_config)
+
+            commands.append(command)
+            i += 1
+        return commands
 
     def get_configuration_parameters(self):
         """

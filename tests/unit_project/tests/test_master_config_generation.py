@@ -28,14 +28,19 @@ class TestSchedulers(DatabaseTestCase):
             computer = self.computer,
             project = self.project,
             config = dumps({
-                'commands' : {
-                    'cthulhubot-debian-package-ftp-upload' : {
-                        'ftp_user' : 'xxx',
-                        'ftp_password' : 'xxx',
-                        'ftp_directory' : '',
-                        'ftp_host' : ''
+                'commands' : [
+                    {},
+                    {},
+                    {
+                        'identifier' : 'cthulhubot-debian-package-ftp-upload',
+                        'parameters' : {
+                            'ftp_user' : 'xxx',
+                            'ftp_password' : 'xxx',
+                            'ftp_directory' : '',
+                            'ftp_host' : ''
+                        }
                     }
-                }
+                ]
             })
         )
 

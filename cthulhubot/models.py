@@ -214,11 +214,14 @@ class JobAssignment(models.Model):
 #        'slots' : {
 #            '$slot' : '$command-slug'
 #        },
-#        'commands' : {
-#            '$command-slugname' : {
-#                '$param' : '$value'
+#        'commands' : [
+#            {
+#                'identifier' : '$command-slugname',
+#                'parameters' : {
+#                   '$param' : '$value'
+#                }
 #            }
-#        }
+#        ]
 #    }
 
 

@@ -65,15 +65,9 @@ def create_job_assignment(job, computer, project, params=None):
     assigmnent = JobAssignment.objects.create(
         job = job,
         project = project,
-        computer = computer
+        computer = computer,
+        config = dumps(params or {})
     )
-
-    if params:
-        for command in params:
-            assigmnent.config.create(
-                command = Command.objects.get(slug=command),
-                config = dumps(params[command])
-            )
 
     if len(ProjectClient.objects.filter(project=project, computer=computer)) == 0:
         client = ProjectClient(project=project, computer=computer)
