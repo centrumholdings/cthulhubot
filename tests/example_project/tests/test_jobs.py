@@ -7,6 +7,8 @@ from cthulhubot.models import JobAssignment
 from example_project.tests.helpers import MockJob, MockBuildComputer, MockProject
 
 class TestJobs(AuthenticatedWebTestCase):
+    def setUp(self):
+        super(TestJobs, self).setUp(discover=False)
 
     def test_auto_discovery(self):
         s = self.selenium

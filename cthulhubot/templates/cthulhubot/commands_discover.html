@@ -6,7 +6,7 @@
 <form action="." method="POST">
 <ul id="commands-list" class="commands-list">
     {% for command in commands.values %}
-        <li>{{ command.slug }} <input type="submit" name="{{ command.slug }}" value="Configure" /></li>
+        <li>{{ command.identifier }} <input type="submit" name="{{ command.identifier }}" value="Configure" /></li>
     {% endfor %}
 </ul>
 </form>

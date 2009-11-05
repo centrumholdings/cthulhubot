@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from djangosanetesting.cases import SeleniumTestCase
 
 from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
@@ -56,7 +57,8 @@ class WebTestCase(SeleniumTestCase):
             'link-discovery' : 'link-discovery',
             'list' : 'commands-list',
             'discovery' : {
-                "list" : "//ul[@class='commands-list']/li[%(position)s]",
+                "list" : "//ul[@class='commands-list']/li",
+                "list-item" : "//ul[@class='commands-list']/li[%(position)s]",
                 "assign" : "//ul[@class='commands-list']/li[%(position)s]//input[@type='submit']",
             },
         },
@@ -73,15 +75,18 @@ class WebTestCase(SeleniumTestCase):
         }
     }
 
-    def setUp(self):
+    def setUp(self, discover=True):
         super(WebTestCase, self).setUp()
+
+        if discover:
+            call_command("discover")
 
         self.selenium.open("/")
         self.selenium.wait_for_page_to_load(30000)
 
 class AuthenticatedWebTestCase(WebTestCase):
-    def setUp(self):
-        super(AuthenticatedWebTestCase, self).setUp()
+    def setUp(self, discover=True):
+        super(AuthenticatedWebTestCase, self).setUp(discover=discover)
 
         self.selenium.click(self.elements['menu']['login'])
         self.selenium.wait_for_page_to_load(30000)

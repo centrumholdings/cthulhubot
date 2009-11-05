@@ -211,7 +211,7 @@ def commands_discover(request):
             command_slug = request.POST.keys()[0]
             command = get_undiscovered_commands().get(command_slug)
             if command:
-                Command.objects.get_or_create(slug=command.slug)
+                Command.objects.get_or_create(slug=command.identifier)
             return HttpResponseRedirect(reverse('cthulhubot-commands-discover'))
 
 
