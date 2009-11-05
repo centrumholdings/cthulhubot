@@ -13,6 +13,14 @@ from cthulhubot.err import CommunicationError
 
 log = logger = logging.getLogger("cthulhubot")
 
+def ensure_connection(method):
+    def wrapper(self, *args, **kwargs):
+        if not self._connected:
+            self.connect()
+        return method(self, *args, **kwargs)
+    return wrapper
+
+
 class ComputerAdapter(object):
     def __init__(self, hostname=None, username=None, ssh_key=None, port=None):
         super(ComputerAdapter, self).__init__()
@@ -28,11 +36,22 @@ class ComputerAdapter(object):
     def disconnect(self):
         raise NotImplementedError()
 
+    @ensure_connection
     def execute_command(self):
         raise NotImplementedError()
 
+    @ensure_connection
+    def get_command_return_status(self):
+        raise NotImplementedError()
 
 class RemoteComputerAdapter(ComputerAdapter):
+
+    def __init__(self, *args, **kwargs):
+        super(RemoteComputerAdapter, self).__init__(*args, **kwargs)
+
+        self._connected = False
+        self.transport = None
+
     def connect(self):
         self.transport = None
         try:
@@ -80,6 +99,7 @@ class RemoteComputerAdapter(ComputerAdapter):
         if self.transport:
             self.transport.close()
 
+    @ensure_connection
     def get_command_return_status(self, command):
         channel = self.transport.open_session()
         channel.exec_command(' '.join(command))
@@ -89,9 +109,11 @@ class RemoteComputerAdapter(ComputerAdapter):
 
 class LocalComputerAdapter(ComputerAdapter):
     def connect(self):
+        self._connected = True
         return True
 
     def disconnect(self):
+        self._connected = False
         return True
 
     def get_command_return_status(self, command):

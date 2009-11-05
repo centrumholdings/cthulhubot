@@ -31,6 +31,9 @@ class TestRemoteComputer(DestructiveDatabaseTestCase):
         self.computer.connect()
         self.assert_false(self.computer.build_directory_exists("/does/not/exists"))
 
+    def test_auto_connection(self):
+        self.assert_false(self.computer.build_directory_exists("/does/not/exists"))
+
     def tearDown(self):
         self.computer.disconnect()
 
