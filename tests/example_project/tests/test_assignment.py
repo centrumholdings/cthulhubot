@@ -7,11 +7,11 @@ from shutil import rmtree
 from tempfile import mkdtemp
 
 from django.conf import settings
-from django.utils.simplejson import dumps
+from django.utils.simplejson import dumps, loads
 
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, CommandConfiguration
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command
 from cthulhubot.views import create_job_assignment
 
 from tests.helpers import create_project
@@ -35,30 +35,28 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
             computer = self.computer_model,
             job = job,
             project = self.project,
+            params = {
+                'commands' : [
+                    {},
+                    {},
+                    {
+                        'identifier' : 'cthulhubot-debian-package-ftp-upload',
+                        'parameters' : {
+                            'ftp_user' : 'xxx',
+                            'ftp_password' : 'xxx',
+                            'ftp_directory' : '',
+                            'ftp_host' : ''
+                        }
+                    }
+                ]
+            }
         )
-
-        self.assignment_model.config.create(
-            command = Command.objects.get(slug='cthulhubot-debian-package-ftp-upload'),
-            config = dumps({
-                'ftp_user' : 'xxx',
-                'ftp_password' : 'xxx',
-                'ftp_directory' : '',
-                'ftp_host' : ''
-            })
-        )
-
-
+        
         self.assignment = self.assignment_model.get_domain_object()
 
         self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
 
         self.transaction.commit()
-
-    def get_shell_commands(self, job):
-        return [
-            command.get_command()
-            for command in job.get_commands()
-        ]
 
     def test_dir_not_exists_by_default(self):
         self.assert_equals(0, len(os.listdir(self.base_directory)))
@@ -78,8 +76,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assert_true(self.assignment.build_directory_exists())
 
     def test_loading_assignment_config_works(self):
-        self.assignment.load_configuration()
-        self.assert_equals(3, len(self.get_shell_commands(self.assignment.job)))
+        self.assert_equals(3, len(self.assignment.get_shell_commands()))
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME

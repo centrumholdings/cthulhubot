@@ -132,14 +132,9 @@ class Assignment(object):
 
 
     def get_factory(self):
-        from buildbot.steps.source import Git
-
-        from cthulhubot.models import Command
-
         commands = self.job.get_commands()
 
         factory = BuildFactory()
-#        factory.addStep(Git(self.project.repository_uri, branch="master"))
 
         if self.model.config:
             config = loads(self.model.config)
@@ -147,11 +142,6 @@ class Assignment(object):
             config = {}
         i = 0
         for command in commands:
-#            try:
-#                config = self.model.config.get(command=Command(slug=command.identifier))
-#                command.update_config(config)
-#            except CommandConfiguration.DoesNotExist:
-#                pass
             try:
                 conf = config['commands'][i]['parameters']
             except KeyError:
@@ -174,11 +164,6 @@ class Assignment(object):
 
     def get_shell_commands(self):
         return self.job.get_configured_shell_commands(config=loads(self.model.config))
-
-    def load_configuration(self):
-        #TODO: apply also other configurations for given job
-        for config in self.model.config.select_related().all():
-            self.job.update_command_config(command_slug=config.command.slug, config=loads(config.config))
 
     def force_build(self):
         forcer = BuildForcer(master_string=self.get_master_connection_string())
