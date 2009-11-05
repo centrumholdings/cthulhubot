@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 
+from cthulhubot.models import Job
 from cthulhubot.jobs import get_available_jobs
 
 from django.db import transaction
@@ -10,6 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *fixture_labels, **options):
         verbosity = int(options.get('verbosity', 1))
+        commit = int(options.get('commit', 1))
         if verbosity > 1:
             print 'Discovering jobs'
 
@@ -19,10 +21,10 @@ class Command(BaseCommand):
             assert job_klass.identifier is not None
             if verbosity > 1:
                 print 'Job %s discovered, discovering commands' % job_klass.identifier
-            job = job_klass.objects.create(slug=job_klass.identifier)
+            job = Job.objects.create(slug=job_klass.identifier)
             job.auto_discovery()
 
-        if transaction.is_managed():
+        if commit:
             if verbosity > 1:
                 print 'Commiting jobs...'
             transaction.commit()

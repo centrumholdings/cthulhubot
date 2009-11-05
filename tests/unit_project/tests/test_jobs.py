@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from djangosanetesting import DatabaseTestCase
 
 from django.utils.simplejson import dumps
@@ -12,6 +13,19 @@ from unit_project.tests.helpers import (
     EchoJob
 )
 
+
+class TestDiscoverCommand(DatabaseTestCase):
+    def test_no_command_available_without_discovery(self):
+        self.assert_equals(0, Job.objects.count())
+
+    def test_sleep_discovered(self):
+        call_command("discover", commit=0)
+
+        slug = 'cthulhubot-sleep'
+        try:
+            Job.objects.get(slug=slug)
+        except Job.DoesNotExist:
+            assert False, "Job not discovered!"
 
 class TestJobsDiscovery(DatabaseTestCase):
 
