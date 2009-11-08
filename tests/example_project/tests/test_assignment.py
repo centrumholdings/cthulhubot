@@ -37,6 +37,12 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
             project = self.project,
             params = {
                 'commands' : [
+                    {
+                        'identifier' : 'cthulhubot-git',
+                        'parameters' : {
+                            'repository' : '/tmp/repo.git'
+                        }
+                    },
                     {},
                     {},
                     {
@@ -76,7 +82,7 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assert_true(self.assignment.build_directory_exists())
 
     def test_loading_assignment_config_works(self):
-        self.assert_equals(3, len(self.assignment.get_shell_commands()))
+        self.assert_equals(4, len(self.assignment.get_shell_commands()))
 
     def test_master_string_creation(self):
         master = settings.BUILDMASTER_NETWORK_NAME

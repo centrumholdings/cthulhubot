@@ -29,6 +29,12 @@ class TestSchedulers(DatabaseTestCase):
             project = self.project,
             config = dumps({
                 'commands' : [
+                    {
+                        'identifier' : 'cthulhubot-git',
+                        'parameters' : {
+                            'repository' : '/tmp/repoz.git'
+                        }
+                    },
                     {},
                     {},
                     {

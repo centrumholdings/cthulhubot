@@ -42,9 +42,9 @@ class Git(Command):
         },
     }
 
-    def get_buildbot_command(self):
-        repourl = self.config['repository']
-        mode = self.config['mode']
-        branch = self.config['branch']
+    def get_buildbot_command(self, config=None):
+        repourl = self.config.get('repository', None) or config.get('repository')
+        mode = self.config.get('mode', None) or config.get('mode', None)
+        branch = self.config.get('branch', None) or config.get('branch', None)
         return BuildbotGit(repourl=repourl, mode=mode, branch=branch)
 

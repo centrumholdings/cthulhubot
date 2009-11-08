@@ -57,7 +57,6 @@ class Job(object):
 
         i = 0
         for command_dict in self.commands:
-            print command_dict['command']
             command = get_command(command_dict['command'])()
             command_config = {}
             if command_dict.has_key('parameters'):

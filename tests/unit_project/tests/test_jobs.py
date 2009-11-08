@@ -39,7 +39,7 @@ class TestJobsDiscovery(DatabaseTestCase):
         job = Job.objects.create(slug='cthulhubot-debian-package-creation')
         job.auto_discovery()
 
-        self.assert_equals(3, len(Command.objects.all()))
+        self.assert_equals(4, len(Command.objects.all()))
 
 
     def test_command_retrieval(self):
@@ -47,7 +47,7 @@ class TestJobsDiscovery(DatabaseTestCase):
         job.auto_discovery()
         
         commands = job.get_commands()
-        self.assert_equals(3, len(commands))
+        self.assert_equals(4, len(commands))
 
     def test_undiscovered_jobs_retrieval(self):
         assert 'cthulhubot-debian-package-creation' in get_undiscovered_jobs()
@@ -59,11 +59,11 @@ class TestJobsDiscovery(DatabaseTestCase):
         job = get_undiscovered_jobs().get('cthulhubot-debian-package-creation')()
         params = job.get_configuration_parameters()
 
-        # we're expecting configuration parameters for upload only
-        self.assert_equals(1, len(params))
+        # we're expecting configuration parameters for git & upload only
+        self.assert_equals(2, len(params))
 
-        # and 4 unconfigured commands in it
-        self.assert_equals(4, len(params[0]['parameters']))
+        # and 4 unconfigured commands in ftp
+        self.assert_equals(4, len(params[1]['parameters']))
 
 class TestHelperJobCreation(DatabaseTestCase):
     def setUp(self):

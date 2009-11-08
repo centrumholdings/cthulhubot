@@ -6,6 +6,9 @@ class CreateDebianPackage(Job):
 
     commands = [
         {
+            'command' : 'cthulhubot-git',
+        },
+        {
             'command' : 'cthulhubot-version-compute-git',
         },
         {
