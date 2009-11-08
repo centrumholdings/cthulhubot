@@ -21,10 +21,11 @@ class Command(BaseCommand):
             assert job_klass.identifier is not None
             if verbosity > 1:
                 print 'Job %s discovered, discovering commands' % job_klass.identifier
-            job = Job.objects.create(slug=job_klass.identifier)
-            job.auto_discovery()
+            job, created = Job.objects.get_or_create(slug=job_klass.identifier)
+            if created:
+                job.auto_discovery()
 
-        if commit:
+        if commit and transaction.is_managed():
             if verbosity > 1:
                 print 'Commiting jobs...'
             transaction.commit()
