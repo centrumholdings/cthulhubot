@@ -11,6 +11,8 @@ from cthulhubot.commands.version import *
 
 log = logging.getLogger("cthulhubot.commands")
 
+ADDITIONAL_COMMANDS = {}
+
 def get_core_commands():
     return dict([
         (globals()[candidate].identifier, globals()[candidate]) for candidate in globals().keys() if hasattr(globals()[candidate], 'identifier')
@@ -19,11 +21,16 @@ def get_core_commands():
 
 def get_available_commands():
     commands = get_core_commands()
+    
+    # add setuptools-registered commands
     for dist in pkg_resources.working_set.iter_entry_points("cthulhubot.commands"):
         try:
             commands[dist.name] = dist.load()
         except ImportError, err:
             logging.error("Error while loading command %s: %s" % (dist.name, str(err)))
+
+    # add "mocked" ADDITIONAL_COMMANDS
+    commands.update(ADDITIONAL_COMMANDS)
 
     return commands
 

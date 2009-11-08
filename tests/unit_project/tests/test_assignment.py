@@ -2,7 +2,8 @@ from djangosanetesting.cases import DatabaseTestCase
 from mock import Mock
 from unit_project.tests.helpers import (
     MockJob, MockBuildComputer, MockProject,
-    EchoJob
+    EchoJob,
+    register_mock_jobs_and_commands,
 )
 
 import os, os.path
@@ -27,6 +28,8 @@ from cthulhubot.mongo import get_database_connection
 class TestJobsConfiguration(DatabaseTestCase):
     def setUp(self):
         super(TestJobsConfiguration, self).setUp()
+
+        register_mock_jobs_and_commands()
 
         job_model = Mock()
         self.job = EchoJob(model=job_model)

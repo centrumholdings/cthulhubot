@@ -1,4 +1,3 @@
-from cthulhubot.commands import Sleep
 from cthulhubot.jobs.job import Job
 
 class Sleep(Job):
@@ -7,7 +6,7 @@ class Sleep(Job):
 
     commands = [
         {
-            'command' : Sleep,
+            'command' : 'cthulhubot-sleep',
             'parameters' : {
                 'time' : 1
             }

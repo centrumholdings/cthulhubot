@@ -1,5 +1,3 @@
-from cthulhubot.commands import BuildDebianPackage, ComputeGitVersion, DebianPackageFtpUpload
-
 from cthulhubot.jobs.job import Job
 
 class CreateDebianPackage(Job):
@@ -8,13 +6,13 @@ class CreateDebianPackage(Job):
 
     commands = [
         {
-            'command' : ComputeGitVersion,
+            'command' : 'cthulhubot-version-compute-git',
         },
         {
-            'command' : BuildDebianPackage,
+            'command' : 'cthulhubot-debian-build-debian-package',
         },
         {
-            'command' : DebianPackageFtpUpload,
+            'command' : 'cthulhubot-debian-package-ftp-upload',
             'parameters' : {
                 'ftp_host' : None,
                 'ftp_user' : None,

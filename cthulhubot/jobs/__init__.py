@@ -9,6 +9,8 @@ from cthulhubot.jobs.job import Job
 
 log = logging.getLogger("cthulhubot.jobs")
 
+ADDITIONAL_JOBS = {}
+
 def get_core_jobs():
     return dict([
         (globals()[candidate].identifier, globals()[candidate]) for candidate in globals().keys() if globals()[candidate] is not Job and hasattr(globals()[candidate], 'identifier') and getattr(globals()[candidate], 'register_as_job', False)
@@ -22,6 +24,9 @@ def get_available_jobs():
             jobs[dist.name] = dist.load()
         except ImportError, err:
             logging.error("Error while loading job %s: %s" % (dist.name, str(err)))
+
+    # add "mocked" ADDITIONAL_JOBS
+    jobs.update(ADDITIONAL_JOBS)
 
     return jobs
 

@@ -1,5 +1,7 @@
 from copy import deepcopy
 
+from cthulhubot.commands import get_command
+
 class Job(object):
 
     # must be globally unique. Prefix with you own project.
@@ -31,16 +33,13 @@ class Job(object):
         self.model = model
 
         self.commands = deepcopy(self.__class__.commands)
-        for command in self.commands:
-            command['command'] = command['command']()
-
     def __unicode__(self):
         return self.name
 
     def get_commands(self):
         commands = []
         for config in self.commands:
-            cmd = config['command']
+            cmd = get_command(config['command'])()
             if config.has_key('parameters'):
                 cmd.update_config(config['parameters'])
             commands.append(cmd)
@@ -49,7 +48,7 @@ class Job(object):
 
     def update_command_config(self, command_slug, config):
         for conf in self.commands:
-            if conf['command'].identifier == command_slug:
+            if conf['command'] == command_slug:
                 conf['parameters'].update(config)
 
     def get_configured_shell_commands(self, config):
@@ -58,6 +57,8 @@ class Job(object):
 
         i = 0
         for command_dict in self.commands:
+            print command_dict['command']
+            command = get_command(command_dict['command'])()
             command_config = {}
             if command_dict.has_key('parameters'):
                 command_config.update(command_dict['parameters'])
@@ -65,9 +66,9 @@ class Job(object):
             if config.has_key('commands') and config['commands'][i].has_key('parameters'):
                 command_config.update(config['commands'][i]['parameters'])
 
-            command = command_dict['command'].get_shell_command(config=command_config)
+            shell_command = command.get_shell_command(config=command_config)
 
-            commands.append(command)
+            commands.append(shell_command)
             i += 1
         return commands
 

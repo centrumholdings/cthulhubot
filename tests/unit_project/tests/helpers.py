@@ -1,4 +1,6 @@
 from cthulhubot.models import Project, Job, BuildComputer
+from cthulhubot.commands import ADDITIONAL_COMMANDS
+from cthulhubot.jobs import ADDITIONAL_JOBS
 
 ##### Custom mocks ######
 from mock import Mock
@@ -44,9 +46,13 @@ class EchoJob(JobInterface):
 
     commands = [
         {
-            'command' : EchoCommand,
+            'command' : 'cthulhubot-test-helper-echo',
         },
     ]
+
+def register_mock_jobs_and_commands():
+    ADDITIONAL_COMMANDS[EchoCommand.identifier] = EchoCommand
+    ADDITIONAL_JOBS[EchoJob.identifier] = EchoJob
 
 
 ##### End of helper commands ######
