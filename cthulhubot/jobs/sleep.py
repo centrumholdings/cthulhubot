@@ -8,7 +8,7 @@ class Sleep(Job):
         {
             'command' : 'cthulhubot-sleep',
             'parameters' : {
-                'time' : 1
+                'time' : 0.02
             }
         }
     ]

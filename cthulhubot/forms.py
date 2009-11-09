@@ -1,3 +1,4 @@
+from django.utils.datastructures import SortedDict
 from django.forms import (
     Form, ModelForm, BaseForm,
     CharField, URLField, ChoiceField,
@@ -19,7 +20,7 @@ class ComputerForm(ModelForm):
 
 def get_job_configuration_form(job):
     params = job.get_configuration_parameters()
-    fields = {}
+    fields = SortedDict()
     for command in params:
         for param in command['parameters']:
             fields['%s%s%s' % (command['slug'], JOB_CONFIGURATION_FIELD_SEPARATOR, param)] = CharField()

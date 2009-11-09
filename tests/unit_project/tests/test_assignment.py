@@ -1,3 +1,4 @@
+from djangosanetesting.cases import UnitTestCase
 from djangosanetesting.cases import DatabaseTestCase
 from mock import Mock
 from unit_project.tests.helpers import (
@@ -253,3 +254,7 @@ class TestResults(DatabaseTestCase):
 
         super(TestResults, self).tearDown()
 
+
+class TestJobConfigurationForm(UnitTestCase):
+    def test_form_generated(self):
+        raise self.SkipTest()

@@ -1,16 +1,17 @@
 from django.core.management import call_command
-from djangosanetesting import DatabaseTestCase
+from djangosanetesting import DatabaseTestCase, UnitTestCase
 
 from django.utils.simplejson import dumps
 
 from cthulhubot.jobs import get_job, get_undiscovered_jobs
-from cthulhubot.commands import get_command
+from cthulhubot.commands import get_command, Sleep as SleepCommand
 from cthulhubot.models import Command, Job, JobAssignment
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
 
 from unit_project.tests.helpers import (
     MockJob, MockBuildComputer, MockProject,
-    EchoJob
+    EchoJob,
+    register_mock_jobs_and_commands
 )
 
 
@@ -59,16 +60,18 @@ class TestJobsDiscovery(DatabaseTestCase):
         job = get_undiscovered_jobs().get('cthulhubot-debian-package-creation')()
         params = job.get_configuration_parameters()
 
-        # we're expecting configuration parameters for git & upload only
-        self.assert_equals(2, len(params))
+        # We shoudl receive one dict per job command
+        self.assert_equals(len(job.commands), len(params))
 
         # and 4 unconfigured commands in ftp
-        self.assert_equals(4, len(params[1]['parameters']))
+        self.assert_equals(4, len(params[-1:][0]['parameters']))
 
-class TestHelperJobCreation(DatabaseTestCase):
+class TestHelperJobCreation(UnitTestCase):
     def setUp(self):
         super(TestHelperJobCreation, self).setUp()
         self.job = EchoJob()
+        register_mock_jobs_and_commands()
+
 
     def test_commands_retrieved(self):
         self.assert_equals(1, len(self.job.get_commands()))
@@ -87,3 +90,12 @@ class TestJob(DatabaseTestCase):
 
     def test_unicode_on_model_returns_slug(self):
         self.assert_equals(u"cthulhubot-sleep", unicode(self.job_model))
+
+    def test_dict_bad_slug_raises_error(self):
+        self.assert_raises(ValueError, self.job.get_parameter_dict, 0, 'zoidberg')
+
+    def test_dict_contains_proper_help_text(self):
+        self.assert_equals(SleepCommand.parameters['time']['help'], self.job.get_parameter_dict(0, 'time')['help'])
+
+    def test_dict_contains_job_value_if_it_overwrites_command(self):
+        self.assert_equals(0.02, self.job.get_parameter_dict(0, 'time')['value'])

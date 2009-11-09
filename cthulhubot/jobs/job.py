@@ -71,35 +71,53 @@ class Job(object):
             i += 1
         return commands
 
+    def get_parameter_dict(self, command_index, parameter):
+        identifier = self.commands[command_index]['command']
+        command = get_command(identifier)
+
+        if parameter not in command.parameters:
+            raise ValueError("Requested nonexisting parameter %s for command %s" % (parameter, identifier))
+        
+        config = deepcopy(command.parameters[parameter])
+        if self.commands[command_index].get('parameters', None) and self.commands[command_index]['parameters'].has_key(parameter):
+            config.update({'value' : self.commands[command_index]['parameters'][parameter]})
+
+        return config
+
     def get_configuration_parameters(self):
         """
-        Return unconfigured parameters to be used for configuration
+        Return unconfigured parameters to be used for configuration.
+        One dict is returned per every command in job, even if it should be an empty dict
 
         format:
 
         [{
-            'slug' : 'command-slug',
-#           'command-name' : cmdname' : ,
-#            'help' : u'This help will be shown to user in some way. You should document what is command doing',
-#            # command name as shown on page
-#            'name' : {
-#                # 'basic' will be used for usual description and when command is to be run in future
-#                'basic' : u'run command',
-#                'running' : u'command is running, hide!',
-#                'succeeded' : u'World dominated successfully',
-#                'failed' : u'Developer suck and commited broken software',
-#            }
-#          }
-#       }]
+            'identifier' : 'command-identifier',
+             'parameters' : {
+                 'name' : <command-dictionary>,
+             }
+           }
+        }]
+        <command-dicitonary> = {
+            'help' : u'string',
+            'value' : u'current-value',
+            'required' : bool
+        }
         """
         params_list = []
+        i = 0
         for command in self.get_commands():
-            params = command.get_unconfigured_parameters()
+            params = deepcopy(command.parameters)
             if params:
-                params_list.append({
+                parameters = dict([(param, self.get_parameter_dict(i, param)) for param in params])
+            else:
+                parameters = {}
+            command_dict = {
                     'slug' : command.identifier,
-                    'parameters' : dict([(param, command.parameters[param]) for param in params])
-                })
+                    'parameters' : parameters,
+            }
+            params_list.append(command_dict)
+            i += 1
+
 
         return params_list
-        
