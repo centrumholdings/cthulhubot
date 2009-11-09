@@ -249,7 +249,7 @@ def job_add(request, job):
 
     job = job_class()
 
-    form = get_job_configuration_form(job)()
+    form = get_job_configuration_form(job)
 
     return direct_to_template(request, 'cthulhubot/job_add.html', {
         'job' : job,
@@ -276,11 +276,11 @@ def job_assigment_config(request, project, job):
     computers = BuildComputer.objects.all().order_by('name')
 
     computer_form = get_build_computer_selection_form(computers)()
-    job_form = get_job_configuration_form(job)()
+    job_form = get_job_configuration_form(job)
 
     if request.method == "POST":
         computer_form = get_build_computer_selection_form(computers)(request.POST)
-        job_form = get_job_configuration_form(job)(request.POST)
+        job_form = get_job_configuration_form(job, post=request.POST)
 
         if computer_form.is_valid() and job_form.is_valid():
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])

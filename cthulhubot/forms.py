@@ -18,13 +18,14 @@ class ComputerForm(ModelForm):
     class Meta:
         model = BuildComputer
 
-def get_job_configuration_form(job):
+def get_job_configuration_form(job, post=None):
     params = job.get_configuration_parameters()
     fields = SortedDict()
     for command in params:
         for param in command['parameters']:
             fields['%s%s%s' % (command['slug'], JOB_CONFIGURATION_FIELD_SEPARATOR, param)] = CharField()
-    return type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
+    form_klass = type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
+    return form_klass(post)
 
 def get_build_computer_selection_form(computers):
     fields = {
