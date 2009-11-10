@@ -82,16 +82,21 @@ BuildMaster(basedir, configfile).setServiceParent(application)
 """ % directory
     return source
 
-def get_master_config(slug):
+def get_master_config(slug, password):
+    # generate client for cthylla
+
     source = r"""# -*- python -*-
-from cthulhubot.buildbot import get_buildmaster_config
+from cthylla import get_buildmaster_config
 
-BuildmasterConfig = get_buildmaster_config(slug="%s")
+BuildmasterConfig = get_buildmaster_config(slug="%(slug)s", password="%(password)s")
 
-""" % slug
+""" % {
+        'slug' : slug,
+        'password' : password,
+    }
     return source
 
-def create_buildmaster_directory_structure(slug, directory):
+def create_buildmaster_directory_structure(slug, directory, password):
 
     if not os.path.exists(directory):
         os.mkdir(directory)
@@ -99,7 +104,7 @@ def create_buildmaster_directory_structure(slug, directory):
     # do we have master.cfg?
     if not os.path.exists(os.path.join(directory, "master.cfg")):
         f = open(os.path.join(directory, "master.cfg"), 'w')
-        f.write(get_master_config(slug))
+        f.write(get_master_config(slug, password))
         f.close()
 
     # buildbot.tac?
@@ -121,4 +126,4 @@ def create_master(project, webstatus_port=None, buildmaster_port=None):
         buildmaster_port = buildmaster_port
     )
 
-    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory)
+    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory, password=master.password)
