@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from pickle import dumps as pickle_dumps
 
 from cthulhubot.models import Buildmaster
@@ -329,9 +330,9 @@ def job_assigment_detail(request, assignment_id):
 @protect_digest_model(realm=Buildmaster.REALM,
       model=Buildmaster,
       realm_field = None,
-      username_field='pk',
+      username_field='buildmaster_port',
       password_field='password'
 )
 def api_buildmaster_config(request, identifier):
     master = get_object_or_404(Buildmaster, pk=identifier)
-    return pickle_dumps(master.get_config())
+    return HttpResponse(pickle_dumps(master.get_config()))

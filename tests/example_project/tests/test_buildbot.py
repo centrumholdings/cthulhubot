@@ -1,17 +1,28 @@
 import os
 
-from django.core.exceptions import ValidationError
-from djangosanetesting import DestructiveDatabaseTestCase
+from django.conf import settings
+from djangosanetesting import HttpTestCase
 
 from cthulhubot.models import Project, Buildmaster
 
 from tests.helpers import create_project
 
 # test is spawning child that will not share transaction - test must be destructive
-class TestBuildmaster(DestructiveDatabaseTestCase):
+class TestBuildmaster(HttpTestCase):
 
     def setUp(self):
         super(TestBuildmaster, self).setUp()
+        #FIXME: DST should have helper function for this
+        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
+
+        self.url_root = "http://%s:%s" % (
+            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
+            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
+        )
+
+        self.network_root = settings.NETWORK_ROOT
+        settings.NETWORK_ROOT = self.url_root
+
         self.project_name = u"project"
         self.project = create_project(self)
         self.buildmaster = self.project.buildmaster_set.all()[0]
@@ -55,6 +66,7 @@ class TestBuildmaster(DestructiveDatabaseTestCase):
         self.assert_false(self.buildmaster.is_running())
 
     def tearDown(self):
+        settings.NETWORK_ROOT = self.network_root
         self.project.delete()
         self.transaction.commit()
         super(TestBuildmaster, self).tearDown()

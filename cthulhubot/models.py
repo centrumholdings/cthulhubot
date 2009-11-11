@@ -442,7 +442,7 @@ class Buildmaster(models.Model):
                 }
                 for assignment in assignments
             ],
-            'status' : [html.WebStatus(http_port=self.webstatus_port), MongoDb(database=get_database_name(), master_id=self.pk)],
+            'status' : [MongoDb(database=get_database_name(), master_id=self.pk)],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
             'buildbotURL' : self.get_webstatus_uri()

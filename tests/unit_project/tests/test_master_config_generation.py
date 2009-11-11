@@ -1,8 +1,12 @@
 from pickle import dumps as pickle_dumps
 
 from djangosanetesting.cases import DatabaseTestCase
+from mock import Mock
 
 from django.utils.simplejson import dumps
+from django.core import urlresolvers
+from django.core.urlresolvers import get_script_prefix
+
 from bbmongostatus.status import MongoDb
 
 from cthulhubot.assignment import Assignment
@@ -16,6 +20,10 @@ from mock import Mock
 class TestSchedulers(DatabaseTestCase):
     def setUp(self):
         super(TestSchedulers, self).setUp()
+
+        self._mock_resolver()
+
+
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
@@ -52,6 +60,19 @@ class TestSchedulers(DatabaseTestCase):
             })
         )
 
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
+        self._original_resolver = None
+
 
     def test_single_post_hook_by_default(self):
         config = self.buildmaster.get_config()
@@ -79,11 +100,13 @@ class TestSchedulers(DatabaseTestCase):
 
     def tearDown(self):
         self.buildmaster.delete()
+        self._unmock_resolver()
         super(TestSchedulers, self).tearDown()
 
 class TestBuildmasterFrontend(DatabaseTestCase):
     def setUp(self):
         super(TestBuildmasterFrontend, self).setUp()
+        self._mock_resolver()
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
@@ -96,6 +119,19 @@ class TestBuildmasterFrontend(DatabaseTestCase):
             project = self.project,
         )
         self.config = self.buildmaster.get_config()
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
+        self._original_resolver = None
 
     def test_frontend_is_not_screwing_up(self):
         master_config = get_buildmaster_config(self.project_name)
@@ -120,11 +156,13 @@ class TestBuildmasterFrontend(DatabaseTestCase):
 
     def tearDown(self):
         self.buildmaster.delete()
+        self._unmock_resolver()
         super(TestBuildmasterFrontend, self).tearDown()
 
 class TestConfigGenerationForWire(DatabaseTestCase):
     def setUp(self):
         super(TestConfigGenerationForWire, self).setUp()
+        self._mock_resolver()
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
@@ -138,10 +176,26 @@ class TestConfigGenerationForWire(DatabaseTestCase):
         )
         self.config = self.buildmaster.get_config()
 
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
+        self._original_resolver = None
+
     def test_configuration_pickable_without_error(self):
         pickle_dumps(self.buildmaster.get_config())
 
+    def test_configuration_pickable_without_error(self):
+        pickle_dumps(self.buildmaster.get_config())
 
     def tearDown(self):
         self.buildmaster.delete()
+        self._unmock_resolver()
         super(TestConfigGenerationForWire, self).tearDown()

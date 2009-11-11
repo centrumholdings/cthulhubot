@@ -1,4 +1,4 @@
-from djangosanetesting.cases import DestructiveDatabaseTestCase
+from djangosanetesting.cases import HttpTestCase
 from example_project.tests.helpers import MockJob, MockBuildmaster
 from mock import Mock
 
@@ -16,9 +16,20 @@ from cthulhubot.views import create_job_assignment
 
 from tests.helpers import create_project
 
-class TestBuildDirectory(DestructiveDatabaseTestCase):
+class TestBuildDirectory(HttpTestCase):
     def setUp(self):
         super(TestBuildDirectory, self).setUp()
+
+        #FIXME: DST should have helper function for this
+        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
+
+        self.url_root = "http://%s:%s" % (
+            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
+            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
+        )
+
+        self.network_root = settings.NETWORK_ROOT
+        settings.NETWORK_ROOT = self.url_root
 
 
         self.project_name = u"project"
@@ -125,6 +136,8 @@ class TestBuildDirectory(DestructiveDatabaseTestCase):
         self.assignment.get_factory()
 
     def tearDown(self):
+        settings.NETWORK_ROOT = self.network_root
+
         self.buildmaster.stop(ignore_not_running=True)
         self.buildmaster.delete()
         rmtree(self.base_directory)
