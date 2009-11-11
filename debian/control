@@ -8,6 +8,6 @@ Standards-Version: 3.7.2
 
 Package: python-cthulhubot
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-django, python-docutils, buildbot (>= 0.7.11), python-setuptools, python-mongodb
+Depends: ${python:Depends}, ${misc:Depends}, python-django, python-docutils, buildbot (>= 0.7.11), python-setuptools, python-mongodb, python-paramiko
 Description: Django-based overlord of buildbot-based infrastructure
 
