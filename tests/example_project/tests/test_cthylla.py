@@ -1,33 +1,49 @@
-from djangosanetesting import DestructiveDatabaseTestCase
+from djangosanetesting import HttpTestCase
+from pickle import loads
 import urllib2
 import logging
+
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
+from cthulhubot.models import BuildComputer, Job
+from cthulhubot.views import create_project, create_job_assignment
 
 """
 Tests for API that Cthylla uses. Be careful with regressions, changing behaivor
 here is extremely troublesome for apps that are already in the wild!
 """
 
-class TestConfigurationRetrieval(DestructiveDatabaseTestCase):
+class TestConfigurationRetrieval(HttpTestCase):
 
     def setUp(self):
-        super(TestBuildmaster, self).setUp()
+        super(TestConfigurationRetrieval, self).setUp()
 
-        self.realm = 'buildmaster'
-        self.username = 'xxx'
-        self.password = 'xxx'
+        #FIXME: DST should have helper function for this
+        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
+
+        self.url = "http://%s:%s" % (
+            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
+            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
+        )
+        
 
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
-        self.job = job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep')
         self.job.auto_discovery()
-        self.assignment_model = create_job_assignment(
+        self.assignment = create_job_assignment(
             computer = self.computer_model,
             job = self.job,
             project = self.project,
-        )
+        ).get_domain_object()
         self.config = self.buildmaster.get_config()
+
+        self.realm = 'buildmaster'
+        self.username = self.assignment.get_identifier()
+        self.password = self.buildmaster.password
 
         self.transaction.commit()
 
@@ -46,9 +62,11 @@ class TestConfigurationRetrieval(DestructiveDatabaseTestCase):
                 error = ''
             logging.error("Error occured while opening HTTP %s" % error)
             raise
-        self.assertEquals(200, response.code)
+        res = response.read()
         response.close()
-
+        
+        return res
 
     def test_result_unpicklable_without_error(self):
-        raise NotImplementedError
+        data = self.retrieve(reverse("cthulhubot-api-project-master-configuration", kwargs={"identifier" : self.buildmaster.pk}))
+        loads(data)

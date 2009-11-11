@@ -267,6 +267,8 @@ class Buildmaster(models.Model):
 
     port_attributes = ("webstatus_port", "buildmaster_port")
 
+    REALM = "buildmaster"
+
     def generate_new_port(self, attr, settings_attr, settings_default):
         try:
             obj = self.__class__.objects.all().order_by('-%s' % attr)[0]

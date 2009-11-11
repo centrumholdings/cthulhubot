@@ -1,3 +1,6 @@
+from pickle import dumps as pickle_dumps
+
+from cthulhubot.models import Buildmaster
 from cthulhubot.models import JobAssignment
 from django.http import Http404
 from django.http import HttpResponseNotFound
@@ -16,6 +19,7 @@ from cthulhubot.buildbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.jobs import get_undiscovered_jobs
 
+from djangohttpdigest.decorators import protect_digest_model
 
 ########### Helper controller-model dispatchers
 
@@ -320,3 +324,14 @@ def job_assigment_detail(request, assignment_id):
         'computer' : assignment.computer,
         'job' : assignment.job,
     })
+
+
+@protect_digest_model(realm=Buildmaster.REALM,
+      model=Buildmaster,
+      realm_field = None,
+      username_field='pk',
+      password_field='password'
+)
+def api_buildmaster_config(request, identifier):
+    master = get_object_or_404(Buildmaster, pk=identifier)
+    return pickle_dumps(master.get_config())

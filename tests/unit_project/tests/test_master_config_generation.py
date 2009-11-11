@@ -1,3 +1,5 @@
+from pickle import dumps as pickle_dumps
+
 from djangosanetesting.cases import DatabaseTestCase
 
 from django.utils.simplejson import dumps
@@ -120,3 +122,26 @@ class TestBuildmasterFrontend(DatabaseTestCase):
         self.buildmaster.delete()
         super(TestBuildmasterFrontend, self).tearDown()
 
+class TestConfigGenerationForWire(DatabaseTestCase):
+    def setUp(self):
+        super(TestConfigGenerationForWire, self).setUp()
+        self.project_name = u"project"
+        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
+        self.buildmaster = self.project.buildmaster_set.all()[0]
+        self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
+        self.job = job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job.auto_discovery()
+        self.assignment_model = create_job_assignment(
+            computer = self.computer_model,
+            job = self.job,
+            project = self.project,
+        )
+        self.config = self.buildmaster.get_config()
+
+    def test_configuration_pickable_without_error(self):
+        pickle_dumps(self.buildmaster.get_config())
+
+
+    def tearDown(self):
+        self.buildmaster.delete()
+        super(TestConfigGenerationForWire, self).tearDown()
