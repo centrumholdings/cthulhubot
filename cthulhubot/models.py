@@ -425,7 +425,7 @@ class Buildmaster(models.Model):
 #        computers = assignments.computers_set.all()
 
         config = {
-            'slavePortnum' : self.buildmaster_port,
+            'slavePortnum' : int(self.buildmaster_port),
             'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
             'schedulers' : [
