@@ -66,3 +66,6 @@ ADMIN_MEDIA_PREFIX = '/static/admin_media/'
 LOGIN_REDIRECT_URL = '/'
 
 BUILDMASTER_NETWORK_NAME = 'my-computer-network-name'
+
+# http://domain:port under which web application is visible. without trailing slash
+NETWORK_ROOT = "http://localhost"

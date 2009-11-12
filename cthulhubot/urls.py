@@ -5,11 +5,15 @@ from cthulhubot.views import (
     projects, projects_create, project_detail,
     computers, computers_create, computer_detail, computer_edit,
     commands, commands_discover,
-    jobs, jobs_configure, job_add, job_assigment, job_assigment_config, job_assigment_detail
+    jobs, jobs_configure, job_add, job_assigment, job_assigment_config, job_assigment_detail,
+    api_buildmaster_config
 )
 
 urlpatterns = patterns('',
     url(r'^$', dashboard, name='cthulhubot-dashboard'),
+
+    url(r'^api/project/(?P<identifier>.+)/master/configuration/$', api_buildmaster_config, name='cthulhubot-api-project-master-configuration'),
+
     url(r'^projects/$', projects, name='cthulhubot-projects'),
     url(r'^projects/create/$', projects_create, name='cthulhubot-create-project'),
     url(r'^project/(?P<project>[\w\-]+)/$', project_detail, name='cthulhubot-project-detail'),

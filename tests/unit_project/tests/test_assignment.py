@@ -30,6 +30,8 @@ class TestJobsConfiguration(DatabaseTestCase):
     def setUp(self):
         super(TestJobsConfiguration, self).setUp()
 
+        self._mock_resolver()
+
         register_mock_jobs_and_commands()
 
         job_model = Mock()
@@ -49,6 +51,18 @@ class TestJobsConfiguration(DatabaseTestCase):
         assignment_model.project = project,
         assignment_model.config = dumps({})
         self.assignment = Assignment(model=assignment_model)
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
 
     def test_unconfigured_job_retrieval(self):
         self.assert_raises(UnconfiguredCommandError, self.assignment.get_shell_commands)
@@ -70,14 +84,31 @@ class TestJobsConfiguration(DatabaseTestCase):
         })
         self.assert_equals([['echo', text]], self.assignment.get_shell_commands())
 
+    def tearDown(self):
+        self._unmock_resolver()
+        super(TestJobsConfiguration, self).tearDown()
+
 class TestCreation(DatabaseTestCase):
     def setUp(self):
         super(TestCreation, self).setUp()
+        self._mock_resolver()
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
         self.computer_model = BuildComputer.objects.create(hostname = "localhost")
         self.job = Job.objects.create(slug='cthulhubot-sleep')
         self.job.auto_discovery()
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
 
     def create_assignment(self):
         self.assignment_model = create_job_assignment(
@@ -116,6 +147,11 @@ class TestCreation(DatabaseTestCase):
         self.create_assignment()
         self.assert_equals(password, ProjectClient.objects.all()[0].password)
 
+    def tearDown(self):
+        self._unmock_resolver()
+        super(TestCreation, self).tearDown()
+
+
 class TestAssignment(DatabaseTestCase):
     def setUp(self):
         super(TestAssignment, self).setUp()
@@ -153,6 +189,7 @@ class TestAssignment(DatabaseTestCase):
 class TestResults(DatabaseTestCase):
     def setUp(self):
         super(TestResults, self).setUp()
+        self._mock_resolver()
         self.db = get_database_connection()
 
         self.project_name = u"project"
@@ -171,6 +208,18 @@ class TestResults(DatabaseTestCase):
         )
 
         self.assignment = self.assignment_model.get_domain_object()
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
 
     def insert_build(self, time_end=False, time_start=False):
         if not time_start:
@@ -254,7 +303,3 @@ class TestResults(DatabaseTestCase):
 
         super(TestResults, self).tearDown()
 
-
-class TestJobConfigurationForm(UnitTestCase):
-    def test_form_generated(self):
-        raise self.SkipTest()

@@ -8,7 +8,10 @@ Project for managing large number of buildbots for web development, with some us
 Dependencies for running:
  * Buildbot 0.7.11
  * buildbot-mongodb-status 0.3
+ * paramiko
+ * django-http-digest
 
 For development
  * django-sane-testing for tests (http://pypi.python.org/pypi/djangosanetesting/)
  * django-cpserver (http://github.com/lincolnloop/django-cpserver/) as usual devserver will not work
+

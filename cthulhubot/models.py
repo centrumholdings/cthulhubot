@@ -263,8 +263,11 @@ class Buildmaster(models.Model):
     buildmaster_port = models.PositiveIntegerField(unique=True)
     project = models.ForeignKey(Project, unique=True)
     directory = models.CharField(unique=True, max_length=255)
+    password = models.CharField(max_length=40)
 
     port_attributes = ("webstatus_port", "buildmaster_port")
+
+    REALM = "buildmaster"
 
     def generate_new_port(self, attr, settings_attr, settings_default):
         try:
@@ -306,6 +309,9 @@ class Buildmaster(models.Model):
     def generate_buildmaster_port(self):
         return self.generate_new_port("buildmaster_port", "GENERATED_BUILDMASTER_PORT_START", 12000)
 
+    def generate_password(self):
+        return str(uuid4())
+
     def get_webstatus_uri(self):
         host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
         if not host:
@@ -327,6 +333,9 @@ class Buildmaster(models.Model):
 
         if not self.directory:
             self.directory = self.generate_buildmaster_directory()
+
+        if not self.password:
+            self.password = self.generate_password()
 
         self.check_port_uniqueness()
 
@@ -433,7 +442,7 @@ class Buildmaster(models.Model):
                 }
                 for assignment in assignments
             ],
-            'status' : [html.WebStatus(http_port=self.webstatus_port), MongoDb(database=get_database_name(), master_id=self.pk)],
+            'status' : [MongoDb(database=get_database_name(), master_id=self.pk)],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
             'buildbotURL' : self.get_webstatus_uri()

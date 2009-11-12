@@ -5,6 +5,9 @@ import os
 from threading import Thread
 import logging
 
+from django.conf import settings
+from django.core.urlresolvers import reverse
+
 from twisted.spread import pb
 from twisted.cred import credentials
 from twisted.internet import defer
@@ -82,16 +85,22 @@ BuildMaster(basedir, configfile).setServiceParent(application)
 """ % directory
     return source
 
-def get_master_config(slug):
+def get_master_config(uri, username, password):
+    # generate client for cthylla
+
     source = r"""# -*- python -*-
-from cthulhubot.buildbot import get_buildmaster_config
+from cthylla import get_buildmaster_config
 
-BuildmasterConfig = get_buildmaster_config(slug="%s")
+BuildmasterConfig = get_buildmaster_config(uri="%(uri)s", username="%(username)s", password="%(password)s")
 
-""" % slug
+""" % {
+        'uri' : uri,
+        'username' : username,
+        'password' : password,
+    }
     return source
 
-def create_buildmaster_directory_structure(slug, directory):
+def create_buildmaster_directory_structure(slug, directory, password, uri, username):
 
     if not os.path.exists(directory):
         os.mkdir(directory)
@@ -99,7 +108,7 @@ def create_buildmaster_directory_structure(slug, directory):
     # do we have master.cfg?
     if not os.path.exists(os.path.join(directory, "master.cfg")):
         f = open(os.path.join(directory, "master.cfg"), 'w')
-        f.write(get_master_config(slug))
+        f.write(get_master_config(uri, username, password))
         f.close()
 
     # buildbot.tac?
@@ -121,4 +130,10 @@ def create_master(project, webstatus_port=None, buildmaster_port=None):
         buildmaster_port = buildmaster_port
     )
 
-    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory)
+
+
+    uri = "%s%s" % ((settings.NETWORK_ROOT), reverse("cthulhubot-api-project-master-configuration", kwargs={
+        "identifier" : master.pk
+    }))
+
+    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory, password=master.password, uri=uri, username=master.buildmaster_port)

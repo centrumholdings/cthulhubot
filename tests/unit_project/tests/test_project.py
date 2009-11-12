@@ -1,7 +1,11 @@
 import os
 
-from django.core.exceptions import ValidationError
 from djangosanetesting import DatabaseTestCase
+from mock import Mock
+
+from django.core.exceptions import ValidationError
+from django.core import urlresolvers
+from django.core.urlresolvers import get_script_prefix
 
 from cthulhubot.models import Project, Buildmaster
 from cthulhubot.project import create_project
@@ -12,6 +16,20 @@ class TestProjectCreation(DatabaseTestCase):
         super(TestProjectCreation, self).setUp()
         self.project_name = u"project"
         self.project_slug = self.project_name
+        self._mock_resolver()
+
+    def _mock_resolver(self):
+        self._original_resolver = urlresolvers.get_resolver
+
+        resolver = Mock()
+        self.prefix = get_script_prefix()
+        self.mocked_uri = resolver.reverse.return_value="heureka"
+
+        urlresolvers.get_resolver = lambda conf: resolver
+
+    def _unmock_resolver(self):
+        urlresolvers.get_resolver = self._original_resolver
+        self._original_resolver = None
 
     def create_project(self):
         return create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri = "/tmp/test")
@@ -60,5 +78,7 @@ class TestProjectCreation(DatabaseTestCase):
     def tearDown(self):
         for master in Buildmaster.objects.all():
             master.delete()
+
+        self._unmock_resolver()
 
         super(TestProjectCreation, self).tearDown()
