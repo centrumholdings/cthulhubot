@@ -7,6 +7,7 @@ from cthulhubot.jobs import get_job, get_undiscovered_jobs
 from cthulhubot.commands import get_command, Sleep as SleepCommand
 from cthulhubot.models import Command, Job, JobAssignment
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
+from cthulhubot.forms import get_command_params_from_form_data
 
 from unit_project.tests.helpers import (
     MockJob, MockBuildComputer, MockProject,
@@ -41,7 +42,6 @@ class TestJobsDiscovery(DatabaseTestCase):
         job.auto_discovery()
 
         self.assert_equals(4, len(Command.objects.all()))
-
 
     def test_command_retrieval(self):
         job = Job.objects.create(slug='cthulhubot-debian-package-creation')
@@ -99,3 +99,34 @@ class TestJob(DatabaseTestCase):
 
     def test_dict_contains_job_value_if_it_overwrites_command(self):
         self.assert_equals(0.02, self.job.get_parameter_dict(0, 'time')['value'])
+
+    def test_empty_form_provided_for_command_one_returned(self):
+        self.assert_equals([{}], get_command_params_from_form_data(self.job, {}))
+
+#    def test_form_back_translation(self):
+#        params = get_command_params_from_form_data(form_data)
+#        expected_params = {
+#            'cthulhubot-debian-package-ftp-upload' : {
+#                'ftp_host' : u'host',
+#                'ftp_password' : u'password',
+#            }
+#        }
+#
+#        self.assert_equals(expected_params, params)
+
+
+#    def test_form_generated_in_order_and_proper_empty_dictionaries_returned(self):
+#        form_data = {
+#            'Cthulhubot-debian-package-ftp-upload: ftp_host' : u'host',
+#            'Cthulhubot-debian-package-ftp-upload: ftp_password' : u'password'
+#        }
+#        params = get_command_params_from_form_data(form_data)
+#        expected_params = {
+#            'cthulhubot-debian-package-ftp-upload' : {
+#                'ftp_host' : u'host',
+#                'ftp_password' : u'password',
+#            }
+#        }
+#
+#        self.assert_equals(expected_params, params)
+#

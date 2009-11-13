@@ -7,8 +7,6 @@ from django.forms import (
 from django.template.defaultfilters import slugify
 from cthulhubot.models import BuildComputer
 
-JOB_CONFIGURATION_FIELD_SEPARATOR = ': '
-
 class CreateProjectForm(Form):
     name = CharField(max_length=50)
     issue_tracker = URLField()
@@ -21,9 +19,14 @@ class ComputerForm(ModelForm):
 def get_job_configuration_form(job, post=None):
     params = job.get_configuration_parameters()
     fields = SortedDict()
+    i = 0
     for command in params:
         for param in command['parameters']:
-            fields['%s%s%s' % (command['slug'], JOB_CONFIGURATION_FIELD_SEPARATOR, param)] = CharField()
+            id = 'job_configuration_%s' % i
+            fields[id] = CharField(label=u"%s for command %s: " % (
+                param, command['slug']
+            ))
+            i += 1
     form_klass = type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
     return form_klass(post)
 
@@ -33,15 +36,19 @@ def get_build_computer_selection_form(computers):
     }
     return type('BuildComputerSelectionForm', (BaseForm,), {'base_fields': fields })
 
-def get_command_params_from_form_data(data):
-    params = {}
+def get_command_params_from_form_data(job, data):
+    params = []
+    job_params = job.get_configuration_parameters()
 
-    for key in data:
-        command = slugify(key.split(JOB_CONFIGURATION_FIELD_SEPARATOR)[0])
-        param = key[len(command)+len(JOB_CONFIGURATION_FIELD_SEPARATOR):]
-        if not params.has_key(command):
-            params[command] = {}
-        params[command][param] = data[key]
+    i = 0
+    for command in job_params:
+        command_params = {}
+        for param in command['parameters']:
+            id = 'job_configuration_%s' % i
+            if data.has_key(id):
+                command_params[param] = data[id]
+            i += 1
+        params.append(command_params)
 
     return params
 
