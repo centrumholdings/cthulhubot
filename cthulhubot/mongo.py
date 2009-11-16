@@ -49,9 +49,8 @@ def get_database_name():
             db_name = MONGODB_DATABASE_TEST_PREFIX + settings.MONGODB_DATABASE_NAME
     return db_name
 
-def get_new_database_connection():
+def get_database_info():
     db_name = get_database_name()
-    
     try:
         db_info = {
             "database" : db_name,
@@ -60,15 +59,23 @@ def get_new_database_connection():
             "username" : getattr(settings, "MONGODB_USERNAME", None),
             "password" : getattr(settings, "MONGODB_PASSWORD", None)
         }
-        connection = Connection(db_info['host'], db_info['port'])
-    except (AttributeError, ConnectionFailure), e:
+        return db_info
+    except (AttributeError,), e:
         raise ImproperlyConfigured(e)
 
+
+def get_new_database_connection():
+    db_info = get_database_info()
+
+    try:
+        connection = Connection(db_info['host'], db_info['port'])
+    except ConnectionFailure, e:
+        raise ImproperlyConfigured(e)
+    
     database = connection[db_info['database']]
 
     database.add_son_manipulator(NamespaceInjector())
     database.add_son_manipulator(AutoReference(database))
-
 
     if db_info['username'] or db_info['password']:
         auth = database.authenticate(db_info['username'], db_info['password'])

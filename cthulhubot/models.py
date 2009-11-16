@@ -24,7 +24,7 @@ from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
 from cthulhubot.err import UndiscoveredCommandError, CommunicationError
 from cthulhubot.jobs import get_job
-from cthulhubot.mongo import get_database_connection, get_database_name
+from cthulhubot.mongo import get_database_connection, get_database_name, get_database_info
 from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
 
 from buildbot.changes.pb import PBChangeSource
@@ -424,6 +424,8 @@ class Buildmaster(models.Model):
         assignments = self.project.jobassignment_set.all()
 #        computers = assignments.computers_set.all()
 
+        db_info = get_database_info()
+
         config = {
             'slavePortnum' : int(self.buildmaster_port),
             'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
@@ -443,12 +445,12 @@ class Buildmaster(models.Model):
                 for assignment in assignments
             ],
             'status' : [
-                MongoDb(database=get_database_name(),
-                        master_id=self.pk,
-                        host=getattr(settings, "MONGODB_HOST", "localhost"),
-                        port=getattr(settings, "MONGODB_PORT", 27017),
-                        username=getattr(settings, "MONGODB_USER", None),
-                        password=getattr(settings, "MONGODB_PASSWORD", None)
+                MongoDb(database = get_database_name(),
+                        master_id = self.pk,
+                        host = db_info['host'],
+                        port = db_info['port'],
+                        username = db_info['username'],
+                        password = db_info['password'],
                 ),
             ],
             'projectName' : self.project.name,
