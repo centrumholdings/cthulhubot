@@ -101,7 +101,7 @@ class TestJob(DatabaseTestCase):
         self.assert_equals(0.02, self.job.get_parameter_dict(0, 'time')['value'])
 
     def test_empty_form_provided_for_command_one_returned(self):
-        self.assert_equals([{}], get_command_params_from_form_data(self.job, {}))
+        self.assert_equals([{'identifier': 'cthulhubot-sleep', 'parameters': {}}], get_command_params_from_form_data(self.job, {}))
 
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))

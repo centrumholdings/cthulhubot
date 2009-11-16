@@ -292,9 +292,7 @@ def job_assigment_config(request, project, job):
         if computer_form.is_valid() and job_form.is_valid():
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])
             params = get_command_params_from_form_data(job, job_form.cleaned_data)
-
-            assignment = create_job_assignment(computer=computer, job=job, project=project, params=params)
-
+            create_job_assignment(computer=computer, job=job, project=project, params=params)
             return HttpResponseRedirect(reverse('cthulhubot-project-detail', kwargs={'project' : project.slug}))
 
 

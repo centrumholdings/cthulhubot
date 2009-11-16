@@ -41,11 +41,14 @@ def get_command_params_from_form_data(job, data):
 
     i = 0
     for command in job_params:
-        command_params = {}
+        command_params = {
+            'identifier' : command['identifier'],
+            'parameters' : {}
+        }
         for param in command['parameters']:
             id = 'job_configuration_%s' % i
             if data.has_key(id):
-                command_params[param] = data[id]
+                command_params['parameters'][param] = data[id]
             i += 1
         params.append(command_params)
 
