@@ -37,8 +37,7 @@ class TestSchedulers(DatabaseTestCase):
             job = job,
             computer = self.computer,
             project = self.project,
-            config = dumps({
-                'commands' : [
+            config = dumps([
                     {
                         'identifier' : 'cthulhubot-git',
                         'parameters' : {
@@ -57,7 +56,7 @@ class TestSchedulers(DatabaseTestCase):
                         }
                     }
                 ]
-            })
+            )
         )
 
     def _mock_resolver(self):
@@ -111,7 +110,7 @@ class TestBuildmasterFrontend(DatabaseTestCase):
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
-        self.job = job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
         self.assignment_model = create_job_assignment(
             computer = self.computer_model,
@@ -167,7 +166,7 @@ class TestConfigGenerationForWire(DatabaseTestCase):
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
-        self.job = job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
         self.assignment_model = create_job_assignment(
             computer = self.computer_model,

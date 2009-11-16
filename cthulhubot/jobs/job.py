@@ -62,8 +62,8 @@ class Job(object):
             if command_dict.has_key('parameters'):
                 command_config.update(command_dict['parameters'])
 
-            if config.has_key('commands') and config['commands'][i].has_key('parameters'):
-                command_config.update(config['commands'][i]['parameters'])
+            if config and len(config) >= i+1 and config[i].has_key('parameters'):
+                command_config.update(config[i]['parameters'])
 
             shell_command = command.get_shell_command(config=command_config)
 
@@ -107,17 +107,21 @@ class Job(object):
         params_list = []
         i = 0
         for command in self.get_commands():
-            params = deepcopy(command.parameters)
-            if params:
-                parameters = dict([(param, self.get_parameter_dict(i, param)) for param in params])
+            command_params = deepcopy(command.parameters)
+            if command_params:
+                parameters = dict([(param, self.get_parameter_dict(i, param)) for param in command_params])
             else:
                 parameters = {}
+
             command_dict = {
-                    'slug' : command.identifier,
+                    'identifier' : command.identifier,
                     'parameters' : parameters,
             }
             params_list.append(command_dict)
             i += 1
 
-
         return params_list
+
+
+    def auto_discovery(self, *args, **kwargs):
+        return self.model.auto_discovery(*args, **kwargs)

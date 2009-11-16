@@ -67,19 +67,21 @@ def create_slave_dir(post, project, **kwargs):
     }))
 
 def create_job_assignment(job, computer, project, params=None):
-    assigmnent = JobAssignment.objects.create(
-        job = job,
+
+    assignment = JobAssignment(
+        job = job.model,
         project = project,
         computer = computer,
-        config = dumps(params or {})
-    )
+    ).get_domain_object()
+    assignment.create_config(params)
+    assignment.model.save()
 
     if len(ProjectClient.objects.filter(project=project, computer=computer)) == 0:
         client = ProjectClient(project=project, computer=computer)
         client.generate_password()
         client.save()
 
-    return assigmnent
+    return assignment
 
 def force_build(post, project, user, **kwargs):
     assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()

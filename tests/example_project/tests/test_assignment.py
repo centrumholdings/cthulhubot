@@ -39,38 +39,34 @@ class TestBuildDirectory(HttpTestCase):
         self.base_directory = mkdtemp()
         self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost", basedir=self.base_directory)
 
-        self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation')
+        self.job = job = Job.objects.create(slug='cthulhubot-debian-package-creation').get_domain_object()
         self.job.auto_discovery()
 
-        self.assignment_model = create_job_assignment(
+        self.assignment = create_job_assignment(
             computer = self.computer_model,
             job = job,
             project = self.project,
-            params = {
-                'commands' : [
-                    {
-                        'identifier' : 'cthulhubot-git',
-                        'parameters' : {
-                            'repository' : '/tmp/repo.git'
-                        }
-                    },
-                    {},
-                    {},
-                    {
-                        'identifier' : 'cthulhubot-debian-package-ftp-upload',
-                        'parameters' : {
-                            'ftp_user' : 'xxx',
-                            'ftp_password' : 'xxx',
-                            'ftp_directory' : '',
-                            'ftp_host' : ''
-                        }
+            params = [
+                {
+                    'identifier' : 'cthulhubot-git',
+                    'parameters' : {
+                        'repository' : '/tmp/repo.git',
                     }
-                ]
-            }
+                },
+                {},
+                {},
+                {
+                    'identifier' : 'cthulhubot-debian-package-ftp-upload',
+                    'parameters' : {
+                        'ftp_user' : 'xxx',
+                        'ftp_password' : 'xxx',
+                        'ftp_directory' : '',
+                        'ftp_host' : ''
+                    }
+                }
+            ]
         )
         
-        self.assignment = self.assignment_model.get_domain_object()
-
         self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
 
         self.transaction.commit()

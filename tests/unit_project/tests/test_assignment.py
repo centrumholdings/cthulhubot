@@ -72,16 +72,14 @@ class TestJobsConfiguration(DatabaseTestCase):
 
     def test_configuration_propageted_to_command(self):
         text = 'bazaah!'
-        self.assignment.model.config = dumps({
-            'commands' : [
+        self.assignment.model.config = dumps([
                 {
                     'identifier' : 'cthulhubot-test-helper-echo',
                     'parameters' : {
                         'what' : text
                     }
                 }
-            ]
-        })
+            ])
         self.assert_equals([['echo', text]], self.assignment.get_shell_commands())
 
     def tearDown(self):
@@ -95,7 +93,7 @@ class TestCreation(DatabaseTestCase):
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
         self.computer_model = BuildComputer.objects.create(hostname = "localhost")
-        self.job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
 
     def _mock_resolver(self):
@@ -115,7 +113,7 @@ class TestCreation(DatabaseTestCase):
             computer = self.computer_model,
             job = self.job,
             project = self.project,
-        )
+        ).model
 
     def test_client_created_when_missing(self):
         self.assertEquals(0, len(ProjectClient.objects.all()))
@@ -134,7 +132,7 @@ class TestCreation(DatabaseTestCase):
         self.assert_equals(str(self.assignment_model.pk), self.assignment_model.get_identifier())
 
     def test_identification_raises_value_error_when_not_available(self):
-        assignment = JobAssignment(project=self.project, computer=self.computer_model, job=self.job)
+        assignment = JobAssignment(project=self.project, computer=self.computer_model, job=self.job.model)
         self.assert_raises(ValueError, assignment.get_identifier)
 
     def test_client_password_generated(self):
@@ -198,16 +196,14 @@ class TestResults(DatabaseTestCase):
 
         self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost")
 
-        self.job = job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
 
-        self.assignment_model = create_job_assignment(
+        self.assignment = create_job_assignment(
             computer = self.computer_model,
-            job = job,
+            job = self.job,
             project = self.project
         )
-
-        self.assignment = self.assignment_model.get_domain_object()
 
     def _mock_resolver(self):
         self._original_resolver = urlresolvers.get_resolver

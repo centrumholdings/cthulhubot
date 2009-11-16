@@ -9,7 +9,7 @@ from buildbot.process.factory import BuildFactory
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.simplejson import loads
+from django.utils.simplejson import loads, dumps
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
@@ -41,6 +41,15 @@ class Assignment(object):
         self.computer = model.computer
         self.job = model.job.get_domain_object()
         self.project = model.project
+
+    def create_config(self, command_configuration):
+        config = []
+        for command_no in xrange(0, len(self.job.get_commands())):
+            if command_configuration and len(command_configuration) >= command_no+1:
+                config.append(command_configuration[command_no])
+            else:
+                config.append({})
+        self.model.config = dumps(config)
 
     def get_build_directory(self):
         return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
@@ -139,12 +148,16 @@ class Assignment(object):
         if self.model.config:
             config = loads(self.model.config)
         else:
-            config = {}
+            config = None
         i = 0
         for command in commands:
-            try:
-                conf = config['commands'][i]['parameters']
-            except KeyError:
+            if config and len(config) >= i+1 and config[i].has_key('identifier'):
+                if config[i]['identifier'] != command.identifier:
+                    raise ValueError("Configuration saved for command %s, but %s is in it's place: config not upgraded?" % (
+                        config[i]['identifier'], command.identifier
+                    ))
+                conf = config[i]['parameters']
+            else:
                 conf = {}
             factory.addStep(command.get_buildbot_command(config=conf))
             i += 1

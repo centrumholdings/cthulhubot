@@ -34,13 +34,13 @@ class TestConfigurationRetrieval(HttpTestCase):
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
         self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
-        self.job = Job.objects.create(slug='cthulhubot-sleep')
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
         self.assignment = create_job_assignment(
             computer = self.computer_model,
             job = self.job,
             project = self.project,
-        ).get_domain_object()
+        )
         self.config = self.buildmaster.get_config()
 
         self.realm = 'buildmaster'
