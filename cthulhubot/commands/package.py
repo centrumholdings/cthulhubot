@@ -45,6 +45,6 @@ class DebianPackageFtpUpload(Command):
         },
     }
 
-    command = ["python", "setup.py", "upload_packages"]
+    command = ["python", "setup.py", "upload_deb_devel"]
 
 
