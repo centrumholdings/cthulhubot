@@ -7,7 +7,7 @@ from cthulhubot.jobs import get_job, get_undiscovered_jobs
 from cthulhubot.commands import get_command, Sleep as SleepCommand
 from cthulhubot.models import Command, Job, JobAssignment
 from cthulhubot.err import ConfigurationError, UndiscoveredCommandError, UnconfiguredCommandError
-from cthulhubot.forms import get_command_params_from_form_data
+from cthulhubot.forms import get_command_params_from_form_data, get_job_configuration_form
 
 from unit_project.tests.helpers import (
     MockJob, MockBuildComputer, MockProject,
@@ -102,6 +102,9 @@ class TestJob(DatabaseTestCase):
 
     def test_empty_form_provided_for_command_one_returned(self):
         self.assert_equals([{}], get_command_params_from_form_data(self.job, {}))
+
+    def test_form_created_with_proper_number_of_fields(self):
+        self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
 
 #    def test_form_back_translation(self):
 #        params = get_command_params_from_form_data(form_data)

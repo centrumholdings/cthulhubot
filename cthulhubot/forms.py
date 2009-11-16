@@ -4,7 +4,6 @@ from django.forms import (
     CharField, URLField, ChoiceField,
 )
 
-from django.template.defaultfilters import slugify
 from cthulhubot.models import BuildComputer
 
 class CreateProjectForm(Form):
@@ -24,7 +23,7 @@ def get_job_configuration_form(job, post=None):
         for param in command['parameters']:
             id = 'job_configuration_%s' % i
             fields[id] = CharField(label=u"%s for command %s: " % (
-                param, command['slug']
+                param, command['identifier']
             ))
             i += 1
     form_klass = type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
