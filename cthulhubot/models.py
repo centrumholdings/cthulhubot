@@ -442,7 +442,7 @@ class Buildmaster(models.Model):
                 }
                 for assignment in assignments
             ],
-            'status' : [MongoDb(database=get_database_name(), master_id=self.pk)],
+            'status' : [MongoDb(database=get_database_name(), master_id=self.pk, host=getattr(settings, "MONGODB_HOST", "localhost"), port=getattr(settings, "MONGODB_PORT", 27017, username=getattr(settings, "MONGODB_USER", None), password=getattr(settings, "MONGODB_PASSWORD", None), )],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
             'buildbotURL' : self.get_webstatus_uri()
