@@ -22,7 +22,7 @@ from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTI
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.project import create_project
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient, Project, Buildmaster
 from cthulhubot.views import create_job_assignment
 from cthulhubot.mongo import get_database_connection
 
@@ -191,19 +191,20 @@ class TestResults(DatabaseTestCase):
         self.db = get_database_connection()
 
         self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
-        self.buildmaster = self.project.buildmaster_set.all()[0]
+        self.project = Project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/project")
+        self.buildmaster = Buildmaster(project=self.project, buildmaster_port=0, webstatus_port=1)
 
-        self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost")
+        self.computer = BuildComputer(hostname="localhost")
 
-        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
-        self.job.auto_discovery()
+        self.job = Job(slug='cthulhubot-sleep').get_domain_object()
 
-        self.assignment = create_job_assignment(
-            computer = self.computer_model,
-            job = self.job,
-            project = self.project
-        )
+        self.assignment = JobAssignment(
+            job = self.job.model,
+            project = self.project,
+            computer = self.computer,
+        ).get_domain_object()
+
+        self.client = ProjectClient(project=self.project, computer=self.computer)
 
     def _mock_resolver(self):
         self._original_resolver = urlresolvers.get_resolver
@@ -226,7 +227,7 @@ class TestResults(DatabaseTestCase):
 
         build = {
             'builder' : str(self.assignment.get_identifier()),
-            'slaves' : [ProjectClient.objects.all()[0].get_name()],
+            'slaves' : [self.client.get_name()],
             'number' : 1,
             'time_start' : time_start,
             'time_end' : time_end,
@@ -292,10 +293,3 @@ class TestResults(DatabaseTestCase):
         self.insert_step(build, result=FAILURE, time_start = datetime(year=2009, month=01, day=01, hour=13, minute=00, second=00), time_end=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.insert_step(build, result=None, time_end=None, time_start=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
-
-    def tearDown(self):
-        self.buildmaster.stop(ignore_not_running=True)
-        self.buildmaster.delete()
-
-        super(TestResults, self).tearDown()
-

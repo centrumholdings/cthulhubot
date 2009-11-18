@@ -4,13 +4,11 @@ from pickle import dumps as pickle_dumps
 from cthulhubot.models import Buildmaster
 from cthulhubot.models import JobAssignment
 from django.http import Http404
-from django.http import HttpResponseNotFound
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
-from django.utils.simplejson import dumps
 
 from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
 from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient
