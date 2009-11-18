@@ -9,16 +9,17 @@ class Job(object):
     name = u"I'm a job - a predefined set of commands"
     register_as_job = True
 
+    global_command_parameters = {}
 #    commands = [
 #        {
-#            'command' : ComputeGitVersion,
+#            'command' : 'ComputeGitVersion-slug',
 #        },
 #        {
-#            'command' : BuildDebianPackage,
+#            'command' : 'BuildDebianPackage-slug',
 #        },
 #        {
-#            'command' : DebianPackageFtpUpload,
-#            'parameters' : {
+#            'command' : 'DebianPackageFtpUpload-slug',
+#            'command' : {
 #                'ftp_host' : None,
 #                'ftp_user' : None,
 #                'ftp_password' : None,
@@ -33,18 +34,53 @@ class Job(object):
         self.model = model
 
         self.commands = deepcopy(self.__class__.commands)
+
+        self.commands_retrieval_chain = [self.apply_global_command_parameters, self.filter_commands]
+        
     def __unicode__(self):
         return self.name
 
-    def get_commands(self):
-        commands = []
-        for config in self.commands:
-            cmd = get_command(config['command'])()
-            if config.has_key('parameters'):
-                cmd.update_config(config['parameters'])
-            commands.append(cmd)
-
+    def apply_job_defaults(self, commands):
+        i = 0
+        for command in commands:
+            if self.commands[i].has_key('parameters'):
+                command.update_config(self.commands[i]['parameters'])
         return commands
+
+    def apply_global_command_parameters(self, commands):
+        for command_ident in self.global_command_parameters:
+            for command in commands:
+                if command['command'] == command_ident:
+                    if not command.has_key('parameters'):
+                        command['parameters'] = {}
+                    command['parameters'].update(self.global_command_parameters[command_ident])
+        return commands
+
+    def filter_commands(self, commands):
+        # this can be used by any subclass to modify my commands or their parameters
+        return commands
+
+    def get_commands_dictionary(self):
+        # return copy of self.commands dictionary and fill it
+        # with ['parameters'] if they don't exists
+        commands_dictionary = deepcopy(self.commands)
+        for dict in commands_dictionary:
+            if not dict.has_key('parameters'):
+                dict['parameters'] = {}
+        return commands_dictionary
+
+    def get_configured_command_list(self):
+        commands = self.get_commands_dictionary()
+        # pass through chain
+        for filter in self.commands_retrieval_chain:
+            commands = filter(commands)
+        return commands
+
+    def get_commands(self):
+        return [
+            get_command(command_dict['command'])(config=command_dict['parameters'])
+            for command_dict in self.get_configured_command_list()
+        ]
 
     def update_command_config(self, command_slug, config):
         for conf in self.commands:
@@ -71,56 +107,64 @@ class Job(object):
             i += 1
         return commands
 
-    def get_parameter_dict(self, command_index, parameter):
-        identifier = self.commands[command_index]['command']
-        command = get_command(identifier)
-
-        if parameter not in command.parameters:
-            raise ValueError("Requested nonexisting parameter %s for command %s" % (parameter, identifier))
-        
-        config = deepcopy(command.parameters[parameter])
-        if self.commands[command_index].get('parameters', None) and self.commands[command_index]['parameters'].has_key(parameter):
-            config.update({'value' : self.commands[command_index]['parameters'][parameter]})
-
-        return config
-
     def get_configuration_parameters(self):
         """
         Return unconfigured parameters to be used for configuration.
-        One dict is returned per every command in job, even if it should be an empty dict
+        One dict is returned per every command in job, even if it should be an empty dict.
+        This is basically self.get_configured_command_list, flavoured with parameters_description.
 
         format:
 
         [{
-            'identifier' : 'command-identifier',
+            'command' : 'command-identifier',
              'parameters' : {
-                 'name' : <command-dictionary>,
+                 <name> : <current-value>,
+             },
+             'parameters_description' : {
+                 <name> : <parameter-dictionary>
              }
            }
         }]
-        <command-dicitonary> = {
-            'help' : u'string',
-            'value' : u'current-value',
-            'required' : bool
-        }
-        """
-        params_list = []
-        i = 0
-        for command in self.get_commands():
-            command_params = deepcopy(command.parameters)
-            if command_params:
-                parameters = dict([(param, self.get_parameter_dict(i, param)) for param in command_params])
-            else:
-                parameters = {}
-
-            command_dict = {
-                    'identifier' : command.identifier,
-                    'parameters' : parameters,
+        <parameter-dictionary> = cthulhubot.commands.interface.Command.parameters[<name>], i.e.
+            {
+                'name' : {name-dict}
+                'required' : <bool>,
+                'help' : u'help text',
             }
-            params_list.append(command_dict)
-            i += 1
+        """
+        command_list = self.get_configured_command_list()
+        for command_dict in command_list:
+            if not command_dict.has_key('parameters_description'):
+                command_dict['parameters_description'] = {}
+            for parameter in command_dict['parameters']:
+                command_dict['parameters_description'][parameter] = get_command(command_dict['command']).parameters[parameter]
+            
 
-        return params_list
+        return command_list
+
+    def get_command_dictionary(self, command_index):
+        commands = self.get_configuration_parameters()
+
+        if len(commands) <= command_index:
+            raise ValueError("Requested command on index %s, but I have only %s commands" % (command_index, len(commands)))
+
+        return commands[command_index]
+
+
+    def get_parameter_dict(self, command_index, parameter):
+        command_dict = self.get_command_dictionary(command_index)
+        if parameter not in command_dict['parameters']:
+            raise ValueError("Requested nonexisting parameter %s for command %s" % (parameter, command_dict['command']))
+
+        return command_dict['parameters'][parameter]
+
+    def get_parameter_description_dict(self, command_index, parameter):
+        command_dict = self.get_command_dictionary(command_index)
+
+        if parameter not in command_dict['parameters_description']:
+            raise ValueError("Requested description nonexisting parameter %s for command %s" % (parameter, command_dict['command']))
+
+        return command_dict['parameters_description'][parameter]
 
 
     def auto_discovery(self, *args, **kwargs):

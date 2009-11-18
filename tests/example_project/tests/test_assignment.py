@@ -48,7 +48,7 @@ class TestBuildDirectory(HttpTestCase):
             project = self.project,
             params = [
                 {
-                    'identifier' : 'cthulhubot-git',
+                    'command' : 'cthulhubot-git',
                     'parameters' : {
                         'repository' : '/tmp/repo.git',
                     }
@@ -56,7 +56,7 @@ class TestBuildDirectory(HttpTestCase):
                 {},
                 {},
                 {
-                    'identifier' : 'cthulhubot-debian-package-ftp-upload',
+                    'command' : 'cthulhubot-debian-package-ftp-upload',
                     'parameters' : {
                         'ftp_user' : 'xxx',
                         'ftp_password' : 'xxx',

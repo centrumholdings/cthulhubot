@@ -15,9 +15,10 @@ class Command(object):
 
     # parameters should be in form:
 #    parameters = {
-#        # 'cmdname' will be send as kwarg
-#        'cmdname' : {
+#        # 'parname' will be send as kwarg
+#        'parname' : {
 #            'help' : u'This help will be shown to user in some way. You should document what is command doing',
+#            'required' : <bool>,
 #            # command name as shown on page
 #            'name' : {
 #                # 'basic' will be used for usual description and when command is to be run in future

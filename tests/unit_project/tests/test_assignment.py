@@ -74,7 +74,7 @@ class TestJobsConfiguration(DatabaseTestCase):
         text = 'bazaah!'
         self.assignment.model.config = dumps([
                 {
-                    'identifier' : 'cthulhubot-test-helper-echo',
+                    'command' : 'cthulhubot-test-helper-echo',
                     'parameters' : {
                         'what' : text
                     }

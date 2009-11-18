@@ -39,7 +39,7 @@ class TestSchedulers(DatabaseTestCase):
             project = self.project,
             config = dumps([
                     {
-                        'identifier' : 'cthulhubot-git',
+                        'command' : 'cthulhubot-git',
                         'parameters' : {
                             'repository' : '/tmp/repoz.git'
                         }
@@ -47,7 +47,7 @@ class TestSchedulers(DatabaseTestCase):
                     {},
                     {},
                     {
-                        'identifier' : 'cthulhubot-debian-package-ftp-upload',
+                        'command' : 'cthulhubot-debian-package-ftp-upload',
                         'parameters' : {
                             'ftp_user' : 'xxx',
                             'ftp_password' : 'xxx',

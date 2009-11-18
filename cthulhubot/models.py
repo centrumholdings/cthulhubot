@@ -13,7 +13,6 @@ from uuid import uuid4
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -30,11 +29,9 @@ from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
 from buildbot.changes.pb import PBChangeSource
 from buildbot.buildslave import BuildSlave
 from buildbot.scheduler import Scheduler
-from buildbot.status import html
 
 from bbmongostatus.status import MongoDb
 
-from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
 
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()

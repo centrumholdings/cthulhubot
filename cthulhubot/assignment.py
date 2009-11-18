@@ -75,10 +75,10 @@ class Assignment(object):
             config = None
         i = 0
         for command in commands:
-            if config and len(config) >= i+1 and config[i].has_key('identifier'):
-                if config[i]['identifier'] != command.identifier:
+            if config and len(config) >= i+1 and config[i].has_key('command'):
+                if config[i]['command'] != command.identifier:
                     raise ValueError("Configuration saved for command %s, but %s is in it's place: config not upgraded?" % (
-                        config[i]['identifier'], command.identifier
+                        config[i]['command'], command.identifier
                     ))
                 conf = config[i]['parameters']
             else:

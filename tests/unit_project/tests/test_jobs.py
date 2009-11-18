@@ -92,13 +92,28 @@ class TestJob(UnitTestCase):
         self.assert_raises(ValueError, self.job.get_parameter_dict, 0, 'zoidberg')
 
     def test_dict_contains_proper_help_text(self):
-        self.assert_equals(SleepCommand.parameters['time']['help'], self.job.get_parameter_dict(0, 'time')['help'])
+        self.assert_equals(SleepCommand.parameters['time']['help'], self.job.get_parameter_description_dict(0, 'time')['help'])
 
     def test_dict_contains_job_value_if_it_overwrites_command(self):
-        self.assert_equals(0.02, self.job.get_parameter_dict(0, 'time')['value'])
+        self.assert_equals(0.02, self.job.get_parameter_dict(0, 'time'))
 
     def test_empty_form_provided_for_command_one_returned(self):
-        self.assert_equals([{'identifier': 'cthulhubot-sleep', 'parameters': {}}], get_command_params_from_form_data(self.job, {}))
+        self.assert_equals([{'command': 'cthulhubot-sleep', 'parameters': {}}], get_command_params_from_form_data(self.job, {}))
 
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
+
+class TestJobSubclassing(DatabaseTestCase):
+
+    def test_directly_overwritten_dict_contains_subclassed_job_value(self):
+        job = Job(slug='cthulhubot-test-helper-echo-name-job').get_domain_object()
+        self.assert_equals('name', job.get_parameter_dict(0, 'what'))
+
+    def test_global_overwriting_works_on_first_match(self):
+        job = Job(slug='cthulhubot-test-helper-multiple-echo-all-defined-job').get_domain_object()
+        self.assert_equals('overwritten by job', job.get_parameter_dict(0, 'what'))
+
+    def test_global_overwriting_works_on_all_matches(self):
+        job = Job(slug='cthulhubot-test-helper-multiple-echo-all-defined-job').get_domain_object()
+        for i in xrange(0, 3):
+            self.assert_equals('overwritten by job', job.get_parameter_dict(i, 'what'))
