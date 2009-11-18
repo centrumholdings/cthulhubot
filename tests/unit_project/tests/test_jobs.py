@@ -106,30 +106,3 @@ class TestJob(DatabaseTestCase):
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
 
-#    def test_form_back_translation(self):
-#        params = get_command_params_from_form_data(form_data)
-#        expected_params = {
-#            'cthulhubot-debian-package-ftp-upload' : {
-#                'ftp_host' : u'host',
-#                'ftp_password' : u'password',
-#            }
-#        }
-#
-#        self.assert_equals(expected_params, params)
-
-
-#    def test_form_generated_in_order_and_proper_empty_dictionaries_returned(self):
-#        form_data = {
-#            'Cthulhubot-debian-package-ftp-upload: ftp_host' : u'host',
-#            'Cthulhubot-debian-package-ftp-upload: ftp_password' : u'password'
-#        }
-#        params = get_command_params_from_form_data(form_data)
-#        expected_params = {
-#            'cthulhubot-debian-package-ftp-upload' : {
-#                'ftp_host' : u'host',
-#                'ftp_password' : u'password',
-#            }
-#        }
-#
-#        self.assert_equals(expected_params, params)
-#

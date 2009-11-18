@@ -1,4 +1,4 @@
-from cthulhubot.models import Project, Buildmaster
+from cthulhubot.models import Project
 from cthulhubot.buildbot import create_master
 
 def create_project(name, tracker_uri, repository_uri, webstatus_port=None, buildmaster_port=None):
