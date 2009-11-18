@@ -76,20 +76,17 @@ class TestHelperJobCreation(UnitTestCase):
     def test_commands_retrieved(self):
         self.assert_equals(1, len(self.job.get_commands()))
 
-class TestJob(DatabaseTestCase):
+class TestJob(UnitTestCase):
     def setUp(self):
         super(TestJob, self).setUp()
 
-        self.job_model = Job.objects.create(slug='cthulhubot-sleep')
-        self.job_model.auto_discovery()
-
-        self.job = self.job_model.get_domain_object()
+        self.job = Job(slug='cthulhubot-sleep').get_domain_object()
 
     def test_unicode_on_job_returns_proper_text(self):
         self.assert_equals(u"Sleep for a sec", unicode(self.job))
 
     def test_unicode_on_model_returns_slug(self):
-        self.assert_equals(u"cthulhubot-sleep", unicode(self.job_model))
+        self.assert_equals(u"cthulhubot-sleep", unicode(self.job.model))
 
     def test_dict_bad_slug_raises_error(self):
         self.assert_raises(ValueError, self.job.get_parameter_dict, 0, 'zoidberg')
@@ -105,31 +102,3 @@ class TestJob(DatabaseTestCase):
 
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
-
-#    def test_form_back_translation(self):
-#        params = get_command_params_from_form_data(form_data)
-#        expected_params = {
-#            'cthulhubot-debian-package-ftp-upload' : {
-#                'ftp_host' : u'host',
-#                'ftp_password' : u'password',
-#            }
-#        }
-#
-#        self.assert_equals(expected_params, params)
-
-
-#    def test_form_generated_in_order_and_proper_empty_dictionaries_returned(self):
-#        form_data = {
-#            'Cthulhubot-debian-package-ftp-upload: ftp_host' : u'host',
-#            'Cthulhubot-debian-package-ftp-upload: ftp_password' : u'password'
-#        }
-#        params = get_command_params_from_form_data(form_data)
-#        expected_params = {
-#            'cthulhubot-debian-package-ftp-upload' : {
-#                'ftp_host' : u'host',
-#                'ftp_password' : u'password',
-#            }
-#        }
-#
-#        self.assert_equals(expected_params, params)
-#
