@@ -23,6 +23,7 @@ from cthulhubot.jobs.interface import Job as JobInterface
 
 class EchoCommand(Command):
     identifier = 'cthulhubot-test-helper-echo'
+    slots = ['cthulhubot-test-output']
     name = {
         'basic' : u"Echo",
         'running' : u"Echo",
@@ -40,6 +41,26 @@ class EchoCommand(Command):
 
     command = ["echo", "%(what)s"]
 
+class DualEchoCommand(Command):
+    identifier = 'cthulhubot-test-helper-dual-echo'
+    slots = ['cthulhubot-test-output']
+    name = {
+        'basic' : u"Echo",
+        'running' : u"Echo",
+        'succeeded' : u"Echo",
+        'failed' : u"Echo",
+    }
+
+    parameters = {
+        'what' : {
+            'help' : u'What to echo',
+            'value' : None,
+            'required' : True,
+        },
+    }
+
+    command = ["echo", "%(what)s", " %(what)s"]
+
 class EchoJob(JobInterface):
     identifier = 'cthulhubot-test-helper-echo-job'
     name = u'Echo In Console'
@@ -47,6 +68,16 @@ class EchoJob(JobInterface):
     commands = [
         {
             'command' : 'cthulhubot-test-helper-echo',
+        },
+    ]
+
+class OutputJob(JobInterface):
+    identifier = 'cthulhubot-test-output-job'
+    name = u'Do some output'
+
+    commands = [
+        {
+            'slot' : 'cthulhubot-test-output',
         },
     ]
 
@@ -104,16 +135,18 @@ class MultipleEchoJobWithDefaultParamsForSecondEcho(MultipleEchoJob):
                 if echo_no == 2:
                     if not command.has_key('parameters'):
                         command['parameters'] = {}
-                    command['parameters']['what'] = 'overwritten by job'
+                    command['parameters']['what'] = 'overwritten by job callback'
         return commands
 
 def register_mock_jobs_and_commands():
     ADDITIONAL_COMMANDS[EchoCommand.identifier] = EchoCommand
+    ADDITIONAL_COMMANDS[DualEchoCommand.identifier] = DualEchoCommand
     ADDITIONAL_JOBS[EchoJob.identifier] = EchoJob
     ADDITIONAL_JOBS[EchoNameJob.identifier] = EchoNameJob
     ADDITIONAL_JOBS[MultipleEchoJob.identifier] = MultipleEchoJob
     ADDITIONAL_JOBS[MultipleEchoJobWithDefaultParamsForAllEchos.identifier] = MultipleEchoJobWithDefaultParamsForAllEchos
     ADDITIONAL_JOBS[MultipleEchoJobWithDefaultParamsForSecondEcho.identifier] = MultipleEchoJobWithDefaultParamsForSecondEcho
+    ADDITIONAL_JOBS[OutputJob.identifier] = OutputJob
 
 
 

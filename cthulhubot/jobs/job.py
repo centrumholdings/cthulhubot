@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from cthulhubot.commands import get_command
+from cthulhubot.err import UnconfiguredCommandError
 
 class Job(object):
 
@@ -35,7 +36,8 @@ class Job(object):
 
         self.commands = deepcopy(self.__class__.commands)
 
-        self.commands_retrieval_chain = [self.apply_global_command_parameters, self.filter_commands]
+        self.commands_retrieval_chain = [self.insert_commands_in_slots, self.apply_global_command_parameters, self.filter_commands]
+        self.command_validators = [self.check_command_present]
         
     def __unicode__(self):
         return self.name
@@ -56,6 +58,9 @@ class Job(object):
                     command['parameters'].update(self.global_command_parameters[command_ident])
         return commands
 
+    def insert_commands_in_slots(self, commands):
+        return commands
+
     def filter_commands(self, commands):
         # this can be used by any subclass to modify my commands or their parameters
         return commands
@@ -69,11 +74,24 @@ class Job(object):
                 dict['parameters'] = {}
         return commands_dictionary
 
+    def check_command_present(self, commands):
+        for command_dict in commands:
+            if not command_dict.has_key('command'):
+                raise UnconfiguredCommandError("Dictionary %s does not contain command" % str(command_dict))
+
+    def check_command_configuration(self, commands):
+        for validator in self.command_validators:
+            validator(commands)
+
     def get_configured_command_list(self):
         commands = self.get_commands_dictionary()
         # pass through chain
         for filter in self.commands_retrieval_chain:
             commands = filter(commands)
+
+        # check before retrieving
+        self.check_command_configuration(commands)
+
         return commands
 
     def get_commands(self):
@@ -82,10 +100,23 @@ class Job(object):
             for command_dict in self.get_configured_command_list()
         ]
 
-    def update_command_config(self, command_slug, config):
-        for conf in self.commands:
-            if conf['command'] == command_slug:
-                conf['parameters'].update(config)
+    def update_command_config(self, command_index, config):
+        if len(self.commands) < command_index:
+            raise ValueError("Requested update for command on index %s, but I have only %s commands" % (command_index, len(self.commands)))
+        if not self.commands[command_index].has_key('command'):
+            command = get_command(config['command'])
+            if self.commands[command_index].has_key('slot') and self.commands[command_index]['slot'] in getattr(command, "slots", []):
+                self.commands[command_index]['command'] = config['command']
+            else:
+                raise ValueError("Command at index %s (dict: %s) has no command and no command for matching slot provided." % (command_index, str(self.commands[command_index])))
+
+        elif config['command'] != self.commands[command_index]['command']:
+            raise ValueError("Trying to update config for command %s, but %s found" % (config['command'], self.commands[command_index]['command']))
+
+        if not self.commands[command_index].has_key('parameters'):
+            self.commands[command_index]['parameters'] = {}
+
+        self.commands[command_index]['parameters'].update(config['parameters'])
 
     def get_configured_shell_commands(self, config):
         #FIXME: we should use config directly, not introducing state

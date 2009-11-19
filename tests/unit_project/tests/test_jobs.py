@@ -1,3 +1,4 @@
+from copy import deepcopy
 from django.core.management import call_command
 from djangosanetesting import DatabaseTestCase, UnitTestCase
 
@@ -72,14 +73,12 @@ class TestHelperJobCreation(UnitTestCase):
         self.job = EchoJob()
         register_mock_jobs_and_commands()
 
-
     def test_commands_retrieved(self):
         self.assert_equals(1, len(self.job.get_commands()))
 
 class TestJob(UnitTestCase):
     def setUp(self):
         super(TestJob, self).setUp()
-
         self.job = Job(slug='cthulhubot-sleep').get_domain_object()
 
     def test_unicode_on_job_returns_proper_text(self):
@@ -103,7 +102,7 @@ class TestJob(UnitTestCase):
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
 
-class TestJobSubclassing(DatabaseTestCase):
+class TestJobSubclassing(UnitTestCase):
 
     def test_directly_overwritten_dict_contains_subclassed_job_value(self):
         job = Job(slug='cthulhubot-test-helper-echo-name-job').get_domain_object()
@@ -117,3 +116,52 @@ class TestJobSubclassing(DatabaseTestCase):
         job = Job(slug='cthulhubot-test-helper-multiple-echo-all-defined-job').get_domain_object()
         for i in xrange(0, 3):
             self.assert_equals('overwritten by job', job.get_parameter_dict(i, 'what'))
+
+    def test_overwriting_with_callback_works_for_proper_match(self):
+        job = Job(slug='cthulhubot-test-helper-multiple-echo-2-defined-job').get_domain_object()
+        self.assert_equals('overwritten by job callback', job.get_parameter_dict(1, 'what'))
+
+    def test_overwriting_with_callback_works_do_not_overwrite_unrelated_matches(self):
+        job = Job(slug='cthulhubot-test-helper-multiple-echo-2-defined-job').get_domain_object()
+        self.assert_equals('first', job.get_parameter_dict(0, 'what'))
+
+    def test_error_retrieved_when_retrieving_nonset_parameter(self):
+        job = Job(slug='cthulhubot-test-helper-multiple-echo-2-defined-job').get_domain_object()
+        self.assert_raises(ValueError, job.get_parameter_dict, 2, 'what')
+
+class TestCommandConfigUpdate(UnitTestCase):
+    def setUp(self):
+        super(TestCommandConfigUpdate, self).setUp()
+        self.job = Job(slug='cthulhubot-sleep').get_domain_object()
+
+    def test_bad_command_raises_error(self):
+        self.assert_raises(ValueError, self.job.update_command_config, 5, {})
+
+    def test_mismatched_command_name(self):
+        self.assert_raises(ValueError, self.job.update_command_config, 0, {'command' : 'blahblahblah', 'parameters' : {'time' : 5}})
+
+    def test_config_updated(self):
+        self.job.update_command_config(0, {'command' : 'cthulhubot-sleep', 'parameters' : {'time' : 5}})
+        self.assert_equals(5, self.job.get_parameter_dict(0, 'time'))
+
+class TestSlotReplacement(UnitTestCase):
+
+    def setUp(self):
+        super(TestSlotReplacement, self).setUp()
+
+        self.job = Job(slug='cthulhubot-test-output-job').get_domain_object()
+
+    def test_slot_command_propagated_according_to_config(self):
+        config = {
+            'command' : 'cthulhubot-test-helper-echo',
+            'parameters' : {}
+        }
+        self.job.update_command_config(0, config)
+
+        self.assert_equals(config['command'], self.job.get_configuration_parameters()[0]['command'])
+
+    def test_update_with_command_from_other_slot_prohibited(self):
+        self.assert_raises(ValueError, self.job.update_command_config, 0, {'command' : 'cthulhubot-sleep', 'parameters' : {}})
+
+    def test_attempt_to_work_with_unconfigured_slot_raises_error(self):
+        self.assert_raises(UnconfiguredCommandError, self.job.get_commands)
