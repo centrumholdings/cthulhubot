@@ -3,11 +3,9 @@ from __future__ import absolute_import
 import logging
 from django.utils.safestring import mark_safe
 import os
-from platform import node
 
 from buildbot.process.factory import BuildFactory
 
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.simplejson import loads, dumps
 
@@ -52,12 +50,7 @@ class Assignment(object):
         self.model.config = dumps(config)
 
     def get_master_connection_string(self):
-        host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
-        if not host:
-            host = node() or "127.0.0.1"
-            log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
-        return "%s:%s" % (host, self.project.buildmaster.buildmaster_port)
-
+        return self.project.buildmaster.get_master_connection_string()
 
     def get_absolute_url(self):
         return reverse("cthulhubot-job-assignment-detail", kwargs={

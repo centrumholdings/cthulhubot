@@ -266,6 +266,15 @@ class Buildmaster(models.Model):
 
     REALM = "buildmaster"
 
+    def get_master_connection_string(self):
+        host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
+        if not host:
+            host = node() or "127.0.0.1"
+            log.warn("BUILDMASTER_NETWORK_NAME not given, assuming %s" % host)
+        return "%s:%s" % (host, self.buildmaster_port)
+
+
+
     def generate_new_port(self, attr, settings_attr, settings_default):
         try:
             obj = self.__class__.objects.all().order_by('-%s' % attr)[0]
