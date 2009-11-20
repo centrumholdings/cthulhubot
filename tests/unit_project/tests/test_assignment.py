@@ -8,11 +8,8 @@ from unit_project.tests.helpers import (
 )
 
 import os, os.path
-from shutil import rmtree
-from tempfile import mkdtemp
 from datetime import datetime
 
-from django.conf import settings
 from django.utils.simplejson import dumps, loads
 from django.core import urlresolvers
 from django.core.urlresolvers import get_script_prefix

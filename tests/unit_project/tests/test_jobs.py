@@ -1,8 +1,5 @@
-from copy import deepcopy
 from django.core.management import call_command
 from djangosanetesting import DatabaseTestCase, UnitTestCase
-
-from django.utils.simplejson import dumps
 
 from cthulhubot.jobs import get_job, get_undiscovered_jobs
 from cthulhubot.commands import get_command, Sleep as SleepCommand
@@ -102,6 +99,9 @@ class TestJob(UnitTestCase):
     def test_form_created_with_proper_number_of_fields(self):
         self.assert_equals(1, len(get_job_configuration_form(self.job).fields))
 
+    def test_form_default_values_propagated_to_initials(self):
+        self.assert_equals(0.02, get_job_configuration_form(self.job).initial.get('job_configuration_0'))
+
 class TestJobSubclassing(UnitTestCase):
 
     def test_directly_overwritten_dict_contains_subclassed_job_value(self):
@@ -148,7 +148,6 @@ class TestSlotReplacement(UnitTestCase):
 
     def setUp(self):
         super(TestSlotReplacement, self).setUp()
-
         self.job = Job(slug='cthulhubot-test-output-job').get_domain_object()
 
     def test_slot_command_propagated_according_to_config(self):
@@ -165,3 +164,5 @@ class TestSlotReplacement(UnitTestCase):
 
     def test_attempt_to_work_with_unconfigured_slot_raises_error(self):
         self.assert_raises(UnconfiguredCommandError, self.job.get_commands)
+
+

@@ -18,6 +18,7 @@ class ComputerForm(ModelForm):
 def get_job_configuration_form(job, post=None):
     params = job.get_configuration_parameters()
     fields = SortedDict()
+    initial_data = {}
     i = 0
     for command in params:
         for param in command['parameters']:
@@ -25,9 +26,11 @@ def get_job_configuration_form(job, post=None):
             fields[id] = CharField(label=u"%s for command %s: " % (
                 param, command['command']
             ))
+            if command['parameters'][param]:
+                initial_data[id] = command['parameters'][param]
             i += 1
     form_klass = type('JobConfigurationForm', (BaseForm,), {'base_fields': fields })
-    return form_klass(post)
+    return form_klass(post, initial=initial_data)
 
 def get_build_computer_selection_form(computers):
     fields = {
