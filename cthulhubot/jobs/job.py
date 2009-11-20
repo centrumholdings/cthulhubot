@@ -3,8 +3,19 @@ from copy import deepcopy
 from cthulhubot.commands import get_command
 from cthulhubot.err import UnconfiguredCommandError
 
-class Job(object):
+import logging
+logging = logging.getLogger("cthulhubot.jobs")
 
+class Job(object):
+    """
+    Domain object for 'job': a set of commands that can be assigned to a project
+    and computer (via Assignment).
+
+    For each command I can have 'parameters' that specify behavior of it. Parameters
+    can be either pre-defined by my subclass, or can be given as a configuration
+    JSON (probably by Assignment, with values taken from configuration form). 
+    """
+    
     # must be globally unique. Prefix with you own project.
     identifier = 'cthulhubot-unique-identifier'
     name = u"I'm a job - a predefined set of commands"
@@ -20,7 +31,7 @@ class Job(object):
 #        },
 #        {
 #            'command' : 'DebianPackageFtpUpload-slug',
-#            'command' : {
+#            'parameters' : {
 #                'ftp_host' : None,
 #                'ftp_user' : None,
 #                'ftp_password' : None,
@@ -36,7 +47,7 @@ class Job(object):
 
         self.commands = deepcopy(self.__class__.commands)
 
-        self.commands_retrieval_chain = [self.insert_commands_in_slots, self.apply_global_command_parameters, self.filter_commands]
+        self.commands_retrieval_chain = [self.insert_commands_in_slots, self.extract_command_parameters, self.apply_global_command_parameters, self.filter_commands]
         self.command_validators = [self.check_command_present]
         
     def __unicode__(self):
@@ -56,6 +67,16 @@ class Job(object):
                     if not command.has_key('parameters'):
                         command['parameters'] = {}
                     command['parameters'].update(self.global_command_parameters[command_ident])
+        return commands
+
+    def extract_command_parameters(self, commands):
+        for command_dict in commands:
+            if command_dict.has_key('command'):
+                for parameter in getattr(get_command(command_dict['command']), "parameters", []):
+                    if parameter not in command_dict['parameters']:
+                        command_dict['parameters'][parameter] = None
+            else:
+                logging.debug("Command dictionary without 'command', cannot resolve parameters. (Unresolved slot?)")
         return commands
 
     def insert_commands_in_slots(self, commands):
@@ -83,21 +104,27 @@ class Job(object):
         for validator in self.command_validators:
             validator(commands)
 
-    def get_configured_command_list(self):
+    def get_command_list(self):
+        """
+        Return "copy" of self.commands: update it with every configuration available
+        in self.commands_retrieval_chain
+        """
         commands = self.get_commands_dictionary()
         # pass through chain
         for filter in self.commands_retrieval_chain:
             commands = filter(commands)
 
-        # check before retrieving
-        self.check_command_configuration(commands)
-
         return commands
 
     def get_commands(self):
+        commands = self.get_command_list()
+
+        # check before retrieving
+        self.check_command_configuration(commands)
+
         return [
             get_command(command_dict['command'])(config=command_dict['parameters'])
-            for command_dict in self.get_configured_command_list()
+            for command_dict in commands
         ]
 
     def update_command_config(self, command_index, config):
@@ -142,7 +169,7 @@ class Job(object):
         """
         Return unconfigured parameters to be used for configuration.
         One dict is returned per every command in job, even if it should be an empty dict.
-        This is basically self.get_configured_command_list, flavoured with parameters_description.
+        This is basically self.get_command_list, flavoured with parameters_description.
 
         format:
 
@@ -163,7 +190,7 @@ class Job(object):
                 'help' : u'help text',
             }
         """
-        command_list = self.get_configured_command_list()
+        command_list = self.get_command_list()
         for command_dict in command_list:
             if not command_dict.has_key('parameters_description'):
                 command_dict['parameters_description'] = {}

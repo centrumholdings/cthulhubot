@@ -77,6 +77,7 @@ class TestJob(UnitTestCase):
     def setUp(self):
         super(TestJob, self).setUp()
         self.job = Job(slug='cthulhubot-sleep').get_domain_object()
+        self.echo_job = Job(slug='cthulhubot-test-helper-echo-job').get_domain_object()
 
     def test_unicode_on_job_returns_proper_text(self):
         self.assert_equals(u"Sleep for a sec", unicode(self.job))
@@ -102,6 +103,10 @@ class TestJob(UnitTestCase):
     def test_form_default_values_propagated_to_initials(self):
         self.assert_equals(0.02, get_job_configuration_form(self.job).initial.get('job_configuration_0'))
 
+    def test_parameters_from_command_propagated_to_form_even_if_not_specified_there(self):
+        self.assert_equals(1, len(get_job_configuration_form(self.echo_job).fields))
+
+
 class TestJobSubclassing(UnitTestCase):
 
     def test_directly_overwritten_dict_contains_subclassed_job_value(self):
@@ -124,10 +129,6 @@ class TestJobSubclassing(UnitTestCase):
     def test_overwriting_with_callback_works_do_not_overwrite_unrelated_matches(self):
         job = Job(slug='cthulhubot-test-helper-multiple-echo-2-defined-job').get_domain_object()
         self.assert_equals('first', job.get_parameter_dict(0, 'what'))
-
-    def test_error_retrieved_when_retrieving_nonset_parameter(self):
-        job = Job(slug='cthulhubot-test-helper-multiple-echo-2-defined-job').get_domain_object()
-        self.assert_raises(ValueError, job.get_parameter_dict, 2, 'what')
 
 class TestCommandConfigUpdate(UnitTestCase):
     def setUp(self):
