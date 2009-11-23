@@ -4,8 +4,11 @@
 
 <h1>Job {{ job.slug }} working for {{ project.name }} at {{ computer.name }}</h1>
 
-<form action="." method="POST">
-    <input type="submit" name="builder-check" value="Check builder" />
-</form>
+<h2>Builds</h2>
 
+<ul>
+{% for build in builds %}
+    <li>{{ build.number }} started at {{ build.time_start }}. </li>
+{% endfor %}
+</ul>
 {% endblock %}

@@ -271,6 +271,10 @@ class TestResults(DatabaseTestCase):
 
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
+    def test_build_retrieved(self):
+        build = self.insert_build()
+        self.assert_equals(build, self.assignment.get_builds()[0])
+
     def test_failure_before_success_is_still_fails(self):
         build = self.insert_build()
         self.insert_step(build)

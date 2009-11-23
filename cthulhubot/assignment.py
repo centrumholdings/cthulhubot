@@ -13,19 +13,11 @@ from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
 from cthulhubot.buildbot import BuildForcer
 from cthulhubot.models import ProjectClient
-
-log = logging.getLogger("cthulhubot.assignment")
+from cthulhubot.builds import Build, BUILD_RESULTS_DICT
 
 from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
-BUILD_RESULTS_DICT = {
-    SUCCESS : "Success",
-    WARNINGS : "Warning",
-    FAILURE : "Failure",
-    SKIPPED : "Skipped",
-    EXCEPTION : "Exception",
-    None : "No result yet",
-}
+log = logging.getLogger("cthulhubot.assignment")
 
 class Assignment(object):
     """
@@ -103,25 +95,11 @@ class Assignment(object):
     def get_last_build_status(self):
         db = get_database_connection()
         try:
-            build = db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next()
+            build = Build(db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next())
         except StopIteration:
             return BUILD_RESULTS_DICT[None]
 
-        result = None
-        priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
-
-        for step in build['steps']:
-            if step.get('time_end', None):
-                if not result:
-                    result = step['result']
-                else:
-                    if priorities.index(step['result']) > priorities.index(result):
-                        result = step['result']
-            else:
-                log.debug("Step %s without time_end, not considering" % str(step))
-
-        return BUILD_RESULTS_DICT[result]
-
+        return build.get_text_result()
 
     def get_build_directory(self):
         return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
@@ -140,6 +118,11 @@ class Assignment(object):
         cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
         return self.computer.get_command_return_status(cmd) == 0
 
+    def get_builds(self):
+        db = get_database_connection()
+        return [build for build in db.builds.find({"builder" : self.get_identifier()}).sort([("number", -1)])]
+
+    builds = property(fget=get_builds)
 
     def get_identifier(self):
         return str(self.model.pk)
@@ -160,7 +143,6 @@ class Assignment(object):
         if not builder:
             return AssignmentOffline()
         else:
-
             BUILDBOT_ASSIGNMENT_STATUS_MAP = {
                 'offline' : AssignmentOffline,
                 'building' : AssignmentRunning,
@@ -171,7 +153,6 @@ class Assignment(object):
                 raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
 
             return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
-
 
     def get_status(self):
         if not self.builder_running() and not self.build_directory_exists():

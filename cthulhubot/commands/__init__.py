@@ -6,6 +6,7 @@ ENTRYPOINT = "chtulhubot.commands"
 from cthulhubot.commands.config import *
 from cthulhubot.commands.package import *
 from cthulhubot.commands.sleep import *
+from cthulhubot.commands.tests import *
 from cthulhubot.commands.vcs import *
 from cthulhubot.commands.version import *
 

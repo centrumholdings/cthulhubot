@@ -304,7 +304,7 @@ def job_assigment_config(request, project, job):
 
 @transaction.commit_on_success
 def job_assigment_detail(request, assignment_id):
-    assignment = get_object_or_404(JobAssignment, pk=assignment_id)
+    assignment = get_object_or_404(JobAssignment, pk=assignment_id).get_domain_object()
 
     redirect = dispatch_post(request, {
             "builder-check" : check_builder,
@@ -322,6 +322,7 @@ def job_assigment_detail(request, assignment_id):
         'project' : assignment.project,
         'computer' : assignment.computer,
         'job' : assignment.job,
+        'builds' : assignment.builds,
     })
 
 

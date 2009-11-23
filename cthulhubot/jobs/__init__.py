@@ -3,9 +3,10 @@ import pkg_resources
 
 ENTRYPOINT = "chtulhubot.jobs"
 
+from cthulhubot.jobs.job import Job
 from cthulhubot.jobs.package import *
 from cthulhubot.jobs.sleep import *
-from cthulhubot.jobs.job import Job
+from cthulhubot.jobs.tests import *
 
 log = logging.getLogger("cthulhubot.jobs")
 
