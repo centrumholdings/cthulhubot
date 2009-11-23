@@ -42,10 +42,8 @@ setup(
 
     entry_points = {
 	'cthulhubot.jobs' : [
-	
 	],
 	'cthulhubot.commands' : [
-            "dummy_command = cthulhubot.commands:DummyCommand"	
 	]
     }
 
