@@ -30,6 +30,17 @@ class TestTemplateTag(DatabaseTestCase):
 
         return build
 
+    def get_template_content(self, t):
+        return t.render(Context({'build': self.build}))
+
     def test_identifier_print(self):
         t = Template('''{% load mongo %}{% mongoid build %}''')
-        assert len(t.render(Context({'build': self.build}))) > 0
+        self.assert_equals(str(self.build['_id']), self.get_template_content(t))
+
+    def test_stored_to_variable_produces_no_output(self):
+        t = Template('''{% load mongo %}{% mongoid build as build_id %}''')
+        self.assert_equals(0, len(self.get_template_content(t)))
+
+    def test_storing_id_to_variable(self):
+        t = Template('''{% load mongo %}{% mongoid build as build_id %}{{ build_id }}''')
+        self.assert_equals(str(self.build['_id']), self.get_template_content(t))
