@@ -1,4 +1,5 @@
 {% extends "cthulhubot/base.html" %}
+{% load mongo %}
 
 {% block content %}
 
@@ -8,7 +9,14 @@
 
 <ul>
 {% for build in builds %}
-    <li>{{ build.number }} started at {{ build.time_start }}. </li>
+    <li>{{ build.number }} started at {{ build.time_start }} {{ build.get_text_result }}.
+        <ul>
+            {% for step in build.steps %}
+                {% mongoid step as step_id %}
+                <li>{{ step.name }} <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stdout" %}">stdout</a> stderr headers</li>
+            {% endfor %}
+        </ul>
+    </li>
 {% endfor %}
 </ul>
 {% endblock %}

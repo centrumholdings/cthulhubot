@@ -35,6 +35,9 @@ class Build(object):
 
         return BUILD_RESULTS_DICT[result]
 
+    def id(self):
+        return self.data['_id']
+
     def __getitem__(self, key):
         return self.data[key]
 

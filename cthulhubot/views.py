@@ -1,4 +1,5 @@
-from django.http import HttpResponse
+from pymongo.objectid import ObjectId
+from django.http import HttpResponse, HttpResponseNotFound
 from pickle import dumps as pickle_dumps
 
 from cthulhubot.models import Buildmaster
@@ -17,6 +18,7 @@ from cthulhubot.utils import dispatch_post
 from cthulhubot.buildbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.jobs import get_undiscovered_jobs
+from cthulhubot.mongo import get_database_connection
 
 from djangohttpdigest.decorators import protect_digest_model
 
@@ -335,3 +337,11 @@ def job_assigment_detail(request, assignment_id):
 def api_buildmaster_config(request, identifier):
     master = get_object_or_404(Buildmaster, pk=identifier)
     return HttpResponse(pickle_dumps(master.get_config()))
+
+def step_part_detail(request, step, detail_name):
+    db = get_database_connection()
+    step = db.steps.find_one({"_id" : ObjectId(str(step))})
+    if not step or detail_name not in step:
+        HttpResponseNotFound()
+    
+    return HttpResponse(step[detail_name])
