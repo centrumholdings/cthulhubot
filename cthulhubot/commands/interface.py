@@ -38,9 +38,21 @@ class Command(object):
         super(Command, self).__init__()
 
         self.config = copy(config) or {}
+        self.get_initial_parameters()
+
         self.fill_default_values()
+
         if config:
             self.update_config(config)
+
+    def get_initial_parameters(self):
+        # traverse through hierarchy until I have .parameters
+        # then, update from top to bottom, with param_config being most preferred
+        self.parameters = {}
+        classes = list(self.__class__.__mro__)
+        classes.reverse()
+        for cls in classes:
+            self.parameters.update(getattr(cls, "parameters", {}))
 
     def fill_default_values(self):
         for cmd in self.parameters:
