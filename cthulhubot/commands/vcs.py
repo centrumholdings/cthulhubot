@@ -49,3 +49,16 @@ class Git(Command):
         branch = config.get('branch', None) or self.config.get('branch', None)
         return BuildbotGit(repourl=repourl, mode=mode, branch=branch)
 
+
+class ComputeGitVersion(Command):
+    identifier = 'cthulhubot-update-repository-info'
+    name = {
+        'basic' : u"Update repository information",
+        'running' : u'Updating repository information',
+        'succeeded' : u'Repository information updated',
+        'failed' : u'Failed to update repository information',
+    }
+
+    parameters = {}
+
+    command = ["python", "setup.py", "save_repository_information_git"]
