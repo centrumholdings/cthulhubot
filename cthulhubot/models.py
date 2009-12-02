@@ -329,6 +329,8 @@ class ProjectClient(models.Model):
     #TODO: Move HTML away
     def get_status_action(self):
         status = self.get_status()
+        from django.utils.safestring import mark_safe
+        from cthulhubot.assignment import AssignmentOffline, DirectoryNotCreated, AssignmentReady
 
         INPUT_HTML_DICT = {
             AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),

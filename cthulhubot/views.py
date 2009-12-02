@@ -150,9 +150,12 @@ def project_detail(request, project):
 
     assignments = [assignment.get_domain_object() for assignment in JobAssignment.objects.filter(project=project)]
 
+    clients = list(set([assignment.get_client() for assignment in assignments]))
+
     return direct_to_template(request, 'cthulhubot/project_detail.html', {
         'project' : project,
         'job_assignments' : assignments,
+        'clients' : clients,
     })
 
 
