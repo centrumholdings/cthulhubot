@@ -7,6 +7,7 @@ from cthulhubot.jobs.job import Job
 from cthulhubot.jobs.package import *
 from cthulhubot.jobs.sleep import *
 from cthulhubot.jobs.tests import *
+from cthulhubot.jobs.vcs import *
 
 log = logging.getLogger("cthulhubot.jobs")
 
