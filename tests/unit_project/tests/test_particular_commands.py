@@ -1,8 +1,9 @@
 from djangosanetesting import UnitTestCase, DatabaseTestCase
 
+from django.conf import settings
+
 from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
-from cthulhubot.models import Command
-from cthulhubot.err import UnconfiguredCommandError
+from cthulhubot.mongo import get_database_name
 
 from cthulhubot.commands import Git, ADDITIONAL_COMMANDS
 
@@ -47,3 +48,23 @@ class TestGit(UnitTestCase):
     def test_given_args_takes_precedence_over_class_defaults(self):
         repo = 'ssh://our.server.tld/GIT/myrepo.git'
         self.assert_equals(repo, self.sub_command.get_buildbot_command(config={'repository' : repo}).args['repourl'])
+
+class TestUpdateRepositoryInformation(UnitTestCase):
+
+    def setUp(self):
+        super(TestUpdateRepositoryInformation, self).setUp()
+        self.command = get_command('cthulhubot-update-repository-info')()
+
+    def test_command_configured(self):
+        self.assert_equals([
+                "python", "setup.py", "save_repository_information_git",
+                "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
+                "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
+                "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
+                "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
+                "--mongodb-database=%s" % get_database_name(),
+                "mongodb-collection=repository",
+            ],
+            self.command.get_shell_command()
+        )
+

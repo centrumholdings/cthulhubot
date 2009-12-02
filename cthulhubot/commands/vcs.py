@@ -1,6 +1,8 @@
-from cthulhubot.commands.interface import Command
-
 from buildbot.steps.source import Git as BuildbotGit
+from django.conf import settings
+
+from cthulhubot.commands.interface import Command
+from cthulhubot.mongo import get_database_name
 
 class ComputeGitVersion(Command):
     identifier = 'cthulhubot-compute-git'
@@ -50,7 +52,7 @@ class Git(Command):
         return BuildbotGit(repourl=repourl, mode=mode, branch=branch)
 
 
-class ComputeGitVersion(Command):
+class UpdateRepositoryInformation(Command):
     identifier = 'cthulhubot-update-repository-info'
     name = {
         'basic' : u"Update repository information",
@@ -61,4 +63,15 @@ class ComputeGitVersion(Command):
 
     parameters = {}
 
-    command = ["python", "setup.py", "save_repository_information_git"]
+    def _get_command_skeleton(self):
+        return [
+                "python", "setup.py", "save_repository_information_git",
+                "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
+                "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
+                "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
+                "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
+                "--mongodb-database=%s" % get_database_name(),
+                "mongodb-collection=repository",
+        ]
+
+    command = property(fget=_get_command_skeleton)

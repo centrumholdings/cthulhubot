@@ -23,7 +23,6 @@ DATABASE_PORT = ''
 
 MONGODB_DATABASE_NAME = 'buildmaster'
 
-
 TIME_ZONE = 'Europe/Prague'
 
 LANGUAGE_CODE = 'en-us'
