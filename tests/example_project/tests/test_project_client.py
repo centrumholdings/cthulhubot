@@ -11,14 +11,14 @@ from django.utils.simplejson import dumps, loads
 
 from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
 from cthulhubot.views import create_job_assignment
 
 from tests.helpers import create_project
 
-class TestBuildDirectory(HttpTestCase):
+class TestProjectClient(HttpTestCase):
     def setUp(self):
-        super(TestBuildDirectory, self).setUp()
+        super(TestProjectClient, self).setUp()
 
         #FIXME: DST should have helper function for this
         from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
@@ -66,20 +66,60 @@ class TestBuildDirectory(HttpTestCase):
                 }
             ]
         )
-        
-        self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
+
+        self.project_client = ProjectClient.objects.all()[0]
+        assert self.project_client.project == self.project
+
+        self.build_directory = os.path.join(self.base_directory, self.project_client.get_identifier())
 
         self.transaction.commit()
 
-    def test_loading_assignment_config_works(self):
-        self.assert_equals(4, len(self.assignment.get_shell_commands()))
+    def test_dir_not_exists_by_default(self):
+        self.assert_equals(0, len(os.listdir(self.base_directory)))
+        self.assert_false(self.project_client.build_directory_exists())
 
-    def test_master_string_creation(self):
-        master = settings.BUILDMASTER_NETWORK_NAME
-        self.assert_equals("%s:%s" % (master, self.buildmaster.buildmaster_port), self.assignment.get_master_connection_string())
+    def test_creating_creates_dir(self):
+        self.assert_equals(0, len(os.listdir(self.base_directory)))
 
-    def test_uri_constructed(self):
-        self.assert_true(self.assignment.get_absolute_url() is not None)
+        self.project_client.create_build_directory()
+        self.assert_equals(1, len(os.listdir(self.base_directory)))
+
+    def test_exists_check_recognizes_created_dir(self):
+        self.assert_equals(0, len(os.listdir(self.base_directory)))
+
+        self.project_client.create_build_directory()
+
+        self.assert_true(self.project_client.build_directory_exists())
+
+    def test_remote_error_on_bad_directory_nesting(self):
+        self.project_client.computer.basedir = "/badly/nested/nonexistent/basedir"
+        self.assert_raises(RemoteCommandError, self.project_client.create_build_directory)
+
+    def test_directory_not_created_by_default(self):
+        self.assert_equals(DirectoryNotCreated.ID, self.project_client.get_status().ID)
+
+    def test_directory_not_created_by_default_in_text(self):
+        assert len(unicode(DirectoryNotCreated)) > 0
+        self.assert_equals(DirectoryNotCreated.DEFAULT_STATUS, self.project_client.get_text_status())
+
+    def test_bare_offline_after_directory_created(self):
+        self.project_client.create_build_directory()
+        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
+
+    def test_offline_after_master_started_without_slave(self):
+        self.project_client.create_build_directory()
+        self.buildmaster.start()
+        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
+
+    def test_ready_after_starting_up(self):
+        self.project_client.create_build_directory()
+        self.buildmaster.start()
+        self.project_client.start()
+        try:
+            self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
+        finally:
+            self.project_client.stop()
+
 
     def tearDown(self):
         settings.NETWORK_ROOT = self.network_root
@@ -88,5 +128,5 @@ class TestBuildDirectory(HttpTestCase):
         self.buildmaster.delete()
         rmtree(self.base_directory)
 
-        super(TestBuildDirectory, self).tearDown()
+        super(TestProjectClient, self).tearDown()
 

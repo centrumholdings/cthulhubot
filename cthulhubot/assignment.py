@@ -72,18 +72,6 @@ class Assignment(object):
             i += 1
         return factory
 
-    def execute_remote_command_for_success(self, cmd):
-        status = self.computer.get_command_return_status(cmd)
-
-        if status != 0:
-            raise RemoteCommandError("Command '%s' exited with status %s." % (str(cmd), status))
-
-    def start(self):
-        self.execute_remote_command_for_success(["buildbot", "start", self.build_directory])
-
-    def stop(self):
-        self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
-
     def get_shell_commands(self):
         return self.job.get_configured_shell_commands(config=loads(self.model.config))
 
@@ -101,23 +89,6 @@ class Assignment(object):
 
         return build.get_text_result()
 
-    def get_build_directory(self):
-        return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
-
-    build_directory = property(fget=get_build_directory)
-
-    def build_directory_exists(self):
-        return self.computer.build_directory_exists(self.build_directory)
-
-    def builder_running(self, directory=None):
-        directory = directory or self.build_directory
-        pid_file = os.path.join(directory, 'twistd.pid')
-        cmd = ["test", "-f", pid_file]
-        if self.computer.get_command_return_status(cmd) != 0:
-            return False
-        cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
-        return self.computer.get_command_return_status(cmd) == 0
-
     def get_builds(self):
         db = get_database_connection()
         return [build for build in db.builds.find({"builder" : self.get_identifier()}).sort([("number", -1)])]
@@ -129,13 +100,6 @@ class Assignment(object):
 
     def get_client(self):
         return ProjectClient.objects.get(project=self.project, computer=self.computer)
-
-    def create_build_directory(self, username=None, password=None):
-        username = username or self.get_client().get_name()
-        password = password or self.get_client().password
-
-        self.execute_remote_command_for_success(["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password])
-        self.execute_remote_command_for_success(["touch", os.path.join(self.build_directory, 'twistd.log')])
 
     def get_status_from_database(self):
         db = get_database_connection()
@@ -155,7 +119,7 @@ class Assignment(object):
             return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
 
     def get_status(self):
-        if not self.builder_running() and not self.build_directory_exists():
+        if not self.get_client().build_directory_exists():
             status = DirectoryNotCreated()
         else:
             status = self.get_status_from_database()

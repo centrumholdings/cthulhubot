@@ -21,7 +21,7 @@ from django.db import models
 
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
-from cthulhubot.err import UndiscoveredCommandError, CommunicationError
+from cthulhubot.err import UndiscoveredCommandError, CommunicationError, RemoteCommandError
 from cthulhubot.jobs import get_job
 from cthulhubot.mongo import get_database_connection, get_database_name, get_database_info
 from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
@@ -244,6 +244,9 @@ class ProjectClient(models.Model):
     computer = models.ForeignKey(BuildComputer)
     password = models.CharField(max_length=36)
 
+    unique_together = (("project", "computer"),)
+
+
     def generate_password(self):
         if not self.password:
             self.password = str(uuid4())
@@ -251,8 +254,92 @@ class ProjectClient(models.Model):
     def get_name(self):
         return '%s-at-%s' % (self.project.slug, self.computer.slug)
 
-    unique_together = (("project", "computer"),)
+    def start(self):
+        self.execute_remote_command_for_success(["buildbot", "start", self.build_directory])
 
+    def stop(self):
+        self.execute_remote_command_for_success(["buildbot", "stop", self.build_directory])
+
+    def execute_remote_command_for_success(self, cmd):
+        status = self.computer.get_command_return_status(cmd)
+
+        if status != 0:
+            raise RemoteCommandError("Command '%s' exited with status %s." % (str(cmd), status))
+
+    def get_identifier(self):
+        return str(self.pk)
+
+    def get_build_directory(self):
+        return os.path.join(self.computer.get_base_build_directory(), self.get_identifier())
+
+    build_directory = property(fget=get_build_directory)
+
+    def build_directory_exists(self):
+        return self.computer.build_directory_exists(self.build_directory)
+
+    def builder_running(self, directory=None):
+        directory = directory or self.build_directory
+        pid_file = os.path.join(directory, 'twistd.pid')
+        cmd = ["test", "-f", pid_file]
+        if self.computer.get_command_return_status(cmd) != 0:
+            return False
+        cmd = ["test", "-d", "/proc/`cat \"%(pid)s\"`"  % {'pid' : pid_file}]
+        return self.computer.get_command_return_status(cmd) == 0
+
+    def create_build_directory(self, username=None, password=None):
+        username = username or self.get_name()
+        password = password or self.password
+
+        self.execute_remote_command_for_success(["buildbot", "create-slave", self.build_directory, self.get_master_connection_string(), username, password])
+        self.execute_remote_command_for_success(["touch", os.path.join(self.build_directory, 'twistd.log')])
+
+    def get_master_connection_string(self):
+        return self.project.buildmaster.get_master_connection_string()
+
+    def get_status_from_database(self):
+        from cthulhubot.assignment import AssignmentOffline
+
+        db = get_database_connection()
+        builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.project.get_buildmaster().pk})
+        if not builder:
+            return AssignmentOffline()
+        else:
+            BUILDBOT_ASSIGNMENT_STATUS_MAP = {
+                'offline' : AssignmentOffline,
+                'building' : AssignmentRunning,
+                'idle' : AssignmentReady
+            }
+
+            if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
+                raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
+
+            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
+
+    def get_status(self):
+        from cthulhubot.assignment import DirectoryNotCreated
+        if not self.builder_running() and not self.build_directory_exists():
+            status = DirectoryNotCreated()
+        else:
+            status = self.get_status_from_database()
+        return status
+
+    def get_text_status(self):
+        return unicode(self.get_status())
+
+    #TODO: Move HTML away
+    def get_status_action(self):
+        status = self.get_status()
+
+        INPUT_HTML_DICT = {
+            AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
+            DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
+            AssignmentReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
+        }
+
+        if status.ID in INPUT_HTML_DICT:
+            return INPUT_HTML_DICT[status.ID]
+        else:
+            return u''
 
 
 class Buildmaster(models.Model):
