@@ -63,7 +63,7 @@ class TestUpdateRepositoryInformation(UnitTestCase):
                 "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
                 "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
                 "--mongodb-database=%s" % get_database_name(),
-                "mongodb-collection=repository",
+                "--mongodb-collection=repository",
             ],
             self.command.get_shell_command()
         )

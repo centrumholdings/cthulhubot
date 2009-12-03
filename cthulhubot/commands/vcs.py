@@ -71,7 +71,7 @@ class UpdateRepositoryInformation(Command):
                 "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
                 "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
                 "--mongodb-database=%s" % get_database_name(),
-                "mongodb-collection=repository",
+                "--mongodb-collection=repository",
         ]
 
     command = property(fget=_get_command_skeleton)
