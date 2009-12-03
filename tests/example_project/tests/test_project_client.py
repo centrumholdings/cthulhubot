@@ -132,8 +132,6 @@ class TestProjectClient(HttpTestCase):
         self.project_client.delete()
         self.assert_false(self.project_client.builder_running())
 
-
-
     def tearDown(self):
         settings.NETWORK_ROOT = self.network_root
 
