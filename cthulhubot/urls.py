@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, url
 
 from cthulhubot.views import (
     dashboard,
-    projects, projects_create, project_detail,
+    projects, projects_create, project_detail, project_changeset_view,
     computers, computers_create, computer_detail, computer_edit,
     commands, commands_discover,
     jobs, jobs_configure, job_add, job_assigment, job_assigment_config, job_assigment_detail, step_part_detail,
@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     url(r'^projects/$', projects, name='cthulhubot-projects'),
     url(r'^projects/create/$', projects_create, name='cthulhubot-create-project'),
     url(r'^project/(?P<project>[\w\-]+)/$', project_detail, name='cthulhubot-project-detail'),
+    url(r'^project/(?P<project>[\w\-]+)/changesets/$', project_changeset_view, name='cthulhubot-project-changeset-view'),
     
     url(r'^assigment/(?P<assignment_id>[\d]+)/$', job_assigment_detail, name='cthulhubot-job-assignment-detail'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/(?P<job>[\w\-]+)/$', job_assigment_config, name='cthulhubot-job-assigment-add'),

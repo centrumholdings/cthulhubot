@@ -1,4 +1,6 @@
 from pymongo.objectid import ObjectId
+from pymongo import DESCENDING
+
 from django.http import HttpResponse, HttpResponseNotFound
 from pickle import dumps as pickle_dumps
 
@@ -158,6 +160,23 @@ def project_detail(request, project):
         'clients' : clients,
     })
 
+
+def project_changeset_view(request, project):
+    project = get_object_or_404(Project, slug=project)
+
+    db = get_database_connection()
+
+    info = db.repository.find().order_by([("commiter_date", DESCENDING),])
+
+    changesets = []
+
+    for changeset in info:
+        changesets.append(changeset)
+
+    return direct_to_template(request, 'cthulhubot/project_changeset_view.html', {
+        'project' : project,
+        'changesets' : changesets,
+    })
 
 @transaction.commit_on_success
 def computers(request):

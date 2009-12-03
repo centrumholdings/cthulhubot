@@ -36,6 +36,8 @@
 
 <p><a href="{% url cthulhubot-job-assigment project=project.slug %}">Configure new job assigment</a></p>
 
+<p><a href="{% url cthulhubot-project-changeset-view project=project.slug %}">Changeset-oriented view</a></p>
+
 <ul>
 {% for assignment in job_assignments %}
     <li>
