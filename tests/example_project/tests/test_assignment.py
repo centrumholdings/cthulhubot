@@ -9,7 +9,7 @@ from tempfile import mkdtemp
 from django.conf import settings
 from django.utils.simplejson import dumps, loads
 
-from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
+from cthulhubot.assignment import Assignment
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.models import Job, JobAssignment, BuildComputer, Command
 from cthulhubot.views import create_job_assignment

@@ -9,9 +9,9 @@ from tempfile import mkdtemp
 from django.conf import settings
 from django.utils.simplejson import dumps, loads
 
-from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
+from cthulhubot.assignment import Assignment
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
+from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient, DirectoryNotCreated, ClientOffline, ClientReady
 from cthulhubot.views import create_job_assignment
 
 from tests.helpers import create_project
@@ -104,19 +104,19 @@ class TestProjectClient(HttpTestCase):
 
     def test_bare_offline_after_directory_created(self):
         self.project_client.create_build_directory()
-        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
+        self.assert_equals(ClientOffline.ID, self.project_client.get_status().ID)
 
     def test_offline_after_master_started_without_slave(self):
         self.project_client.create_build_directory()
         self.buildmaster.start()
-        self.assert_equals(AssignmentOffline.ID, self.assignment.get_status().ID)
+        self.assert_equals(ClientOffline.ID, self.project_client.get_status().ID)
 
     def test_ready_after_starting_up(self):
         self.project_client.create_build_directory()
         self.buildmaster.start()
         self.project_client.start()
         try:
-            self.assert_equals(AssignmentReady.ID, self.assignment.get_status().ID)
+            self.assert_equals(ClientReady.ID, self.project_client.get_status().ID)
         finally:
             self.project_client.stop()
 

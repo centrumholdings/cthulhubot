@@ -101,29 +101,13 @@ class Assignment(object):
     def get_client(self):
         return ProjectClient.objects.get(project=self.project, computer=self.computer)
 
-    def get_status_from_database(self):
+    def get_status(self):
         db = get_database_connection()
         builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.project.get_buildmaster().pk})
-        if not builder:
-            return AssignmentOffline()
+        if not builder or 'status' not in builder:
+            return 'no builder / no result yet'
         else:
-            BUILDBOT_ASSIGNMENT_STATUS_MAP = {
-                'offline' : AssignmentOffline,
-                'building' : AssignmentRunning,
-                'idle' : AssignmentReady
-            }
-
-            if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
-                raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
-
-            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
-
-    def get_status(self):
-        if not self.get_client().build_directory_exists():
-            status = DirectoryNotCreated()
-        else:
-            status = self.get_status_from_database()
-        return status
+            return builder['status']
 
     def get_text_status(self):
         return unicode(self.get_status())
@@ -144,33 +128,3 @@ class Assignment(object):
             return u''
 
 
-class AssignmentStatus(object):
-    ID = None
-
-    def __init__(self, status=None):
-        super(AssignmentStatus, self).__init__()
-        self.status = status
-
-    def __unicode__(self):
-        return self.status or self.DEFAULT_STATUS
-
-
-class DirectoryNotCreated(AssignmentStatus):
-    ID = 1
-    DEFAULT_STATUS = u"Buildslave directory not created yet"
-
-class AssignmentOffline(AssignmentStatus):
-    ID = 2
-    DEFAULT_STATUS = u"Offline, not connected to buildmaster"
-
-class AssignmentRunning(AssignmentStatus):
-    ID = 3
-    DEFAULT_STATUS = u"Running"
-
-class AssignmentReady(AssignmentStatus):
-    ID = 4
-    DEFAULT_STATUS = u"Connected and ready"
-
-class AssignmentStatusError(AssignmentStatus):
-    ID = 4
-    DEFAULT_STATUS = u"Problem with assignment status"

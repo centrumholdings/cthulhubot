@@ -238,6 +238,36 @@ class JobAssignment(models.Model):
         from cthulhubot.assignment import Assignment
         return Assignment(model = self)
 
+class ClientStatus(object):
+    ID = None
+
+    def __init__(self, status=None):
+        super(ClientStatus, self).__init__()
+        self.status = status
+
+    def __unicode__(self):
+        return self.status or self.DEFAULT_STATUS
+
+
+class DirectoryNotCreated(ClientStatus):
+    ID = 1
+    DEFAULT_STATUS = u"Buildslave directory not created yet"
+
+class ClientOffline(ClientStatus):
+    ID = 2
+    DEFAULT_STATUS = u"Offline, not connected to buildmaster"
+
+class ClientRunning(ClientStatus):
+    ID = 3
+    DEFAULT_STATUS = u"Running"
+
+class ClientReady(ClientStatus):
+    ID = 4
+    DEFAULT_STATUS = u"Connected and ready"
+
+class StatusError(ClientStatus):
+    ID = 4
+    DEFAULT_STATUS = u"Problem with Client status"
 
 class ProjectClient(models.Model):
     project = models.ForeignKey(Project)
@@ -297,26 +327,23 @@ class ProjectClient(models.Model):
         return self.project.buildmaster.get_master_connection_string()
 
     def get_status_from_database(self):
-        from cthulhubot.assignment import AssignmentOffline
-
         db = get_database_connection()
         builder = db.builders.find_one({'name' : self.get_identifier(), 'master_id' : self.project.get_buildmaster().pk})
         if not builder:
-            return AssignmentOffline()
+            return ClientOffline()
         else:
-            BUILDBOT_ASSIGNMENT_STATUS_MAP = {
-                'offline' : AssignmentOffline,
-                'building' : AssignmentRunning,
-                'idle' : AssignmentReady
+            BUILDBOT_CLIENT_STATUS_MAP = {
+                'offline' : ClientOffline,
+                'building' : ClientRunning,
+                'idle' : ClientReady
             }
 
-            if builder['status'] not in BUILDBOT_ASSIGNMENT_STATUS_MAP:
+            if builder['status'] not in BUILDBOT_CLIENT_STATUS_MAP:
                 raise ValueError("Received unexpected BuildBot status %s" % builder['status'])
 
-            return BUILDBOT_ASSIGNMENT_STATUS_MAP[builder['status']]()
+            return BUILDBOT_CLIENT_STATUS_MAP[builder['status']]()
 
     def get_status(self):
-        from cthulhubot.assignment import DirectoryNotCreated
         if not self.builder_running() and not self.build_directory_exists():
             status = DirectoryNotCreated()
         else:
@@ -333,9 +360,9 @@ class ProjectClient(models.Model):
         from cthulhubot.assignment import AssignmentOffline, DirectoryNotCreated, AssignmentReady
 
         INPUT_HTML_DICT = {
-            AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
+            ClientOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
             DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
-            AssignmentReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
+            ClientReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
         }
 
         if status.ID in INPUT_HTML_DICT:

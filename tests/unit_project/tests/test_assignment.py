@@ -16,7 +16,7 @@ from django.core.urlresolvers import get_script_prefix
 
 from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
-from cthulhubot.assignment import Assignment, DirectoryNotCreated, AssignmentOffline, AssignmentReady
+from cthulhubot.assignment import Assignment
 from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
 from cthulhubot.project import create_project
 from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient, Project, Buildmaster
