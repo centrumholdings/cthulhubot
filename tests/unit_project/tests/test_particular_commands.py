@@ -98,13 +98,28 @@ class TestUpdateRepositoryInformation(UnitTestCase):
                 "python", "setup.py", "save_repository_information_git",
                 "--mongodb-host=%s" % self.mongo_config['host'],
                 "--mongodb-port=%s" % self.mongo_config['port'],
+                "--mongodb-database=%s" % self.mongo_config['database_name'],
+                "--mongodb-collection=repository",
                 "--mongodb-username=%s" % self.mongo_config['username'],
                 "--mongodb-password=%s" % self.mongo_config['password'],
+            ],
+            self.command.get_shell_command()
+        )
+
+    def test_empty_params_ommited(self):
+        settings.MONGODB_USERNAME = None
+        settings.MONGODB_PASSWORD = None
+
+        self.assert_equals([
+                "python", "setup.py", "save_repository_information_git",
+                "--mongodb-host=%s" % self.mongo_config['host'],
+                "--mongodb-port=%s" % self.mongo_config['port'],
                 "--mongodb-database=%s" % self.mongo_config['database_name'],
                 "--mongodb-collection=repository",
             ],
             self.command.get_shell_command()
         )
+
 
 
     def tearDown(self):

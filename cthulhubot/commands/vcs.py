@@ -64,14 +64,17 @@ class UpdateRepositoryInformation(Command):
     parameters = {}
 
     def _get_command_skeleton(self):
-        return [
+        command = [
                 "python", "setup.py", "save_repository_information_git",
                 "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
                 "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
-                "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
-                "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
                 "--mongodb-database=%s" % get_database_name(),
                 "--mongodb-collection=repository",
         ]
+        if getattr(settings, "MONGODB_USERNAME", None):
+                command.append("--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None))
+        if getattr(settings, "MONGODB_PASSWORD", None):
+                command.append("--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None))
+        return command
 
     command = property(fget=_get_command_skeleton)
