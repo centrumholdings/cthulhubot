@@ -53,15 +53,15 @@ def check_builder(post, user, assignment, **kwargs):
     return HttpResponseRedirect(reverse("cthulhubot-job-assignment-detail", kwargs={"assignment_id" : assignment.pk}))
 
 def start_slave(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
-    assignment.start()
+    client = ProjectClient.objects.get(pk=int(post.get('client_id')))
+    client.start()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))
 
 def create_slave_dir(post, project, **kwargs):
-    assignment = JobAssignment.objects.get(pk=int(post.get('assignment_id'))).get_domain_object()
-    assignment.create_build_directory()
+    client = ProjectClient.objects.get(pk=int(post.get('client_id')))
+    client.create_build_directory()
     return HttpResponseRedirect(reverse("cthulhubot-project-detail", kwargs={
         "project" : project.slug,
     }))

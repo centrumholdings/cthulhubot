@@ -357,12 +357,10 @@ class ProjectClient(models.Model):
     def get_status_action(self):
         status = self.get_status()
         from django.utils.safestring import mark_safe
-        from cthulhubot.assignment import AssignmentOffline, DirectoryNotCreated, AssignmentReady
 
         INPUT_HTML_DICT = {
             ClientOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
             DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
-            ClientReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
         }
 
         if status.ID in INPUT_HTML_DICT:

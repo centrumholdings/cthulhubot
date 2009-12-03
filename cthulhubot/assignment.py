@@ -114,17 +114,4 @@ class Assignment(object):
 
     #TODO: Move HTML away
     def get_status_action(self):
-        status = self.get_status()
-
-        INPUT_HTML_DICT = {
-            AssignmentOffline.ID : mark_safe('<input type="submit" name="start_slave" value="Start"> (but check buildmaster status)'),
-            DirectoryNotCreated.ID : mark_safe('<input type="submit" name="create_slave_dir" value="Create directory">'),
-            AssignmentReady.ID : mark_safe('<input type="submit" name="force_build" value="Force build">'),
-        }
-
-        if status.ID in INPUT_HTML_DICT:
-            return INPUT_HTML_DICT[status.ID]
-        else:
-            return u''
-
-
+        return mark_safe('<input type="submit" name="force_build" value="Force build">')

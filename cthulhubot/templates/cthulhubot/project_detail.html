@@ -24,7 +24,7 @@
 {% for client in clients %}
     <li>
         <form action="." method="post">
-            <input type="hidden" value="{{ assignment.get_identifier }}" name="assignment_id" />
+            <input type="hidden" value="{{ client.get_identifier }}" name="client_id" />
             <a href="{{ client.computer.get_absolute_url }}">{{ client.computer }}</a> status: {{ client.get_status }} {{ client.get_status_action }}
         </form>
     </li>
@@ -41,7 +41,7 @@
     <li>
         <form action="." method="post">
             <input type="hidden" value="{{ assignment.get_identifier }}" name="assignment_id" />
-            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} Last build: {{ assignment.get_last_build_status }}
+            <a href="{{ assignment.get_absolute_url }}">{{ assignment.job }} at {{ assignment.computer }}</a> status: {{ assignment.get_text_status }} {{ assignment.get_status_action }} Last build: {{ assignment.get_last_build_status }}
         </form>
     </li>
 {% endfor %}
