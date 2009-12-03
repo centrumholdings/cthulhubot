@@ -1,0 +1,20 @@
+{% extends "cthulhubot/base.html" %}
+
+{% block content %}
+
+<h1>Changeset view of project {{ project.name }}</h1>
+
+<table>
+    {% for changeset in changesets %}
+    <tr>
+        <td>{{ changeset.hash }}</td>
+        <td>{{ changeset.author_name }}</td>
+        {% for result in changeset.results %}
+            <td>{{ result }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+
+</table>
+
+{% endblock %}
