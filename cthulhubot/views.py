@@ -345,6 +345,6 @@ def step_part_detail(request, step, detail_name):
     db = get_database_connection()
     step = db.steps.find_one({"_id" : ObjectId(str(step))})
     if not step or detail_name not in step:
-        HttpResponseNotFound()
+        return HttpResponseNotFound()
     
     return HttpResponse(step[detail_name])
