@@ -1,4 +1,5 @@
 from django.http import QueryDict
+from django.forms import ValidationError
 from djangosanetesting.cases import UnitTestCase
 
 from cthulhubot.forms import get_scheduler_form
@@ -35,3 +36,23 @@ class TestSchedulerForms(UnitTestCase):
         form = self._get_form({'after_push' : 'on', 'after_push_treeStableTimer' : '1', 'branch' : ''})
         self.assert_equals(True, form.is_valid())
         self.assert_equals(None, form.fields['after_push'].subform.cleaned_data['after_push_branch'])
+
+    def test_no_config_when_invalid(self):
+        form = self._get_form({'after_push' : 'on', 'after_push_treeStableTimer' : 'this is not an integer'})
+        self.assert_raises(ValidationError, form.get_configuration_dict)
+
+    def test_simple_scheduler_returns_proper_json(self):
+        form = self._get_form({'after_push' : 'on', 'after_push_treeStableTimer' : '1'})
+        expected_json = {
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : None
+                    }
+                }
+            ]
+        }
+
+        self.assert_equals(expected_json, form.get_configuration_dict())

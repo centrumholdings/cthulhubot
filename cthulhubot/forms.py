@@ -77,6 +77,28 @@ class SchedulerForm(Form):
         return self.cleaned_data
 
 
+    def get_configuration_dict(self):
+        """
+        Return dictionary to be used for job assignment configuration
+        """
+        if not self.is_valid():
+            raise ValidationError("Cannot return configuration if I'm invalid")
+
+        enabled_schedulers = [scheduler for scheduler in self.cleaned_data if self.cleaned_data[scheduler]]
+        return {
+            'schedule' : [
+                {
+                    'identifier' : self.fields[scheduler].subform.scheduler,
+                    'parameters' : dict([
+                        # param : value, where param must be trimmed for subform name prefix and trailing _
+                        (param[len(self.fields[scheduler].subform.scheduler)+1:], self.fields[scheduler].subform.cleaned_data[param])
+                        for param in self.fields[scheduler].subform.cleaned_data
+                    ])
+                }
+                for scheduler in enabled_schedulers
+            ]
+        }
+
 def get_scheduler_form(post=None):
     subforms = [form(post) for form in SCHEDULER_SUBFORMS]
     return SchedulerForm(post, subforms=subforms)

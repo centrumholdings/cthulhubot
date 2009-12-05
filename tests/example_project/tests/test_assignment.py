@@ -68,8 +68,9 @@ class TestBuildDirectory(HttpTestCase):
         )
 
 
+        self.project_client = self.assignment.get_client()
         self.build_directory = os.path.join(self.base_directory, self.project_client.get_identifier())
-
+        
         self.transaction.commit()
 
     def test_loading_assignment_config_works(self):

@@ -315,9 +315,10 @@ def job_assigment_config(request, project, job):
         job_form = get_job_configuration_form(job, post=request.POST)
         scheduler_form = get_scheduler_form(post=request.POST)
 
-        if computer_form.is_valid() and job_form.is_valid():
+        if computer_form.is_valid() and job_form.is_valid() and scheduler_form.is_valid():
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])
             params = get_command_params_from_form_data(job, job_form.cleaned_data)
+            params.update(scheduler_form.get_configuration_dict())
             create_job_assignment(computer=computer, job=job, project=project, params=params)
             return HttpResponseRedirect(reverse('cthulhubot-project-detail', kwargs={'project' : project.slug}))
 
