@@ -1,13 +1,14 @@
 from __future__ import absolute_import
 
 import logging
-from django.utils.safestring import mark_safe
 import os
+from copy import deepcopy
 
 from buildbot.process.factory import BuildFactory
 
 from django.core.urlresolvers import reverse
 from django.utils.simplejson import loads, dumps
+from django.utils.safestring import mark_safe
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
@@ -32,14 +33,27 @@ class Assignment(object):
         self.job = model.job.get_domain_object()
         self.project = model.project
 
-    def create_config(self, command_configuration):
-        config = []
+    def create_config(self, configuration):
+        if configuration:
+            whole_config = deepcopy(configuration)
+        else:
+            whole_config = {'commands' : []}
+
+        if 'commands' not in whole_config:
+            raise ValueError("When creating configuration, I expect 'command' configuration to be present")
+
+
+        # for command, we want to do special 'assign by validation'
+
+        command_configuration = whole_config['commands']
+        whole_config['commands'] = []
+        
         for command_no in xrange(0, len(self.job.get_commands())):
             if command_configuration and len(command_configuration) >= command_no+1:
-                config.append(command_configuration[command_no])
+                whole_config['commands'].append(command_configuration[command_no])
             else:
-                config.append({})
-        self.model.config = dumps(config)
+                whole_config['commands'].append({})
+        self.model.config = dumps(whole_config)
 
     def get_master_connection_string(self):
         return self.project.buildmaster.get_master_connection_string()
@@ -56,6 +70,8 @@ class Assignment(object):
 
         if self.model.config:
             config = loads(self.model.config)
+            # we're interested only in commands here
+            config = config['commands']
         else:
             config = None
         i = 0

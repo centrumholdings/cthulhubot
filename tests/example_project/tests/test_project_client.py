@@ -46,7 +46,8 @@ class TestProjectClient(HttpTestCase):
             computer = self.computer_model,
             job = job,
             project = self.project,
-            params = [
+            params = {
+                'commands' : [
                 {
                     'command' : 'cthulhubot-git',
                     'parameters' : {
@@ -64,7 +65,7 @@ class TestProjectClient(HttpTestCase):
                         'ftp_host' : ''
                     }
                 }
-            ]
+            ]}
         )
 
         self.project_client = ProjectClient.objects.all()[0]

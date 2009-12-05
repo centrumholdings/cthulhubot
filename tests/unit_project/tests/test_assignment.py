@@ -69,14 +69,15 @@ class TestJobsConfiguration(DatabaseTestCase):
 
     def test_configuration_propageted_to_command(self):
         text = 'bazaah!'
-        self.assignment.model.config = dumps([
+        self.assignment.model.config = dumps({
+            'commands' : [
                 {
                     'command' : 'cthulhubot-test-helper-echo',
                     'parameters' : {
                         'what' : text
                     }
                 }
-            ])
+            ]})
         self.assert_equals([['echo', text]], self.assignment.get_shell_commands())
 
     def tearDown(self):

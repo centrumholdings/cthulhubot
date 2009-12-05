@@ -149,6 +149,12 @@ class Job(object):
         #FIXME: we should use config directly, not introducing state
         commands = []
 
+        # we're interested only in command config here
+        if 'commands' not in config:
+            raise UnconfiguredCommandError("'commands' not present in config at all, so no command configured")
+        
+        config = config['commands']
+
         i = 0
         for command_dict in self.commands:
             command = get_command(command_dict['command'])()

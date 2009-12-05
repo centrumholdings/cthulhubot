@@ -127,7 +127,7 @@ def get_build_computer_selection_form(computers):
     return type('BuildComputerSelectionForm', (BaseForm,), {'base_fields': fields })
 
 def get_command_params_from_form_data(job, data):
-    params = []
+    params = {'commands' : []}
     job_params = job.get_configuration_parameters()
 
     i = 0
@@ -141,7 +141,7 @@ def get_command_params_from_form_data(job, data):
             if data.has_key(id):
                 command_params['parameters'][param] = data[id]
             i += 1
-        params.append(command_params)
+        params['commands'].append(command_params)
 
     return params
 

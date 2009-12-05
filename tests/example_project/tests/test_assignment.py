@@ -46,7 +46,8 @@ class TestBuildDirectory(HttpTestCase):
             computer = self.computer_model,
             job = job,
             project = self.project,
-            params = [
+            params = {
+              'commands' : [
                 {
                     'command' : 'cthulhubot-git',
                     'parameters' : {
@@ -64,7 +65,7 @@ class TestBuildDirectory(HttpTestCase):
                         'ftp_host' : ''
                     }
                 }
-            ]
+            ]}
         )
 
 
