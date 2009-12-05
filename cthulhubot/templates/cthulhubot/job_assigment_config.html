@@ -4,9 +4,30 @@
 
 <h1>Assign job {{ job.slug }} to work for project {{ project.name }}</h1>
 
-<p class="help">Assignment is now synchronous. This means that after hitting "Assign", you can wait a lot &ndash; please do not hit it again, otherwise problems will occur.</p>
+<p class="help">Assignment is now synchronous. This means that after hitting "Assign", you can wait a lot &ndash; please do not hit it again, otherwise problems may occur.</p>
 
 <form action="." method="POST">
+    <fieldset>
+        <legend>When to run</legend>
+        <div class="help">Leaving "branch" empty means "in every branch"</div>
+        {% for field in scheduler_form.visible_fields %}
+            <div class="fieldWrapper">
+
+                {# Include the hidden fields in the form #}
+                {% if forloop.first %}
+                    {% for hidden in scheduler_form.hidden_fields %}
+                    {{ hidden }}
+                    {% endfor %}
+                {% endif %}
+
+                {{ field.errors }}
+                {{ field }} {{ field.label_tag }}
+                <ul>
+                    {{ field.field.subform.as_ul }}
+                </ul>
+            </div>
+        {% endfor %}
+    </fieldset>
     <fieldset>
         <legend>Build Computers</legend>
         <ul>

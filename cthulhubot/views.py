@@ -1,3 +1,4 @@
+from cthulhubot.forms import SchedulerForm
 from pymongo.objectid import ObjectId
 from pymongo import DESCENDING
 
@@ -13,7 +14,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 
-from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data
+from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data, get_scheduler_form
 from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
@@ -307,10 +308,12 @@ def job_assigment_config(request, project, job):
 
     computer_form = get_build_computer_selection_form(computers)()
     job_form = get_job_configuration_form(job)
+    scheduler_form = get_scheduler_form()
 
     if request.method == "POST":
         computer_form = get_build_computer_selection_form(computers)(request.POST)
         job_form = get_job_configuration_form(job, post=request.POST)
+        scheduler_form = get_scheduler_form(post=request.POST)
 
         if computer_form.is_valid() and job_form.is_valid():
             computer = get_object_or_404(BuildComputer, pk=computer_form.cleaned_data['computer'])
@@ -325,6 +328,7 @@ def job_assigment_config(request, project, job):
         'job_form' : job_form,
         'computers' : computers,
         'computer_form' : computer_form,
+        'scheduler_form' : scheduler_form,
     })
 
 @transaction.commit_on_success

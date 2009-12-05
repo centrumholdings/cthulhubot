@@ -294,3 +294,4 @@ class TestResults(DatabaseTestCase):
         self.insert_step(build, result=FAILURE, time_start = datetime(year=2009, month=01, day=01, hour=13, minute=00, second=00), time_end=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.insert_step(build, result=None, time_end=None, time_start=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
+
