@@ -29,7 +29,6 @@ from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
 
 from buildbot.changes.pb import PBChangeSource
 from buildbot.buildslave import BuildSlave
-from buildbot.scheduler import Scheduler
 
 from bbmongostatus.status import MongoDb
 
@@ -573,6 +572,12 @@ class Buildmaster(models.Model):
         else:
             return "Not running"
 
+    def get_schedulers(self, assignments):
+        schedulers = []
+        for assignment in assignments:
+            schedulers.extend(assignment.get_domain_object().get_schedulers())
+        return schedulers
+
     def get_config(self):
 
         #computers = project.job_set.buildcomputer_set.all()
@@ -585,11 +590,7 @@ class Buildmaster(models.Model):
             'slavePortnum' : int(self.buildmaster_port),
             'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
-            'schedulers' : [
-                Scheduler(name="scheduler", branch="master", treeStableTimer=1, builderNames=[
-                    assignment.get_domain_object().get_identifier() for assignment in assignments
-                ])
-            ],
+            'schedulers' : self.get_schedulers(assignments),
             'builders' : [
                 {
                       'name': assignment.get_domain_object().get_identifier(),

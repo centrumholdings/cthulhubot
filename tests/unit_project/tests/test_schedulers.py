@@ -1,12 +1,16 @@
+from djangosanetesting.cases import UnitTestCase
+from mock import Mock
+
 from django.http import QueryDict
 from django.forms import ValidationError
-from djangosanetesting.cases import UnitTestCase
+from django.utils.simplejson import dumps, loads
 
+from cthulhubot.assignment import Assignment
 from cthulhubot.forms import get_scheduler_form
 
+from buildbot.scheduler import Scheduler
+
 class TestSchedulerForms(UnitTestCase):
-    def setUp(self):
-        super(TestSchedulerForms, self).setUp()
 
     def _get_form(self, post_dict=None):
         if post_dict:
@@ -56,3 +60,121 @@ class TestSchedulerForms(UnitTestCase):
         }
 
         self.assert_equals(expected_json, form.get_configuration_dict())
+
+class TestBuildbotSchedulersGeneratedFromConfigAssignment(UnitTestCase):
+    def setUp(self):
+        super(TestBuildbotSchedulersGeneratedFromConfigAssignment, self).setUp()
+
+        self.assignment_model = Mock()
+        self.assignment_model.config = dumps({})
+
+        self.assignment = Assignment(model=self.assignment_model)
+
+    def _update_config(self, config):
+        conf = loads(self.assignment_model.config)
+        conf.update(config)
+        self.assignment_model.config = dumps(conf)
+
+    def test_single_scheduler_generated_by_default(self):
+        self.assert_equals(1, len(self.assignment.get_schedulers()))
+
+    def test_after_push_generated_by_default(self):
+        self.assert_equals(Scheduler, self.assignment.get_schedulers()[0].__class__)
+
+    def test_all_consuming_generated_by_default(self):
+        self.assert_equals(None, self.assignment.get_schedulers()[0].branch)
+
+    def test_default_scheduler_replaced_by_configured_one(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : "mastah"
+                    }
+                }
+            ]
+        })
+        self.assert_equals(1, len(self.assignment.get_schedulers()))
+
+    def test_branch_name_propagated_to_push_scheduler(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : "mastah"
+                    }
+                }
+            ]
+        })
+        self.assert_equals("mastah", self.assignment.get_schedulers()[0].branch)
+
+    def test_periodic_builder_propagated_with_proper_timer(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'periodic',
+                    'parameters' : {
+                        'periodicBuildTimer' : 249,
+                    }
+                }
+            ]
+        })
+        self.assert_equals(249, self.assignment.get_schedulers()[0].periodicBuildTimer)
+
+    def test_all_branches_are_default_for_configured_schedulers(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'periodic',
+                    'parameters' : {
+                        'periodicBuildTimer' : 249,
+                    }
+                }
+            ]
+        })
+        self.assert_equals(None, self.assignment.get_schedulers()[0].branch)
+
+    def test_multiple_schedulers_accepted(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'periodic',
+                    'parameters' : {
+                        'periodicBuildTimer' : 249,
+                    }
+                },
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 100,
+                        'branch' : 'mastah'
+                    }
+                }
+            ]
+        })
+        self.assert_equals(2, len(self.assignment.get_schedulers()))
+
+    def test_multiple_schedulers_propagates_parameters_properly(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'periodic',
+                    'parameters' : {
+                        'periodicBuildTimer' : 249,
+                    }
+                },
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 100,
+                        'branch' : 'mastah'
+                    }
+                }
+            ]
+        })
+        self.assert_equals(249, self.assignment.get_schedulers()[0].periodicBuildTimer)
+        self.assert_equals(100, self.assignment.get_schedulers()[1].treeStableTimer)

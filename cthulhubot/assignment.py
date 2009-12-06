@@ -1,10 +1,12 @@
 from __future__ import absolute_import
 
 import logging
-import os
+from uuid import uuid4
 from copy import deepcopy
 
 from buildbot.process.factory import BuildFactory
+from buildbot.scheduler import Scheduler
+from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
 from django.core.urlresolvers import reverse
 from django.utils.simplejson import loads, dumps
@@ -16,9 +18,16 @@ from cthulhubot.buildbot import BuildForcer
 from cthulhubot.models import ProjectClient
 from cthulhubot.builds import Build, BUILD_RESULTS_DICT
 
-from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
 log = logging.getLogger("cthulhubot.assignment")
+
+from buildbot.scheduler import Periodic
+
+SCHEDULER_CLASS_MAP = {
+    "after_push" : Scheduler,
+    "periodic" : Periodic,
+}
+
 
 class Assignment(object):
     """
@@ -131,3 +140,20 @@ class Assignment(object):
     #TODO: Move HTML away
     def get_status_action(self):
         return mark_safe('<input type="submit" name="force_build" value="Force build">')
+
+    def get_schedulers(self):
+        config = loads(self.model.config)
+        if not 'schedule' in config:
+            return [
+                    Scheduler(name="%s-scheduler" % self.get_identifier(), branch=None, treeStableTimer=1, builderNames=[self.get_identifier()])
+            ]
+
+        else:
+            return [
+                SCHEDULER_CLASS_MAP[scheduler['identifier']](
+                    name="%s-%s" % (self.get_identifier(), str(uuid4())),
+                    builderNames=[self.get_identifier()],
+                    **dict([(str(key), scheduler['parameters'][key]) for key in scheduler['parameters']])
+                )
+                for scheduler in config['schedule']
+            ]

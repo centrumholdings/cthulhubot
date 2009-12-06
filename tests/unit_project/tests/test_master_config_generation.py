@@ -3,7 +3,7 @@ from pickle import dumps as pickle_dumps
 from djangosanetesting.cases import DatabaseTestCase
 from mock import Mock
 
-from django.utils.simplejson import dumps
+from django.utils.simplejson import dumps, loads
 from django.core import urlresolvers
 from django.core.urlresolvers import get_script_prefix
 
@@ -20,9 +20,7 @@ from mock import Mock
 class TestSchedulers(DatabaseTestCase):
     def setUp(self):
         super(TestSchedulers, self).setUp()
-
         self._mock_resolver()
-
 
         self.project_name = u"project"
         self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
@@ -73,6 +71,11 @@ class TestSchedulers(DatabaseTestCase):
         urlresolvers.get_resolver = self._original_resolver
         self._original_resolver = None
 
+    def _update_config(self, config):
+        db_config = loads(self.assignment.config)
+        db_config.update(config)
+        self.assignment.config = dumps(db_config)
+        self.assignment.save()
 
     def test_single_post_hook_by_default(self):
         config = self.buildmaster.get_config()
@@ -94,9 +97,53 @@ class TestSchedulers(DatabaseTestCase):
         config = self.buildmaster.get_config()
         self.assert_true(MongoDb in [i.__class__ for i in config['status']])
 
-    def test_(self):
+    def test_when_single_scheduler_configure_still_only_one_present(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : None
+                    }
+                }
+            ]
+        })
+
         config = self.buildmaster.get_config()
-        self.assert_true(MongoDb in [i.__class__ for i in config['status']])
+        self.assert_equals(1, len(config['schedulers']))
+
+    def test_branch_configuration_propagated_for_all_branches(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : None
+                    }
+                }
+            ]
+        })
+
+        config = self.buildmaster.get_config()
+        self.assert_equals(None, config['schedulers'][0].branch)
+
+    def test_branch_configuration_propagated_for_named_branch(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : 'master'
+                    }
+                }
+            ]
+        })
+
+        config = self.buildmaster.get_config()
+        self.assert_equals('master', config['schedulers'][0].branch)
 
     def tearDown(self):
         self.buildmaster.delete()
