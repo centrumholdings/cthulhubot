@@ -5,7 +5,7 @@ from django.utils.datastructures import SortedDict
 from django.forms import (
     Form, ModelForm, BaseForm,
     Field,
-    CharField, URLField, ChoiceField,
+    CharField, URLField, ChoiceField, Textarea,
     IntegerField, RadioSelect, BooleanField,
     ValidationError
 )
@@ -18,7 +18,7 @@ from cthulhubot.models import BuildComputer
 class CreateProjectForm(Form):
     name = CharField(max_length=50)
     issue_tracker = URLField()
-    repository = CharField(max_length=50)
+    repository = CharField(widget=Textarea())
 
 class ComputerForm(ModelForm):
     class Meta:

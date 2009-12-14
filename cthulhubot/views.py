@@ -1,4 +1,3 @@
-from cthulhubot.forms import SchedulerForm
 from pymongo.objectid import ObjectId
 from pymongo import DESCENDING
 
