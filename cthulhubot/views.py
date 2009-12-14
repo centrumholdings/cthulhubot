@@ -171,7 +171,7 @@ def project_changeset_view(request, project):
     changesets = []
 
     for changeset in info:
-        changesets.results = [build['result'] for build in db.builds.find({"changeset" : changeset['hash']})]
+        changeset['results'] = [build['result'] for build in db.builds.find({"changeset" : changeset['hash']})]
         changesets.append(changeset)
 
     return direct_to_template(request, 'cthulhubot/project_changeset_view.html', {
