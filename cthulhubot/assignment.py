@@ -93,7 +93,7 @@ class Assignment(object):
                 conf = config[i]['parameters']
             else:
                 conf = {}
-            factory.addStep(command.get_buildbot_command(config=conf))
+            factory.addStep(command.get_buildbot_command(config=conf, project=self.project, computer=self.computer, job=self.job))
             i += 1
         return factory
 

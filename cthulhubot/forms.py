@@ -111,9 +111,13 @@ def get_job_configuration_form(job, post=None):
     for command in params:
         for param in command['parameters']:
             id = 'job_configuration_%s' % i
+            if 'required' in command['parameters']:
+                required = command['parameters']['required']
+            else:
+                required = False
             fields[id] = CharField(label=u"%s for command %s: " % (
                 param, command['command']
-            ))
+            ), required=required)
             if command['parameters'][param]:
                 initial_data[id] = command['parameters'][param]
             i += 1

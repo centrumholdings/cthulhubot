@@ -30,7 +30,6 @@ class Git(Command):
         'repository' : {
             'help' : u'Path to git repository',
             'value' : None,
-            'required' : True,
         },
         'mode' : {
             'help' : u'Git checkout mode. Default to "export"',
@@ -44,9 +43,14 @@ class Git(Command):
         },
     }
 
-    def get_buildbot_command(self, config=None):
+    def get_buildbot_command(self, config=None, project=None, **kwargs):
         config = config or {}
-        repourl = config.get('repository', None) or self.config.get('repository')
+        repourl = config.get('repository', None) or self.config.get('repository', None)
+        if not repourl:
+            if not project:
+                raise ValueError("Repository URI must be somehow given")
+            repourl = project.repository_uri
+
         mode = config.get('mode', None) or self.config.get('mode', None)
         branch = config.get('branch', None) or self.config.get('branch', None)
         return BuildbotGit(repourl=repourl, mode=mode, branch=branch)

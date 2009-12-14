@@ -5,6 +5,8 @@ from django.conf import settings
 from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
 from cthulhubot.mongo import get_database_name
 
+from cthulhubot.models import Project
+
 from cthulhubot.commands import Git, ADDITIONAL_COMMANDS
 
 class TestingGitWithDefaultParameters(Git):
@@ -29,6 +31,8 @@ class TestGit(UnitTestCase):
         self.command = get_command('cthulhubot-git')()
         self.sub_command = get_command('cthulhubot-test-git-defaulted')()
 
+        self.repository_uri = '/tmp/repo.git'
+        self.project = Project(name='test', slug='test', tracker_uri='http://example.com', repository_uri=self.repository_uri)
 
     def test_discovered(self):
         assert self.command is not None
@@ -48,6 +52,12 @@ class TestGit(UnitTestCase):
     def test_given_args_takes_precedence_over_class_defaults(self):
         repo = 'ssh://our.server.tld/GIT/myrepo.git'
         self.assert_equals(repo, self.sub_command.get_buildbot_command(config={'repository' : repo}).args['repourl'])
+
+    def test_git_uri_taken_from_project_by_default(self):
+        self.assert_equals(self.repository_uri, self.command.get_buildbot_command(project=self.project).args['repourl'])
+
+    def test_git_uri_hierarchically_parent_first(self):
+        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command(project=self.project).args['repourl'])
 
 class TestUpdateRepositoryInformation(UnitTestCase):
 

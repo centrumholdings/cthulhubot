@@ -81,7 +81,7 @@ class Command(object):
     def get_command(self):
         return self.get_shell_command()
 
-    def get_shell_command(self, config=None):
+    def get_shell_command(self, config=None, **kwargs):
         command = []
         self.check_config(config=config)
         if config:
@@ -101,5 +101,5 @@ class Command(object):
         return command
 
     
-    def get_buildbot_command(self, config=None):
-        return ShellCommand(command=self.get_shell_command(config=config))
+    def get_buildbot_command(self, config=None, **kwargs):
+        return ShellCommand(command=self.get_shell_command(config=config, **kwargs))

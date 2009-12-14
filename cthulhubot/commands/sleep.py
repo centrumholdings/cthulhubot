@@ -18,7 +18,7 @@ class Sleep(Command):
     }
 
 
-    def get_command(self):
+    def get_command(self, **kwargs):
         return ["sleep", self.parameters['time']['value']]
 
     command = property(get_command)
