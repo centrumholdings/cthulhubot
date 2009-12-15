@@ -7,6 +7,7 @@ from pickle import dumps as pickle_dumps
 from cthulhubot.models import Buildmaster
 from cthulhubot.models import JobAssignment
 from django.http import Http404
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -97,11 +98,12 @@ def force_build(post, project, user, **kwargs):
 
 
 ########### VIEWS
-
+@login_required
 @transaction.commit_on_success
 def dashboard(request):
     return direct_to_template(request, 'cthulhubot/dashboard.html')
 
+@login_required
 def projects(request):
     projects = Project.objects.all().order_by('name')
 #    for project in projects:
@@ -110,6 +112,7 @@ def projects(request):
         'projects' : projects,
     })
 
+@login_required
 @transaction.commit_on_success
 def projects_create(request):
     if request.method == "POST":
@@ -129,6 +132,7 @@ def projects_create(request):
         'form' : form
     })
 
+@login_required
 @transaction.commit_on_success
 def project_detail(request, project):
     project = get_object_or_404(Project, slug=project)
@@ -161,6 +165,7 @@ def project_detail(request, project):
     })
 
 
+@login_required
 def project_changeset_view(request, project):
     project = get_object_or_404(Project, slug=project)
 
@@ -179,6 +184,7 @@ def project_changeset_view(request, project):
         'changesets' : changesets,
     })
 
+@login_required
 @transaction.commit_on_success
 def computers(request):
     computers = BuildComputer.objects.all().order_by('name')
@@ -186,6 +192,7 @@ def computers(request):
         'computers' : computers,
     })
 
+@login_required
 @transaction.commit_on_success
 def computers_create(request):
     if request.method == "POST":
@@ -202,6 +209,7 @@ def computers_create(request):
         'form' : form
     })
 
+@login_required
 @transaction.commit_on_success
 def computer_detail(request, computer):
     computer = get_object_or_404(BuildComputer, slug=computer)
@@ -210,6 +218,7 @@ def computer_detail(request, computer):
         'computer' : computer,
     })
 
+@login_required
 @transaction.commit_on_success
 def computer_edit(request, computer):
     computer = get_object_or_404(BuildComputer, slug=computer)
@@ -227,6 +236,7 @@ def computer_edit(request, computer):
         'form' : form
     })
 
+@login_required
 @transaction.commit_on_success
 def commands(request):
     commands = Command.objects.all().order_by('slug')
@@ -234,6 +244,7 @@ def commands(request):
         'commands' : commands,
     })
 
+@login_required
 @transaction.commit_on_success
 def commands_discover(request):
     if request.method == "POST":
@@ -249,6 +260,7 @@ def commands_discover(request):
         'commands' : get_undiscovered_commands(),
     })
 
+@login_required
 @transaction.commit_on_success
 def jobs(request):
     jobs = Job.objects.all().order_by('slug')
@@ -256,6 +268,7 @@ def jobs(request):
         'jobs' : jobs,
     })
 
+@login_required
 @transaction.commit_on_success
 def jobs_configure(request):
     discovered = get_undiscovered_jobs()
@@ -271,6 +284,7 @@ def jobs_configure(request):
         'available_commands' : available_commands,
     })
 
+@login_required
 @transaction.commit_on_success
 def job_add(request, job):
     job_class = get_undiscovered_jobs().get(job)
@@ -287,6 +301,7 @@ def job_add(request, job):
     })
 
 
+@login_required
 @transaction.commit_on_success
 def job_assigment(request, project):
     project = get_object_or_404(Project, slug=project)
@@ -298,6 +313,7 @@ def job_assigment(request, project):
     })
 
 
+@login_required
 @transaction.commit_on_success
 def job_assigment_config(request, project, job):
     project = get_object_or_404(Project, slug=project)
@@ -331,6 +347,7 @@ def job_assigment_config(request, project, job):
         'scheduler_form' : scheduler_form,
     })
 
+@login_required
 @transaction.commit_on_success
 def job_assigment_detail(request, assignment_id):
     assignment = get_object_or_404(JobAssignment, pk=assignment_id).get_domain_object()
@@ -365,6 +382,7 @@ def api_buildmaster_config(request, identifier):
     master = get_object_or_404(Buildmaster, pk=identifier)
     return HttpResponse(pickle_dumps(master.get_config()))
 
+@login_required
 def step_part_detail(request, step, detail_name):
     db = get_database_connection()
     step = db.steps.find_one({"_id" : ObjectId(str(step))})
