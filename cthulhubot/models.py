@@ -176,6 +176,9 @@ class Project(models.Model):
     tracker_uri = models.URLField(max_length=255, verify_exists=False)
     repository_uri = models.TextField()
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
