@@ -5,7 +5,7 @@ from uuid import uuid4
 from copy import deepcopy
 
 from buildbot.process.factory import BuildFactory
-from buildbot.scheduler import Scheduler
+from buildbot.scheduler import AnyBranchScheduler, Scheduler
 from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
 from django.core.urlresolvers import reverse
@@ -145,15 +145,28 @@ class Assignment(object):
         config = loads(self.model.config)
         if not 'schedule' in config:
             return [
-                    Scheduler(name="%s-scheduler" % self.get_identifier(), branch=None, treeStableTimer=1, builderNames=[self.get_identifier()])
+                    AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), branches=None, treeStableTimer=1, builderNames=[self.get_identifier()])
             ]
 
         else:
-            return [
-                SCHEDULER_CLASS_MAP[scheduler['identifier']](
+            schedulers = []
+            for scheduler in config['schedule']:
+                # monkeypatch: assume that off-branch scheduler is in fact anybranch scheduler
+                # this is for backward compatibility
+                if scheduler['identifier'] == 'after_push' and (
+                    'branch' not in scheduler['parameters'] or not scheduler['parameters']['branch']
+                ):
+                    klass = AnyBranchScheduler
+                    del scheduler['parameters']['branch']
+                    scheduler['parameters']['branches'] = None
+                else:
+                    klass = SCHEDULER_CLASS_MAP[scheduler['identifier']]
+
+
+                schedulers.append(klass(
                     name="%s-%s" % (self.get_identifier(), str(uuid4())),
                     builderNames=[self.get_identifier()],
                     **dict([(str(key), scheduler['parameters'][key]) for key in scheduler['parameters']])
-                )
-                for scheduler in config['schedule']
-            ]
+                ))
+            return schedulers
+

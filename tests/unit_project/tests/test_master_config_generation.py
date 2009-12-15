@@ -127,7 +127,7 @@ class TestSchedulers(DatabaseTestCase):
         })
 
         config = self.buildmaster.get_config()
-        self.assert_equals(None, config['schedulers'][0].branch)
+        self.assert_equals(None, config['schedulers'][0].branches)
 
     def test_branch_configuration_propagated_for_named_branch(self):
         self._update_config({

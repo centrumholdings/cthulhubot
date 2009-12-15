@@ -8,7 +8,7 @@ from django.utils.simplejson import dumps, loads
 from cthulhubot.assignment import Assignment
 from cthulhubot.forms import get_scheduler_form
 
-from buildbot.scheduler import Scheduler
+from buildbot.scheduler import Scheduler, AnyBranchScheduler
 
 class TestSchedulerForms(UnitTestCase):
 
@@ -78,11 +78,39 @@ class TestBuildbotSchedulersGeneratedFromConfigAssignment(UnitTestCase):
     def test_single_scheduler_generated_by_default(self):
         self.assert_equals(1, len(self.assignment.get_schedulers()))
 
-    def test_after_push_generated_by_default(self):
-        self.assert_equals(Scheduler, self.assignment.get_schedulers()[0].__class__)
+    def test_after_push_generated_by_default_when_no_branch_given(self):
+        self.assert_equals(AnyBranchScheduler, self.assignment.get_schedulers()[0].__class__)
 
-    def test_all_consuming_generated_by_default(self):
-        self.assert_equals(None, self.assignment.get_schedulers()[0].branch)
+    def test_all_consuming_scheduler_generated_by_default(self):
+        self.assert_equals(None, self.assignment.get_schedulers()[0].branches)
+
+    def test_no_branch_after_push_means_any_branch(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : ""
+                    }
+                }
+            ]
+        })
+        self.assert_equals(AnyBranchScheduler, self.assignment.get_schedulers()[0].__class__)
+
+    def test_branched_scheduler_means_after_push(self):
+        self._update_config({
+            'schedule' : [
+                {
+                    'identifier' : 'after_push',
+                    'parameters' : {
+                        'treeStableTimer' : 1,
+                        'branch' : "mastah"
+                    }
+                }
+            ]
+        })
+        self.assert_equals(Scheduler, self.assignment.get_schedulers()[0].__class__)
 
     def test_default_scheduler_replaced_by_configured_one(self):
         self._update_config({
