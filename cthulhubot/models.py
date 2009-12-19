@@ -409,11 +409,12 @@ class ProjectClient(models.Model):
 class Buildmaster(models.Model):
     webstatus_port = models.PositiveIntegerField(unique=True)
     buildmaster_port = models.PositiveIntegerField(unique=True)
+    api_port = models.PositiveIntegerField(unique=True)
     project = models.ForeignKey(Project, unique=True)
     directory = models.CharField(unique=True, max_length=255)
     password = models.CharField(max_length=40)
 
-    port_attributes = ("webstatus_port", "buildmaster_port")
+    port_attributes = ("webstatus_port", "buildmaster_port", "api_port")
 
     REALM = "buildmaster"
 
@@ -466,6 +467,9 @@ class Buildmaster(models.Model):
     def generate_buildmaster_port(self):
         return self.generate_new_port("buildmaster_port", "GENERATED_BUILDMASTER_PORT_START", 12000)
 
+    def generate_api_port(self):
+        return self.generate_new_port("api_port", "GENERATED_API_PORT_START", 14000)
+
     def generate_password(self):
         return str(uuid4())
 
@@ -482,11 +486,9 @@ class Buildmaster(models.Model):
         return self.get_webstatus_uri() + "waterfall"
 
     def save(self, *args, **kwargs):
-        if not self.webstatus_port:
-            self.webstatus_port = self.generate_webstatus_port()
-
-        if not self.buildmaster_port:
-            self.buildmaster_port = self.generate_buildmaster_port()
+        for port_attr in self.port_attributes:
+            if not getattr(self, port_attr, None):
+                setattr(self, port_attr, getattr(self, "generate_%s" % port_attr)())
 
         if not self.directory:
             self.directory = self.generate_buildmaster_directory()
@@ -589,12 +591,10 @@ class Buildmaster(models.Model):
 
         db_info = get_database_info()
 
-        config = {
-            'slavePortnum' : int(self.buildmaster_port),
-            'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
-            'change_source' : PBChangeSource(),
-            'schedulers' : self.get_schedulers(assignments),
-            'builders' : [
+        #FIXME
+        from cthulhubot.buildbot import HttpApi
+
+        builders = [
                 {
                       'name': assignment.get_domain_object().get_identifier(),
                       'slavename': ProjectClient.objects.get(project=self.project, computer=assignment.computer).get_name(),
@@ -602,7 +602,14 @@ class Buildmaster(models.Model):
                       'factory': assignment.get_domain_object().get_factory()
                 }
                 for assignment in assignments
-            ],
+            ]
+
+        config = {
+            'slavePortnum' : int(self.buildmaster_port),
+            'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
+            'change_source' : PBChangeSource(),
+            'builders' : builders,
+            'schedulers' : self.get_schedulers(assignments)+[HttpApi(port=self.api_port, name="api", builders=[b['name'] for b in builders])],
             'status' : [
                 MongoDb(database = get_database_name(),
                         master_id = self.pk,

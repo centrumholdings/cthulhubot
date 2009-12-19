@@ -8,14 +8,87 @@ import logging
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
+from twisted.application import strports
 from twisted.spread import pb
 from twisted.cred import credentials
-from twisted.internet import defer
 from twisted.internet.selectreactor import SelectReactor
 from twisted.internet import reactor as twsited_default_reactor
+from twisted.python import log as twisted_log
+from twisted.web import http
+
+from django.utils.simplejson import loads
 
 from cthulhubot.models import Buildmaster, Project
+
 from buildbot.clients.sendchange import Sender
+from buildbot.scheduler import BaseScheduler
+from buildbot.buildset import BuildSet
+from buildbot.sourcestamp import SourceStamp
+
+class TryJobHTTPRequest(http.Request):
+    def __init__(self, channel, queued):
+        http.Request.__init__(self, channel, queued)
+        twisted_log.msg('http request')
+
+    def process(self):
+        twisted_log.msg('process')
+        try:
+            # Support only one URI for now.
+            if self.uri != '/force_build':
+                twisted_log.msg("Received invalid URI: %s" % self.uri)
+                self.code = http.NOT_FOUND
+                return
+
+            try:
+                self.content.seek(0)
+                args = loads(self.content.read())
+                self.code = self.channel.factory.parent.messageReceived(
+                    changeset = args['changeset'],
+                    builder = args['builder']
+                )
+            except Exception:
+                self.code = http.INTERNAL_SERVER_ERROR
+                raise
+        finally:
+            twisted_log.msg('finally')
+            self.code_message = http.RESPONSES[self.code]
+            self.write(self.code_message)
+            self.finish()
+
+class CustomProtocol(http.HTTPChannel):
+    requestFactory = TryJobHTTPRequest
+
+class CustomFactory(http.HTTPFactory):
+    protocol = CustomProtocol
+
+class HttpApi(BaseScheduler):
+    """Opens a HTTP port to expose custom CthulhuBot API inside of a Buildmaster"""
+
+    def __init__(self, name, port, builders, userpass=None, properties=None):
+        BaseScheduler.__init__(self, name, properties or {})
+        twisted_log.msg('http api initialized')
+        if type(port) is int:
+            port = "tcp:%d" % port
+        self.port = port
+
+        self.builders = builders
+
+        f = CustomFactory()
+        f.parent = self
+        s = strports.service(port, f)
+        s.setServiceParent(self)
+
+    def messageReceived(self, changeset, builder):
+        return self.submitForceRequest(changeset, builder)
+
+    def submitForceRequest(self, changeset, builder):
+        reason = "%s force build" % builder
+        bs = BuildSet([builder], SourceStamp(revision=changeset), reason=reason)
+        self.parent.submitBuildSet(bs)
+        return http.OK
+
+    def listBuilderNames(self):
+        return self.builders
 
 class CustomReactorSender(Sender):
     def __init__(self, master, user=None, reactor=None):
