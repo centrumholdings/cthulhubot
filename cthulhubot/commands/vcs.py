@@ -1,4 +1,6 @@
 from buildbot.steps.source import Git as BuildbotGit
+from buildbot.steps.shell import ShellCommand
+
 from django.conf import settings
 
 from cthulhubot.commands.interface import Command
@@ -68,12 +70,14 @@ class UpdateRepositoryInformation(Command):
     parameters = {}
 
     def _get_command_skeleton(self):
+        
         command = [
                 "python", "setup.py", "save_repository_information_git",
                 "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
                 "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
                 "--mongodb-database=%s" % get_database_name(),
                 "--mongodb-collection=repository",
+                
         ]
         if getattr(settings, "MONGODB_USERNAME", None):
                 command.append("--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None))
@@ -82,3 +86,12 @@ class UpdateRepositoryInformation(Command):
         return command
 
     command = property(fget=_get_command_skeleton)
+
+    def get_shell_command(self, config=None, project=None, **kwargs):
+        command = super(UpdateRepositoryInformation, self).get_shell_command(config=config, project=project, **kwargs)
+        repourl = config.get('repository', None) or self.config.get('repository', None)
+
+        assert repourl
+
+        command.append("--repository-url=%s" % repourl)
+        return command
