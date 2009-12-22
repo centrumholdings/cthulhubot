@@ -93,5 +93,5 @@ class UpdateRepositoryInformation(Command):
 
         assert repourl
 
-        command.append("--repository-url=%s" % repourl)
+        command.append("--repository-uri=%s" % repourl)
         return command
