@@ -1,10 +1,10 @@
 from django.core.management import call_command
 from djangosanetesting.cases import SeleniumTestCase
-
-from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
-
 from mock import Mock
 
+from django.contrib.auth.models import User
+
+from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
 from cthulhubot.project import create_project as cthulhu_create_project
 
 def create_project(case, name=None, tracker_uri=None, repository_uri=None):
@@ -87,15 +87,28 @@ class WebTestCase(SeleniumTestCase):
 class AuthenticatedWebTestCase(WebTestCase):
     def setUp(self, discover=True):
         super(AuthenticatedWebTestCase, self).setUp(discover=discover)
+        self.create_user()
 
         self.selenium.click(self.elements['menu']['login'])
         self.selenium.wait_for_page_to_load(30000)
 
         self.selenium.click(self.elements['login']['username'])
+        self.selenium.type(self.elements['login']['username'], self.user.username)
         self.selenium.click(self.elements['login']['password'])
+        self.selenium.type(self.elements['login']['password'], self.user_password)
         self.selenium.click(self.elements['login']['submit_form'])
         
         self.selenium.wait_for_page_to_load(30000)
+
+    def create_user(self):
+        self.user_password = "Ph'nglui mglw'nafh Cthulhu R'lyeh wgah'nagl fhtagn"
+        self.user = User.objects.create_user('cthulhu', 'cthulhu@rlyeh', self.user_password)
+
+        self.user.is_admin = True
+        self.user.is_superuser = True
+
+        self.user.save()
+        self.transaction.commit()
 
 
 class MockJob(Mock): pass

@@ -77,33 +77,34 @@ class Assignment(object):
 
         factory = BuildFactory()
 
+        config = None
+        
         if self.model.config:
             config = loads(self.model.config)
             # we're interested only in commands here
-            config = config['commands']
-        else:
-            config = None
+            if config.has_key('commands'):
+                config = config['commands']
         i = 0
 
         for command in commands:
             conf = None
-            if config and config.has_key('commands') and len(config['commands']) >= i+1:
+            if config and len(config) >= i+1:
                 # empty dict assumed as don't care; otherwise command must be given for integrity
 
-                if not config['commands'][i].has_key('command'):
-                    if config['commands'][i].has_key('parameters'):
+                if not config[i].has_key('command'):
+                    if config[i].has_key('parameters'):
                         raise ValueError("Parameters present, but command identifier not given: corrupted database?")
                     else:
                         conf = {}
                 else:
-                    if config['commands'][i]['command'] != command.identifier:
+                    if config[i]['command'] != command.identifier:
                         raise ValueError("Configuration saved for command %s, but %s is in it's place: config not upgraded?" % (
-                            config['commands'][i]['command'], command.identifier
+                            config[i]['command'], command.identifier
                         ))
 
                     # no 'parameters' means "don't care"
-                    if config['commands'][i].has_key('parameters'):
-                        conf = config['commands'][i]['parameters']
+                    if config[i].has_key('parameters'):
+                        conf = config[i]['parameters']
                     else:
                         conf = {}
 
@@ -114,12 +115,7 @@ class Assignment(object):
         return factory
 
     def get_shell_commands(self):
-        config = loads(self.model.config)
-        if config.has_key('commands'):
-            config = config['commands']
-        else:
-            config = None
-        return self.job.get_configured_shell_commands(config=config)
+        return self.job.get_configured_shell_commands(loads(self.model.config))
 
     def force_build(self):
         forcer = BuildForcer(master_string=self.get_master_connection_string())
