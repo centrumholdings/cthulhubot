@@ -89,9 +89,11 @@ class UpdateRepositoryInformation(Command):
 
     def get_shell_command(self, config=None, project=None, **kwargs):
         command = super(UpdateRepositoryInformation, self).get_shell_command(config=config, project=project, **kwargs)
-        repourl = config.get('repository', None) or self.config.get('repository', None)
+        repourl = config.get('repository', None)
+        if not repourl and not project:
+            raise ValueError("Cannot figure repository URL")
 
-        assert repourl
+        repourl = project.repository_uri
 
         command.append("--repository-uri=%s" % repourl)
         return command
