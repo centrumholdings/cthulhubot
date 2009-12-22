@@ -46,7 +46,8 @@ class TestProjectClient(HttpTestCase):
             computer = self.computer_model,
             job = job,
             project = self.project,
-            params = [
+            params = {
+                'commands' : [
                 {
                     'command' : 'cthulhubot-git',
                     'parameters' : {
@@ -64,7 +65,7 @@ class TestProjectClient(HttpTestCase):
                         'ftp_host' : ''
                     }
                 }
-            ]
+            ]}
         )
 
         self.project_client = ProjectClient.objects.all()[0]
@@ -120,6 +121,17 @@ class TestProjectClient(HttpTestCase):
         finally:
             self.project_client.stop()
 
+    def test_deleting_client_stops_slave(self):
+        self.project_client.create_build_directory()
+        self.buildmaster.start()
+        self.project_client.start()
+        try:
+            self.assert_true(self.project_client.builder_running())
+        finally:
+            self.project_client.stop()
+
+        self.project_client.delete()
+        self.assert_false(self.project_client.builder_running())
 
     def tearDown(self):
         settings.NETWORK_ROOT = self.network_root

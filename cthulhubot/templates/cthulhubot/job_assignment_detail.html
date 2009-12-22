@@ -13,7 +13,13 @@
         <ul>
             {% for step in build.steps %}
                 {% mongoid step as step_id %}
-                <li>{{ step.name }} <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stdout" %}">stdout</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stderr" %}">stderr</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="headers" %}">headers</a></li>
+                <li>{{ step.name }} <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stdout" %}">stdout</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stderr" %}">stderr</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="headers" %}">headers</a>
+                {% if step.successful %}
+                    Successful
+                {% else %}
+                    Failed
+                {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </li>

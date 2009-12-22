@@ -8,6 +8,7 @@ from shutil import rmtree
 from subprocess import PIPE, CalledProcessError, Popen
 import sys
 from tempfile import gettempdir
+import traceback
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -28,7 +29,6 @@ from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
 
 from buildbot.changes.pb import PBChangeSource
 from buildbot.buildslave import BuildSlave
-from buildbot.scheduler import Scheduler
 
 from bbmongostatus.status import MongoDb
 
@@ -176,6 +176,9 @@ class Project(models.Model):
     tracker_uri = models.URLField(max_length=255, verify_exists=False)
     repository_uri = models.TextField()
 
+    def __unicode__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -224,6 +227,13 @@ class JobAssignment(models.Model):
 
     unique_together = (("job", "project", "computer"),)
 
+    def __unicode__(self):
+        return "%(job_name)s %(ident)s at %(comp)s" % {
+            'job_name' : self.job.slug,
+            'ident' : self.get_identifier(),
+            'comp' : self.computer.name
+        }
+
     def get_identifier(self):
         if not self.pk:
             raise ValueError("Cannot identify myself yet!")
@@ -237,6 +247,25 @@ class JobAssignment(models.Model):
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
         return Assignment(model = self)
+
+    def delete(self, *args, **kwargs):
+        """
+        Delete myself. If I'm also last assignment on given computer, delete client
+        """
+        project = self.project
+        computer = self.computer
+        try:
+            client = ProjectClient.objects.get(project=project, computer=computer)
+        except ProjectClient.DoesNotExist:
+            log.error("Deleting assignment, but Client already deleted")
+            client = None
+
+        super(JobAssignment, self).delete(*args, **kwargs)
+
+        if client and JobAssignment.objects.filter(computer=computer, project=project).count() == 0:
+            client.delete()
+
+
 
 class ClientStatus(object):
     ID = None
@@ -276,6 +305,14 @@ class ProjectClient(models.Model):
 
     unique_together = (("project", "computer"),)
 
+
+    def delete(self, *args, **kwargs):
+        try:
+            self.stop()
+        except Exception:
+            log.error("Error occured while stopping client: %s" % traceback.format_exc())
+
+        super(ProjectClient, self).delete(*args, **kwargs)
 
     def generate_password(self):
         if not self.password:
@@ -538,6 +575,12 @@ class Buildmaster(models.Model):
         else:
             return "Not running"
 
+    def get_schedulers(self, assignments):
+        schedulers = []
+        for assignment in assignments:
+            schedulers.extend(assignment.get_domain_object().get_schedulers())
+        return schedulers
+
     def get_config(self):
 
         #computers = project.job_set.buildcomputer_set.all()
@@ -550,11 +593,7 @@ class Buildmaster(models.Model):
             'slavePortnum' : int(self.buildmaster_port),
             'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
-            'schedulers' : [
-                Scheduler(name="scheduler", branch="master", treeStableTimer=1, builderNames=[
-                    assignment.get_domain_object().get_identifier() for assignment in assignments
-                ])
-            ],
+            'schedulers' : self.get_schedulers(assignments),
             'builders' : [
                 {
                       'name': assignment.get_domain_object().get_identifier(),

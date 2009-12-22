@@ -1,13 +1,16 @@
 from __future__ import absolute_import
 
 import logging
-from django.utils.safestring import mark_safe
-import os
+from uuid import uuid4
+from copy import deepcopy
 
 from buildbot.process.factory import BuildFactory
+from buildbot.scheduler import AnyBranchScheduler, Scheduler
+from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
 from django.core.urlresolvers import reverse
 from django.utils.simplejson import loads, dumps
+from django.utils.safestring import mark_safe
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
@@ -15,9 +18,16 @@ from cthulhubot.buildbot import BuildForcer
 from cthulhubot.models import ProjectClient
 from cthulhubot.builds import Build, BUILD_RESULTS_DICT
 
-from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
 
 log = logging.getLogger("cthulhubot.assignment")
+
+from buildbot.scheduler import Periodic
+
+SCHEDULER_CLASS_MAP = {
+    "after_push" : Scheduler,
+    "periodic" : Periodic,
+}
+
 
 class Assignment(object):
     """
@@ -32,14 +42,27 @@ class Assignment(object):
         self.job = model.job.get_domain_object()
         self.project = model.project
 
-    def create_config(self, command_configuration):
-        config = []
+    def create_config(self, configuration):
+        if configuration:
+            whole_config = deepcopy(configuration)
+        else:
+            whole_config = {'commands' : []}
+
+        if 'commands' not in whole_config:
+            raise ValueError("When creating configuration, I expect 'command' configuration to be present")
+
+
+        # for command, we want to do special 'assign by validation'
+
+        command_configuration = whole_config['commands']
+        whole_config['commands'] = []
+        
         for command_no in xrange(0, len(self.job.get_commands())):
             if command_configuration and len(command_configuration) >= command_no+1:
-                config.append(command_configuration[command_no])
+                whole_config['commands'].append(command_configuration[command_no])
             else:
-                config.append({})
-        self.model.config = dumps({"commands" : config})
+                whole_config['commands'].append({})
+        self.model.config = dumps(whole_config)
 
     def get_master_connection_string(self):
         return self.project.buildmaster.get_master_connection_string()
@@ -56,6 +79,8 @@ class Assignment(object):
 
         if self.model.config:
             config = loads(self.model.config)
+            # we're interested only in commands here
+            config = config['commands']
         else:
             config = None
         i = 0
@@ -84,7 +109,7 @@ class Assignment(object):
 
             if conf is None:
                 conf = {}
-            factory.addStep(command.get_buildbot_command(config=conf))
+            factory.addStep(command.get_buildbot_command(config=conf, project=self.project, computer=self.computer, job=self.job))
             i += 1
         return factory
 
@@ -136,3 +161,33 @@ class Assignment(object):
     #TODO: Move HTML away
     def get_status_action(self):
         return mark_safe('<input type="submit" name="force_build" value="Force build">')
+
+    def get_schedulers(self):
+        config = loads(self.model.config)
+        if not 'schedule' in config:
+            return [
+                    AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), branches=None, treeStableTimer=1, builderNames=[self.get_identifier()])
+            ]
+
+        else:
+            schedulers = []
+            for scheduler in config['schedule']:
+                # monkeypatch: assume that off-branch scheduler is in fact anybranch scheduler
+                # this is for backward compatibility
+                if scheduler['identifier'] == 'after_push' and (
+                    'branch' not in scheduler['parameters'] or not scheduler['parameters']['branch']
+                ):
+                    klass = AnyBranchScheduler
+                    del scheduler['parameters']['branch']
+                    scheduler['parameters']['branches'] = None
+                else:
+                    klass = SCHEDULER_CLASS_MAP[scheduler['identifier']]
+
+
+                schedulers.append(klass(
+                    name="%s-%s" % (self.get_identifier(), str(uuid4())),
+                    builderNames=[self.get_identifier()],
+                    **dict([(str(key), scheduler['parameters'][key]) for key in scheduler['parameters']])
+                ))
+            return schedulers
+

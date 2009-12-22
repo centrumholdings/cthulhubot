@@ -30,7 +30,6 @@ class Git(Command):
         'repository' : {
             'help' : u'Path to git repository',
             'value' : None,
-            'required' : True,
         },
         'mode' : {
             'help' : u'Git checkout mode. Default to "export"',
@@ -44,9 +43,14 @@ class Git(Command):
         },
     }
 
-    def get_buildbot_command(self, config=None):
+    def get_buildbot_command(self, config=None, project=None, **kwargs):
         config = config or {}
-        repourl = config.get('repository', None) or self.config.get('repository')
+        repourl = config.get('repository', None) or self.config.get('repository', None)
+        if not repourl:
+            if not project:
+                raise ValueError("Repository URI must be somehow given")
+            repourl = project.repository_uri
+
         mode = config.get('mode', None) or self.config.get('mode', None)
         branch = config.get('branch', None) or self.config.get('branch', None)
         return BuildbotGit(repourl=repourl, mode=mode, branch=branch)
@@ -64,14 +68,17 @@ class UpdateRepositoryInformation(Command):
     parameters = {}
 
     def _get_command_skeleton(self):
-        return [
+        command = [
                 "python", "setup.py", "save_repository_information_git",
                 "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
                 "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
-                "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
-                "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
                 "--mongodb-database=%s" % get_database_name(),
                 "--mongodb-collection=repository",
         ]
+        if getattr(settings, "MONGODB_USERNAME", None):
+                command.append("--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None))
+        if getattr(settings, "MONGODB_PASSWORD", None):
+                command.append("--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None))
+        return command
 
     command = property(fget=_get_command_skeleton)

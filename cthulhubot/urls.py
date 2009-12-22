@@ -37,7 +37,5 @@ urlpatterns = patterns('',
 
     url(r'^jobs/$', jobs, name='cthulhubot-jobs'),
     url(r'^jobs/configure/$', jobs_configure, name='cthulhubot-jobs-configure'),
-
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name="login"),
 )
 

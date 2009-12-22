@@ -85,7 +85,7 @@ BuildMaster(basedir, configfile).setServiceParent(application)
 """ % directory
     return source
 
-def get_master_config(uri, username, password):
+def get_master_config(uri, username, password, webstatus_port=None):
     # generate client for cthylla
 
     source = r"""# -*- python -*-
@@ -98,9 +98,17 @@ BuildmasterConfig = get_buildmaster_config(uri="%(uri)s", username="%(username)s
         'username' : str(username),
         'password' : password,
     }
+    # add non-pickable web status where we need it
+    # this will be superseeded by new transfer format
+    if webstatus_port:
+        source += """
+from buildbot.status import html
+BuildmasterConfig['status'].append(html.WebStatus(http_port="%s"))
+""" % webstatus_port
+
     return source
 
-def create_buildmaster_directory_structure(slug, directory, password, uri, username):
+def create_buildmaster_directory_structure(slug, directory, password, uri, username, webstatus_port=None):
 
     if not os.path.exists(directory):
         os.mkdir(directory)
@@ -108,7 +116,7 @@ def create_buildmaster_directory_structure(slug, directory, password, uri, usern
     # do we have master.cfg?
     if not os.path.exists(os.path.join(directory, "master.cfg")):
         f = open(os.path.join(directory, "master.cfg"), 'w')
-        f.write(get_master_config(uri, username, password))
+        f.write(get_master_config(uri, username, password, webstatus_port))
         f.close()
 
     # buildbot.tac?
@@ -136,4 +144,4 @@ def create_master(project, webstatus_port=None, buildmaster_port=None):
         "identifier" : int(master.pk)
     }))
 
-    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory, password=master.password, uri=uri, username=int(master.buildmaster_port))
+    create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory, password=master.password, uri=uri, username=int(master.buildmaster_port), webstatus_port=master.webstatus_port)

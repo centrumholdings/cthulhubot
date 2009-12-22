@@ -5,6 +5,8 @@ from django.conf import settings
 from cthulhubot.commands import get_available_commands, get_command, get_undiscovered_commands
 from cthulhubot.mongo import get_database_name
 
+from cthulhubot.models import Project
+
 from cthulhubot.commands import Git, ADDITIONAL_COMMANDS
 
 class TestingGitWithDefaultParameters(Git):
@@ -29,6 +31,8 @@ class TestGit(UnitTestCase):
         self.command = get_command('cthulhubot-git')()
         self.sub_command = get_command('cthulhubot-test-git-defaulted')()
 
+        self.repository_uri = '/tmp/repo.git'
+        self.project = Project(name='test', slug='test', tracker_uri='http://example.com', repository_uri=self.repository_uri)
 
     def test_discovered(self):
         assert self.command is not None
@@ -49,22 +53,86 @@ class TestGit(UnitTestCase):
         repo = 'ssh://our.server.tld/GIT/myrepo.git'
         self.assert_equals(repo, self.sub_command.get_buildbot_command(config={'repository' : repo}).args['repourl'])
 
+    def test_git_uri_taken_from_project_by_default(self):
+        self.assert_equals(self.repository_uri, self.command.get_buildbot_command(project=self.project).args['repourl'])
+
+    def test_git_uri_hierarchically_parent_first(self):
+        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command(project=self.project).args['repourl'])
+
 class TestUpdateRepositoryInformation(UnitTestCase):
 
     def setUp(self):
         super(TestUpdateRepositoryInformation, self).setUp()
         self.command = get_command('cthulhubot-update-repository-info')()
 
+        self.mongo_config = {
+            "host" : "host",
+            "port" : 20000,
+            "username" : "user",
+            "password" : "heslo",
+            "database_name" : "db",
+        }
+
+        self.original_config = {}
+
+        self._mock_mongo_settings()
+
+    def _mock_mongo_settings(self):
+        for key in self.mongo_config:
+            setting = "MONGODB_%s" % key.upper()
+
+            # we're test...
+            if key == 'database_name':
+                setting = "TEST_" + setting
+
+            if hasattr(settings, setting):
+                self.original_config[setting] = getattr(settings, setting)
+                
+            setattr(settings, setting, self.mongo_config[key])
+
+    def _unmock_mongo_settings(self):
+        for key in self.mongo_config:
+            setting = "MONGODB_%s" % key.upper()
+
+            # we're test...
+            if key == 'database_name':
+                setting = "TEST_" + setting
+
+            if setting in self.original_config:
+                setattr(settings, setting, self.original_config[setting])
+            elif hasattr(settings, setting):
+                delattr(settings._wrapped, setting)
+
     def test_command_configured(self):
         self.assert_equals([
                 "python", "setup.py", "save_repository_information_git",
-                "--mongodb-host=%s" % getattr(settings, "MONGODB_HOST", "localhost"),
-                "--mongodb-port=%s" % getattr(settings, "MONGODB_PORT", 27017),
-                "--mongodb-username=%s" % getattr(settings, "MONGODB_USERNAME", None),
-                "--mongodb-password=%s" % getattr(settings, "MONGODB_PASSWORD", None),
-                "--mongodb-database=%s" % get_database_name(),
+                "--mongodb-host=%s" % self.mongo_config['host'],
+                "--mongodb-port=%s" % self.mongo_config['port'],
+                "--mongodb-database=%s" % self.mongo_config['database_name'],
+                "--mongodb-collection=repository",
+                "--mongodb-username=%s" % self.mongo_config['username'],
+                "--mongodb-password=%s" % self.mongo_config['password'],
+            ],
+            self.command.get_shell_command()
+        )
+
+    def test_empty_params_ommited(self):
+        settings.MONGODB_USERNAME = None
+        settings.MONGODB_PASSWORD = None
+
+        self.assert_equals([
+                "python", "setup.py", "save_repository_information_git",
+                "--mongodb-host=%s" % self.mongo_config['host'],
+                "--mongodb-port=%s" % self.mongo_config['port'],
+                "--mongodb-database=%s" % self.mongo_config['database_name'],
                 "--mongodb-collection=repository",
             ],
             self.command.get_shell_command()
         )
 
+
+
+    def tearDown(self):
+        self._unmock_mongo_settings()
+        
+        super(TestUpdateRepositoryInformation, self).tearDown()
