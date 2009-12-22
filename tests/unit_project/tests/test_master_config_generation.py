@@ -37,7 +37,8 @@ class TestSchedulers(DatabaseTestCase):
             job = job,
             computer = self.computer,
             project = self.project,
-            config = dumps([
+            config = dumps({
+                "commands" : [
                     {
                         'command' : 'cthulhubot-git',
                         'parameters' : {
@@ -55,7 +56,7 @@ class TestSchedulers(DatabaseTestCase):
                             'ftp_host' : ''
                         }
                     }
-                ]
+                ]}
             )
         )
 

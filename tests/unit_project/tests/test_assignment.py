@@ -3,7 +3,7 @@ from djangosanetesting.cases import DatabaseTestCase
 from mock import Mock
 from unit_project.tests.helpers import (
     MockJob, MockBuildComputer, MockProject,
-    EchoJob,
+    EchoJob, MultipleEchoJob,
     register_mock_jobs_and_commands,
 )
 
@@ -147,16 +147,23 @@ class TestCreation(DatabaseTestCase):
         super(TestCreation, self).tearDown()
 
 
-class TestAssignment(DatabaseTestCase):
+class TestAssignment(UnitTestCase):
     def setUp(self):
         super(TestAssignment, self).setUp()
+        register_mock_jobs_and_commands()
 
         self.computer = MockBuildComputer()
         self.computer.adapter = Mock()
-        self.job = MockJob()
+        self.job = MultipleEchoJob()
+        self.job.model = MockJob()
+        self.job.model.get_domain_object = Mock()
+        self.job.model.get_domain_object.return_value = self.job
+
         self.project = MockProject()
 
-        self.assignment = JobAssignment(pk=1, project=self.project, computer=self.computer, job=self.job)
+        self.assignment_model = JobAssignment(pk=1, project=self.project, computer=self.computer, job=self.job.model)
+        self.assignment = Assignment(model=self.assignment_model)
+
 
         self._mock_resolver()
 
@@ -173,8 +180,49 @@ class TestAssignment(DatabaseTestCase):
         urlresolvers.get_resolver = self._original_resolver
         self._original_resolver = None
 
+    def test_job_mocked_properly(self):
+        self.assert_equals(self.job, self.assignment.job)
+
     def test_url_retrieving(self):
         self.assert_equals(self.prefix+self.mocked_uri, self.assignment.get_absolute_url())
+
+    def test_configuration_to_factory_propagated_properly(self):
+        self.assignment.model.config = dumps({
+            "commands" : [{}, {}, {}],
+        })
+        self.assert_equals(["echo", "first"], self.assignment.get_factory().steps[0][1]['command'])
+
+    def test_factory_generated_even_when_parameters_not_given(self):
+        self.assignment.model.config = dumps({
+            "commands" : [{'command' : 'cthulhubot-test-helper-echo'}, {}, {}],
+        })
+        self.assert_equals(["echo", "first"], self.assignment.get_factory().steps[0][1]['command'])
+
+    def test_error_raised_when_command_identifier_not_given_for_parameters(self):
+        self.assignment.model.config = dumps({
+            "commands" : [
+                {
+                    'parameters' : {
+                        'what' : 'first'
+                    }
+                },
+                {},
+                {}
+            ],
+        })
+        self.assert_raises(ValueError, self.assignment.get_factory)
+
+    def test_error_raised_when_bad_command_identifier_given(self):
+        self.assignment.model.config = dumps({
+            "commands" : [
+                {
+                    'command' : 'xxx-bad-command-identifier-for-this-position',
+                },
+                {},
+                {}
+            ],
+        })
+        self.assert_raises(ValueError, self.assignment.get_factory)
 
     def tearDown(self):
         super(TestAssignment, self).tearDown()
@@ -294,3 +342,4 @@ class TestResults(DatabaseTestCase):
         self.insert_step(build, result=FAILURE, time_start = datetime(year=2009, month=01, day=01, hour=13, minute=00, second=00), time_end=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.insert_step(build, result=None, time_end=None, time_start=datetime(year=2009, month=01, day=01, hour=13, minute=00, second=01))
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
+
