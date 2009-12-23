@@ -1,5 +1,7 @@
 from buildbot.steps.source import Git as BuildbotGit
 from buildbot.steps.shell import ShellCommand
+from buildbot.status.builder import STDOUT
+from twisted.python import log
 
 from django.conf import settings
 
@@ -18,6 +20,32 @@ class ComputeGitVersion(Command):
     parameters = {}
 
     command = ["python", "setup.py", "compute_version_git"]
+
+
+class GitAssociate(ShellCommand):
+    command = ["git", "rev-parse", "HEAD"]
+
+    def commandComplete(self, cmd):
+        out = ''.join(cmd.logs['stdio'].getChunks([STDOUT], onlyText=True)).strip()
+        
+        # we expect full 40-length SHA hash
+        if len(out) != 40:
+            log.msg("Bad revision when associating: %s" % out)
+        else:
+            self.build.getStatus().changeset = out
+            log.msg("changeset %s given to build %s" % (str(out), self.build.getStatus()))
+
+class AssociateWithRevision(Command):
+    identifier = 'cthulhubot-git-associate'
+    name = {
+        'basic' : u"Associate with changeset",
+        'running' : u'Associating with changeset',
+        'succeeded' : u'Changeset associated',
+        'failed' : u'Cannot associate with changeset',
+    }
+
+    def get_buildbot_command(self, **kwargs):
+        return GitAssociate()
 
 class Git(Command):
     identifier = 'cthulhubot-git'

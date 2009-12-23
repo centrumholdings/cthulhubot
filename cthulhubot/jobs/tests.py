@@ -9,6 +9,9 @@ class BareNoseTests(Job):
             'command' : 'cthulhubot-git',
         },
         {
+            'command' : 'cthulhubot-git-associate',
+        },
+        {
             'command' : 'cthulhubot-tests-nose',
         }
     ]
