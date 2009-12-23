@@ -1,4 +1,5 @@
-from djangosanetesting import UnitTestCase, DatabaseTestCase
+from djangosanetesting import UnitTestCase
+from mock import Mock
 
 from django.conf import settings
 
@@ -6,7 +7,6 @@ from cthulhubot.commands import get_available_commands, get_command, get_undisco
 from cthulhubot.mongo import get_database_name
 
 from cthulhubot.models import Project
-
 from cthulhubot.commands import Git, ADDITIONAL_COMMANDS
 
 class TestingGitWithDefaultParameters(Git):
@@ -73,6 +73,9 @@ class TestUpdateRepositoryInformation(UnitTestCase):
             "database_name" : "db",
         }
 
+        self.project = Mock()
+        self.project.repository_uri = '/tmp/repo.git'
+
         self.original_config = {}
 
         self._mock_mongo_settings()
@@ -112,8 +115,9 @@ class TestUpdateRepositoryInformation(UnitTestCase):
                 "--mongodb-collection=repository",
                 "--mongodb-username=%s" % self.mongo_config['username'],
                 "--mongodb-password=%s" % self.mongo_config['password'],
+                "--repository-uri=%s" % self.project.repository_uri,
             ],
-            self.command.get_shell_command()
+            self.command.get_shell_command(project=self.project)
         )
 
     def test_empty_params_ommited(self):
@@ -126,11 +130,13 @@ class TestUpdateRepositoryInformation(UnitTestCase):
                 "--mongodb-port=%s" % self.mongo_config['port'],
                 "--mongodb-database=%s" % self.mongo_config['database_name'],
                 "--mongodb-collection=repository",
+                "--repository-uri=%s" % self.project.repository_uri,
             ],
-            self.command.get_shell_command()
+            self.command.get_shell_command(project=self.project)
         )
 
-
+    def test_repository_uri_required(self):
+        self.assert_raises(ValueError, self.command.get_shell_command)
 
     def tearDown(self):
         self._unmock_mongo_settings()
