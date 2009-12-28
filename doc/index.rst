@@ -14,8 +14,9 @@ CthulhuBot aims to enhance Buildbot experience in following areas:
 Licensed under BSD.
 
 .. toctree::
-   :maxdepth: 2
+	:maxdepth: 2
 
-   concepts
-   install
-   configuration
+	concepts
+	install
+	builddata
+	
