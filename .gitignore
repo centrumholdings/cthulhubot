@@ -1,6 +1,8 @@
 *.py[co]
 .*.sw?
 *~
+*\.coverage
+build
 build_doc
 nbproject
 tests/unit_project/settings/local.py
