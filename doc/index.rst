@@ -1,6 +1,6 @@
-------------------------
+#########################
 CthulhuBot
-------------------------
+#########################
 
 CthulhuBot is Django-based reusable application for managing large number of buildbot instances on dedicated infrastructure.
 
