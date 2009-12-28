@@ -6,6 +6,7 @@ djangosanetesting
 # cpserver is not denoting CP requirement
 CherryPy
 django-cpserver
+pymongo
 
 -e git://github.com/ella/buildbot-mongodb-status.git#egg=bbmongostatus
 -e git://github.com/ella/cthylla.git#egg=cthyla
