@@ -12,9 +12,9 @@ CB is primarily written as managing continuous integration for developing django
 
 For now, CB is assuming it runs on same machine as all buildmasters will be generated. Remote masters could be added in the future (aka fork me on github!).
 
-------------------------
+=======================
 Vocabulary
-------------------------
+=======================
 
     CthulhuBot
         In this documentation, it's used mostly as "running project instance using django-massive-buildbot reusable application" instead of "python library".
@@ -40,9 +40,9 @@ Vocabulary
     Project Client
         Client process running on Build Computer, connecting to correct Buildmaster port and listening to it's commands. Created automagically on every Build Computer that is working for a Project. BuildSlave if BuildBot speech.
 
-------------------------
+=======================
 Software stages
-------------------------
+=======================
 
 CB heavily uses Job, áka "named factory", i.e. abstration of top of buildbot's factory. Each named factory is just sequence of configurable commands, executed in order and bound by some rules (locks etc.). Important jobs are:
 
@@ -52,15 +52,15 @@ CB heavily uses Job, áka "named factory", i.e. abstration of top of buildbot's 
 * webtests run (and configuration of live port and selenium proxy)
 
 
-----------------------------------------------------
+=====================================================
 Dependency handling (aka applications and projects)
-----------------------------------------------------
+=====================================================
 
 This is implemented in custom and hacky way and will be reimplemented by writing RPC plugin for buildbot.
 
------------------------------------------------
+=====================================================
 Jobs and Commands creation and configuration
------------------------------------------------
+=====================================================
 
 Commands are basically factories producing configurable buildbot steps. Difference is that steps command can populate configuration parameters. Parameter value could be specified either in Job in which Command is present, or in Project assigment (Parameters are then shown in CthulhuBot UI).
 
