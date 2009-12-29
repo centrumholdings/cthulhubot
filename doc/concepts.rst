@@ -1,8 +1,8 @@
 .. _concepts:
 
-------------------------
+=======================
 Concepts
-------------------------
+=======================
 
 Buildbot provides an excellent base, but managing large number of bots is tedious. CthulhuBot (CB) provides further abstraction on top of buildbot and citools to ease creation and management of large number of projects, as well as better monitoring and reporting.
 
@@ -52,15 +52,15 @@ CB heavily uses Job, áka "named factory", i.e. abstration of top of buildbot's 
 * webtests run (and configuration of live port and selenium proxy)
 
 
-=====================================================
+-----------------------------------------------------
 Dependency handling (aka applications and projects)
-=====================================================
+-----------------------------------------------------
 
 This is implemented in custom and hacky way and will be reimplemented by writing RPC plugin for buildbot.
 
-=====================================================
+-----------------------------------------------------
 Jobs and Commands creation and configuration
-=====================================================
+-----------------------------------------------------
 
 Commands are basically factories producing configurable buildbot steps. Difference is that steps command can populate configuration parameters. Parameter value could be specified either in Job in which Command is present, or in Project assigment (Parameters are then shown in CthulhuBot UI).
 
