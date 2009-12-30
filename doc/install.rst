@@ -69,6 +69,9 @@ Now, You're ready to go. Prepare database with::
 	
 	./manage.py syncdb
 
+.. Note::
+	When deploying inside production project, cthulhubot is under surveillance of `South <http://south.aeracode.org/>`_ migration system. Thus, You also must migrate to newest schema version by running `./mange.py migrate`.
+
 Create administrator account when ask. After You're done, make default Jobs and Commands available via::
 	
 	./manage.py discover
