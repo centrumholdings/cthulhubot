@@ -6,7 +6,7 @@ from threading import currentThread
 
 from pymongo.connection import Connection, ConnectionFailure
 from pymongo.son_manipulator import AutoReference, NamespaceInjector
-from pymongo import ASCENDING
+from pymongo import ASCENDING, DESCENDING
 
 log = logging.getLogger("cthulhubot.mongo")
 
@@ -90,6 +90,8 @@ def get_database_connection():
 
 def ensure_mongo_structure():
     database = get_database_connection()
+
+    # generic indexes
     indexes = {
         'builds' : ['builder', 'slave', 'time_end'],
         'steps' : ['build', 'time_end', 'successful'],
@@ -102,3 +104,6 @@ def ensure_mongo_structure():
             if index not in database[collection].index_information():
                 database[collection].create_index(index, ASCENDING)
 
+    # "special" indexes
+    if "changeset" not in database['repository'].index_information():
+        database['repository'].create_index('changeset', DESCENDING, unique=True)

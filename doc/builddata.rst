@@ -80,6 +80,7 @@ In addition to standard repository metadata, following fields are added:
 	* time_start (naive datetime): Start of referenced builder run
 	* time_end (naive datetime): End of referenced builder run
 
-
+.. Note::
+	Builds are added to repository only if "proper" build number was detected, to avoid stocking results up for "FETCH_HEAD" and friends".
 
 
