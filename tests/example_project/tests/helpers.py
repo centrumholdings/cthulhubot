@@ -1,15 +1,177 @@
-from django.core.management import call_command
+from subprocess import Popen, PIPE
+
+import os
 from djangosanetesting.cases import SeleniumTestCase
 from mock import Mock
+from tempfile import mkdtemp
+from shutil import rmtree
 
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.core.management import call_command
 
 from cthulhubot.models import Project, Job, BuildComputer, Buildmaster
 from cthulhubot.project import create_project as cthulhu_create_project
+from cthulhubot.views import create_job_assignment
 
-def create_project(case, name=None, tracker_uri=None, repository_uri=None):
-    return cthulhu_create_project(name=name or case.project_name, tracker_uri=tracker_uri or "http://example.com", repository_uri=repository_uri or "/tmp/test")
+def create_project(case, name=None, tracker_uri=None, repository_uri=None, master_directory=None):
+    return cthulhu_create_project(
+        name=name or case.project_name,
+        tracker_uri=tracker_uri or "http://example.com",
+        repository_uri=repository_uri or "/tmp/test",
+        master_directory=master_directory
+    )
 
+#FIXME: DST should have helper function for this
+def mock_url_root(case):
+    from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
+
+    case.url_root = "http://%s:%s" % (
+        getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
+        getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
+    )
+
+    case.network_root = settings.NETWORK_ROOT
+    settings.NETWORK_ROOT = case.url_root
+
+def unmock_url_root(case):
+    settings.NETWORK_ROOT = case.network_root
+
+#####
+# Helpers for working with git repository
+#####
+
+def do_piped_command_for_success(self, command):
+    proc = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE)
+    stdout, stderr = proc.communicate()
+    self.assertEquals(0, proc.returncode)
+
+    return (stdout, stderr)
+
+def commit(message='dummy'):
+    """ Commmit into repository and return commited revision """
+    do_piped_command_for_success(['git', 'commit', '-a', '-m', '"%s"' % message])
+    stdout = do_piped_command_for_success(['git', 'rev-parse', 'HEAD'])[0]
+    return stdout.strip()
+
+def create_git_repository(case, dir=None):
+    """
+    Create git repository in temporary directory, chdir to it and configure.
+
+    Repository path is stored in case.repo, old working path in case.cwd
+    """
+    # create temporary directory and initialize git repository there
+    case.repo = mkdtemp(prefix='test_git_', dir=dir)
+    case.oldcwd = os.getcwd()
+    os.chdir(case.repo)
+    proc = Popen(['git', 'init'], stdout=PIPE, stdin=PIPE)
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+
+    # also setup dummy name / email for this repo for tag purposes
+    proc = Popen(['git', 'config', 'user.name', 'dummy-tester'])
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+    proc = Popen(['git', 'config', 'user.email', 'dummy-tester@example.com'])
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+
+
+def prepare_tagged_repo_with_file(case, tag="0.1", dir=None):
+    """
+    Create git repository with commited file in it and a tag
+    """
+    create_git_repository(case, dir=None)
+    
+    f = open(os.path.join(case.repo, 'test.txt'), 'wb')
+    f.write("test")
+    f.close()
+
+    proc = Popen(["git", "add", "*"])
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+
+    proc = Popen(['git', 'commit', '-m', '"dummy"'], stdout=PIPE, stdin=PIPE)
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+
+    proc = Popen(['git', 'tag', '-m', '"tagging"', '-a', tag], stdout=PIPE, stdin=PIPE)
+    proc.wait()
+    case.assertEquals(0, proc.returncode)
+
+def clean_repository(case):
+    """
+    Drop created repository and chdir to old path
+    """
+    rmtree(case.repo)
+    os.chdir(case.oldcwd)
+    case.oldcwd = None
+
+def create_assignment(case, repository_dir=None):
+    case.project_name = u"project"
+    case.project = create_project(case, master_directory=case.base_directory, repository_uri=repository_dir)
+    case.buildmaster = case.project.buildmaster_set.all()[0]
+
+    case.computer_model = case.computer = BuildComputer.objects.create(hostname = "localhost", basedir=case.base_directory)
+
+    case.job_test = Job.objects.create(slug='cthulhubot-bare-nose-tests').get_domain_object()
+    case.job_test.auto_discovery()
+
+    case.job_repository = Job.objects.create(slug='cthulhubot-save-repository-information').get_domain_object()
+    case.job_repository.auto_discovery()
+
+    case.assignment_test = create_job_assignment(
+        computer = case.computer_model,
+        job = case.job_test,
+        project = case.project,
+        params = {
+          'commands' : [{}, {}, {}]
+        }
+    )
+    case.assignment_repository = create_job_assignment(
+        computer = case.computer_model,
+        job = case.job_repository,
+        project = case.project,
+        params = {
+          'commands' : [{}, {}]
+        }
+    )
+
+
+def prepare_working_assignment(case):
+    """
+    Prepare working Job assignment: create repository, and friends and assign basic simple projects
+    """
+    case.base_directory = mkdtemp()
+
+    prepare_tagged_repo_with_file(case, dir=case.base_directory)
+    create_assignment(case, repository_dir=case.repo)
+
+
+    case.project_client = case.assignment_test.get_client()
+    case.build_directory = os.path.join(case.base_directory, case.project_client.get_identifier())
+
+    case.transaction.commit()
+
+    case.buildmaster.start()
+    case.project_client.create_build_directory()
+    case.project_client.start()
+
+
+def clean_assignment(case):
+    """
+    Clean created assignments, repositories and friends
+    """
+    case.buildmaster.stop(ignore_not_running=True)
+    case.project_client.stop()
+    rmtree(case.base_directory)
+    case.buildmaster.delete()
+    case.computer.delete()
+
+
+#####
+# End of git helpers
+#####
 
 class WebTestCase(SeleniumTestCase):
     elements = {
@@ -122,3 +284,6 @@ MockProject.__bases__ = (Mock, Project)
 
 class MockBuildmaster(Mock): pass
 MockBuildmaster.__bases__ = (Mock, Buildmaster)
+
+class TestTooSlowError(Exception):
+    """ It took too long to run the tests """

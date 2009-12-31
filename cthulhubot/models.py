@@ -530,7 +530,6 @@ class Buildmaster(models.Model):
 
     def start(self, env=None):
         e = self.get_buildbot_environment(env)
-
         check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
 
@@ -545,6 +544,8 @@ class Buildmaster(models.Model):
             log.error("Calling process failed. STDOUT: %s STDERR: %s" % (stdout, stderr))
             if "BuildbotNotRunningError" not in stderr and not ignore_not_running:
                 raise CalledProcessError(retcode, cmd)
+        else:
+            log.debug("Stopping buildmaster succeeded with return code %s" % retcode)
 
     def is_running(self):
         """ Is buildmaster process running? Return True if process found, False otherwise.
@@ -583,7 +584,7 @@ class Buildmaster(models.Model):
             schedulers.extend(assignment.get_domain_object().get_schedulers())
         return schedulers
 
-    def get_config(self):
+    def get_config(self, enable_api=True):
 
         #computers = project.job_set.buildcomputer_set.all()
         assignments = self.project.jobassignment_set.all()
@@ -604,12 +605,17 @@ class Buildmaster(models.Model):
                 for assignment in assignments
             ]
 
+        schedulers = []
+        if enable_api:
+            schedulers.append(HttpApi(port=self.api_port, name="api", builders=[b['name'] for b in builders]))
+
+
         config = {
             'slavePortnum' : int(self.buildmaster_port),
             'slaves' : [BuildSlave(client.get_name(), client.password) for client in ProjectClient.objects.filter(project=self.project)],
             'change_source' : PBChangeSource(),
             'builders' : builders,
-            'schedulers' : self.get_schedulers(assignments)+[HttpApi(port=self.api_port, name="api", builders=[b['name'] for b in builders])],
+            'schedulers' : self.get_schedulers(assignments)+schedulers,
             'status' : [
                 MongoDb(database = get_database_name(),
                         master_id = self.pk,

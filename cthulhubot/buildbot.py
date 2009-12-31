@@ -1,29 +1,33 @@
 from __future__ import absolute_import
 
 import os
-
-from threading import Thread
 import logging
+from urllib2 import urlopen, HTTPError
+
+from pickle import loads
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.simplejson import loads, dumps
+
 
 from twisted.application import strports
 from twisted.spread import pb
 from twisted.cred import credentials
-from twisted.internet.selectreactor import SelectReactor
 from twisted.internet import reactor as twsited_default_reactor
 from twisted.python import log as twisted_log
 from twisted.web import http
-
-from django.utils.simplejson import loads
-
-from cthulhubot.models import Buildmaster, Project
 
 from buildbot.clients.sendchange import Sender
 from buildbot.scheduler import BaseScheduler
 from buildbot.buildset import BuildSet
 from buildbot.sourcestamp import SourceStamp
+
+from cthulhubot.models import Buildmaster, Project
+from cthulhubot.models import Buildmaster, Project
+
+REALM = "buildmaster"
+
 
 class TryJobHTTPRequest(http.Request):
     def __init__(self, channel, queued):
@@ -90,54 +94,41 @@ class HttpApi(BaseScheduler):
     def listBuilderNames(self):
         return self.builders
 
-class CustomReactorSender(Sender):
-    def __init__(self, master, user=None, reactor=None):
-        Sender.__init__(self, master, user=None)
-        self.reactor = reactor or twsited_default_reactor
-
-    def send(self, branch, revision, comments, files, user=None, category=None, when=None):
-        if user is None:
-            user = self.user
-        change = {'who': user, 'files': files, 'comments': comments,
-                  'branch': branch, 'revision': revision, 'category': category,
-                  'when': when}
-        self.num_changes += 1
-
-        f = pb.PBClientFactory()
-        d = f.login(credentials.UsernamePassword("change", "changepw"))
-        self.reactor.connectTCP(self.host, self.port, f)
-        d.addCallback(self.addChange, change)
-        return d
-
-    def stop(self, res):
-        self.reactor.stop()
-        return res
-
-    def run(self, installSignalHandlers=True):
-        self.reactor.run(installSignalHandlers)
-
 class BuildForcer(object):
-    def __init__(self, master_string):
+    def __init__(self, master, assignment):
         super(BuildForcer, self).__init__()
 
-        self.master_string = master_string
-
-    def connect_failed(self, error):
-        logging.error("Could not connect: %s"
-            % error.getErrorMessage())
-        return error
+        self.master = master
+        self.assignment = assignment
 
     def run(self):
+        uri = "http://%s:%s/force_build" % (settings.BUILDMASTER_NETWORK_NAME, self.master.api_port)
 
-        reactor = SelectReactor()
+        data = {
+            'changeset' : 'FETCH_HEAD',
+            'builder' : self.assignment.get_identifier()
+        }
 
-        s = CustomReactorSender(master=self.master_string, user="BuildBot", reactor=reactor)
-        d = s.send(branch="master", revision="FETCH_HEAD", comments="Dummy", files="CHANGELOG", category=None, when=None, user="BuildBot")
-        d.addErrback(self.connect_failed)
-        d.addBoth(s.stop)
-        thread = Thread(target=s.run, args=(False,))
-        thread.start()
-        return d
+
+        try:
+            response = urlopen(uri, data=dumps(data))
+        except HTTPError, err:
+            if err.fp:
+                error = ": %s" % err.fp.read()
+            else:
+                error = ''
+            logging.error("Error occured while opening HTTP %s" % error)
+            raise
+        response_json = response.read()
+        response.close()
+
+        #TODO: refactor
+        assert response.code == 200
+
+        try:
+            return loads(response_json)
+        except ValueError:
+            return None
 
 
 def get_buildmaster_config(slug):
@@ -204,11 +195,12 @@ def create_buildmaster_directory_structure(slug, directory, password, uri, usern
         f.write('')
         f.close()
 
-def create_master(project, webstatus_port=None, buildmaster_port=None):
+def create_master(project, webstatus_port=None, buildmaster_port=None, master_directory=None):
     master, created = Buildmaster.objects.get_or_create(
         project = project,
         webstatus_port = webstatus_port,
-        buildmaster_port = buildmaster_port
+        buildmaster_port = buildmaster_port,
+        directory = master_directory
     )
 
 

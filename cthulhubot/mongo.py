@@ -95,8 +95,7 @@ def ensure_mongo_structure():
     indexes = {
         'builds' : ['builder', 'slave', 'time_end'],
         'steps' : ['build', 'time_end', 'successful'],
-        'builders' : ['master_id'],
-        'repository' : ['changeset']
+        'builders' : ['master_id']
     }
 
     for collection in indexes:

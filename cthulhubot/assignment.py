@@ -118,7 +118,7 @@ class Assignment(object):
         return self.job.get_configured_shell_commands(loads(self.model.config))
 
     def force_build(self):
-        forcer = BuildForcer(master_string=self.get_master_connection_string())
+        forcer = BuildForcer(master=self.model.project.buildmaster, assignment=self)
         forcer.run()
         return forcer
 
@@ -187,3 +187,5 @@ class Assignment(object):
                 ))
             return schedulers
 
+    def delete(self, *args, **kwargs):
+        return self.model.delete(*args, **kwargs)

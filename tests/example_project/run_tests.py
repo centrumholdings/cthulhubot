@@ -29,15 +29,40 @@ for p in PYTHONPATH:
 # django needs this env variable
 os.environ['DJANGO_SETTINGS_MODULE'] = "test_settings"
 
+from nose.plugins import Plugin
+
+class MongoDatabasePlugin(Plugin):
+    name = 'mongo-database'
+    score = 79
+
+    def options(self, parser, env=os.environ):
+        Plugin.options(self, parser, env)
+
+    def configure(self, options, config):
+        Plugin.configure(self, options, config)
+
+    def _drop_database(self):
+        from cthulhubot.mongo import get_database_connection
+        db = get_database_connection()
+        conn = db.connection()
+        conn.drop_database(db)
+
+    def begin(self):
+        self._drop_database()
+
+    def stopTest(self, test):
+        self._drop_database()
+
 
 # TODO: ugly hack to inject required plugins to nose.run
 # Use --with-cherrypyliveserver instead of Django's as it will handle AJAX and stuff much better
-for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django']:
+for i in ['--with-selenium', '--with-cherrypyliveserver', '--with-django', '--with-mongo-database']:
     if i not in sys.argv:
         sys.argv.insert(1, i)
 
 
 nose.run_exit(
     defaultTest=dirname(__file__),
+    addplugins = [MongoDatabasePlugin()]
 )
 

@@ -85,8 +85,9 @@ class TestMasterApi(HttpTestCase):
             'changeset' : 'FETCH_HEAD',
             'builder' : ProjectClient.objects.all()[0].get_identifier()
         }
+        
         f = urlopen(s, dumps(data))
-        self.assert_equals(False, f.read())
+        self.assert_equals('OK', f.read())
 
     def tearDown(self):
         settings.NETWORK_ROOT = self.network_root

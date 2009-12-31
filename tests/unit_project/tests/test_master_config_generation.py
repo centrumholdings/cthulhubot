@@ -1,3 +1,4 @@
+from buildbot.scheduler import AnyBranchScheduler
 from pickle import dumps as pickle_dumps
 
 from djangosanetesting.cases import DatabaseTestCase
@@ -78,7 +79,7 @@ class TestSchedulers(DatabaseTestCase):
         self.assignment.save()
 
     def test_single_post_hook_by_default(self):
-        config = self.buildmaster.get_config()
+        config = self.buildmaster.get_config(enable_api=False)
         self.assert_equals(1, len(config['schedulers']))
 
     def test_single_post_hook_by_default_contains_all_builders(self):
@@ -110,7 +111,7 @@ class TestSchedulers(DatabaseTestCase):
             ]
         })
 
-        config = self.buildmaster.get_config()
+        config = self.buildmaster.get_config(enable_api=False)
         self.assert_equals(1, len(config['schedulers']))
 
     def test_branch_configuration_propagated_for_all_branches(self):

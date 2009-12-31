@@ -1,7 +1,7 @@
 from cthulhubot.models import Project
 from cthulhubot.buildbot import create_master
 
-def create_project(name, tracker_uri, repository_uri, webstatus_port=None, buildmaster_port=None):
+def create_project(name, tracker_uri, repository_uri, webstatus_port=None, buildmaster_port=None, master_directory=None):
     """
     Create project, buildmaster for it and associate them properly
     """
@@ -11,6 +11,6 @@ def create_project(name, tracker_uri, repository_uri, webstatus_port=None, build
         repository_uri = repository_uri,
     )
 
-    create_master(project=project, webstatus_port=webstatus_port, buildmaster_port=buildmaster_port)
+    create_master(project=project, webstatus_port=webstatus_port, buildmaster_port=buildmaster_port, master_directory=master_directory)
 
     return project
