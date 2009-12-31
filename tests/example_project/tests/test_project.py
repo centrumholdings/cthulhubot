@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from helpers import AuthenticatedWebTestCase
 
+from cthulhubot.models import Buildmaster
+
 class TestProjects(AuthenticatedWebTestCase):
 
     def test_project_creation(self):
@@ -47,4 +49,14 @@ class TestProjects(AuthenticatedWebTestCase):
         s.wait_for_page_to_load(30000)
 
         self.assert_equals(u"Not running", s.get_text(self.elements['project_detail']['buildmaster_status']))
+
+
+    def tearDown(self):
+        for master in Buildmaster.objects.all():
+            master.stop(ignore_not_running=True)
+            master.delete()
+
+        self.transaction.commit()
+
+        super(TestProjects, self).tearDown()
 
