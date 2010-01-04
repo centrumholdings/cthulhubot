@@ -80,7 +80,7 @@ Now You're good to go. Start development server with CherryPy using::
 	
 	./manage.py runcpserver
 	
-and enjoy Your stay!
+and enjoy Your stay at ``http://localhost:8088``! Also note, if You'd like to delete some assignments or add new users, there is an admin interface for you at ``http://localhost:8088/admin``.
 
 .. Note::
 	With usual runserver, application will start, but You'll encounter problems and hangups later. So please, don't do that; CherryPy is nice and multithreaded.
