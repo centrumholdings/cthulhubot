@@ -607,7 +607,7 @@ class Buildmaster(models.Model):
 
         schedulers = []
         if enable_api:
-            schedulers.append(HttpApi(port=self.api_port, name="api", builders=[b['name'] for b in builders]))
+            schedulers.append(HttpApi(port=int(self.api_port), name="api", builders=[b['name'] for b in builders]))
 
 
         config = {

@@ -8,6 +8,7 @@ class TestBuildmaster(DatabaseTestCase):
         super(TestBuildmaster, self).setUp()
 
         self.project = Project.objects.create(name='test', slug='test', tracker_uri='http://example.com', repository_uri='/dev/null')
+        self.project_second = Project.objects.create(name='test2', slug='test2', tracker_uri='http://example.com', repository_uri='/dev/null')
 
     def test_api_port_generated_on_save(self):
         master = Buildmaster.objects.create(project=self.project, directory='/dev/null', password='shabang')
@@ -22,3 +23,9 @@ class TestBuildmaster(DatabaseTestCase):
         master.save()
 
         self.assert_equals(api_port, master.api_port)
+
+    def test_nonconflicting_generation(self):
+        master_first = Buildmaster.objects.create(project=self.project, directory='/dev/null', password='shabang')
+        master_second = Buildmaster.objects.create(project=self.project_second, directory='/dev/zero', password='shabang')
+
+        self.assert_not_equals(master_first.api_port, master_second.api_port)
