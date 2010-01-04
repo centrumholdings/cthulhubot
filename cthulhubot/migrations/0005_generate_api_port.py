@@ -1,73 +1,20 @@
 
 from south.db import db
+from django.db import models
 from cthulhubot.models import *
-
-import django
 
 class Migration:
     
     def forwards(self, orm):
-        
-        # Changing field 'Project.tracker_uri'
-        # (to signature: django.db.models.fields.URLField(max_length=255))
-        db.alter_column('cthulhubot_project', 'tracker_uri', orm['cthulhubot.project:tracker_uri'])
-        
-        # Changing field 'ProjectClient.project'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.Project']))
-        db.alter_column('cthulhubot_projectclient', 'project_id', orm['cthulhubot.projectclient:project'])
-        
-        # Changing field 'ProjectClient.computer'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.BuildComputer']))
-        db.alter_column('cthulhubot_projectclient', 'computer_id', orm['cthulhubot.projectclient:computer'])
-        
-        # Changing field 'JobAssignment.computer'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.BuildComputer']))
-        db.alter_column('cthulhubot_jobassignment', 'computer_id', orm['cthulhubot.jobassignment:computer'])
-        
-        # Changing field 'JobAssignment.project'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.Project']))
-        db.alter_column('cthulhubot_jobassignment', 'project_id', orm['cthulhubot.jobassignment:project'])
-        
-        # Changing field 'JobAssignment.job'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.Job']))
-        db.alter_column('cthulhubot_jobassignment', 'job_id', orm['cthulhubot.jobassignment:job'])
-        
-        # Changing field 'Buildmaster.project'
-        # (to signature: django.db.models.fields.related.ForeignKey(to=orm['cthulhubot.Project'], unique=True))
-        db.alter_column('cthulhubot_buildmaster', 'project_id', orm['cthulhubot.buildmaster:project'])
-        
+        "Write your forwards migration here"
+        for master in Buildmaster.objects.all():
+            if not getattr(master, "api_port", None) and hasattr(master, "generate_api_port"):
+                master.generate_api_port()
+                master.save()
     
     
     def backwards(self, orm):
-        
-        # Changing field 'Project.tracker_uri'
-        # (to signature: models.URLField(max_length=255, verify_exists=False))
-        db.alter_column('cthulhubot_project', 'tracker_uri', orm['cthulhubot.project:tracker_uri'])
-        
-        # Changing field 'ProjectClient.project'
-        # (to signature: models.ForeignKey(orm['cthulhubot.Project']))
-        db.alter_column('cthulhubot_projectclient', 'project_id', orm['cthulhubot.projectclient:project'])
-        
-        # Changing field 'ProjectClient.computer'
-        # (to signature: models.ForeignKey(orm['cthulhubot.BuildComputer']))
-        db.alter_column('cthulhubot_projectclient', 'computer_id', orm['cthulhubot.projectclient:computer'])
-        
-        # Changing field 'JobAssignment.computer'
-        # (to signature: models.ForeignKey(orm['cthulhubot.BuildComputer']))
-        db.alter_column('cthulhubot_jobassignment', 'computer_id', orm['cthulhubot.jobassignment:computer'])
-        
-        # Changing field 'JobAssignment.project'
-        # (to signature: models.ForeignKey(orm['cthulhubot.Project']))
-        db.alter_column('cthulhubot_jobassignment', 'project_id', orm['cthulhubot.jobassignment:project'])
-        
-        # Changing field 'JobAssignment.job'
-        # (to signature: models.ForeignKey(orm['cthulhubot.Job']))
-        db.alter_column('cthulhubot_jobassignment', 'job_id', orm['cthulhubot.jobassignment:job'])
-        
-        # Changing field 'Buildmaster.project'
-        # (to signature: models.ForeignKey(orm['cthulhubot.Project'], unique=True))
-        db.alter_column('cthulhubot_buildmaster', 'project_id', orm['cthulhubot.buildmaster:project'])
-        
+        "Write your backwards migration here"
     
     
     models = {
@@ -82,6 +29,7 @@ class Migration:
             'username': ('django.db.models.fields.CharField', [], {'max_length': '40'})
         },
         'cthulhubot.buildmaster': {
+            'api_port': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'}),
             'buildmaster_port': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'}),
             'directory': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
