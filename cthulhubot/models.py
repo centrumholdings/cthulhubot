@@ -453,8 +453,8 @@ class Buildmaster(models.Model):
         for port in new_ports:
             candidates = [
                 len(self.__class__.objects.filter(**{
-                    "%s__exact" % attr : port
-                }))
+                    "%s__exact" % attr : port,
+                }).exclude(id__exact=self.pk))
                 for attr in self.port_attributes
             ]
 
