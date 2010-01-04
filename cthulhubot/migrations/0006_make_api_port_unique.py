@@ -6,15 +6,15 @@ from cthulhubot.models import *
 class Migration:
     
     def forwards(self, orm):
-        
-        # Adding field 'Buildmaster.api_port'
-        db.add_column('cthulhubot_buildmaster', 'api_port', orm['cthulhubot.buildmaster:api_port'])
-        
+        "Write your forwards migration here"
+        #change unique
+        db.alter_column('cthulhubot_buildmaster', 'api_port', orm['cthulhubot.buildmaster:api_port'])
+    
+    
     def backwards(self, orm):
-        
-        # Deleting field 'Buildmaster.api_port'
-        db.delete_column('cthulhubot_buildmaster', 'api_port')
-        
+        "Write your backwards migration here"
+
+        db.delete_unique('cthulhubot_buildmaster', ['api_port'])
     
     
     models = {
@@ -29,7 +29,7 @@ class Migration:
             'username': ('django.db.models.fields.CharField', [], {'max_length': '40'})
         },
         'cthulhubot.buildmaster': {
-            'api_port': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'False', 'null' : 'True'}),
+            'api_port': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True', 'null' : 'False'}),
             'buildmaster_port': ('django.db.models.fields.PositiveIntegerField', [], {'unique': 'True'}),
             'directory': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
