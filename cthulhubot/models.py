@@ -47,7 +47,7 @@ class BuildComputer(models.Model):
     description = models.TextField()
     hostname = models.CharField(max_length=255, unique=True)
 
-    username = models.CharField(max_length=40)
+    username = models.CharField(max_length=40, blank=True)
     ssh_key = models.TextField(blank=True)
     basedir = models.CharField(max_length=255, default="/var/buildslaves")
 
