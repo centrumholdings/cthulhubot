@@ -1,6 +1,6 @@
-python-cthulhubot (0.3.0) unstable; urgency=low
+python-cthulhubot (0.4.0) unstable; urgency=low
 
-  * initial build
+  * automatic build
 
  -- Lukas Linhart <lukas.linhart@centrumholdings.com>  Fri, 13 Mar 2009 16:37:07 +0100
 
