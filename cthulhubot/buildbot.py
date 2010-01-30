@@ -28,6 +28,10 @@ from cthulhubot.models import Buildmaster, Project
 
 REALM = "buildmaster"
 
+# TryJobHTTPRequest, HTTP API and whole idea about
+# forcing builds via scheduler taken from chromium,
+# http://src.chromium.org/viewvc/chrome/trunk/tools/buildbot/scripts/master/try_job_http.py?view=markup
+# Copyright (c) 2010 The Chromium Authors. All rights reserved.
 
 class TryJobHTTPRequest(http.Request):
     def __init__(self, channel, queued):
