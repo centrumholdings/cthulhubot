@@ -46,7 +46,6 @@ INSTALLED_APPS = (
     'django.contrib.redirects',
     'django.contrib.admin',
 
-    'south',
     'django_cpserver',
 
     'cthulhubot',
