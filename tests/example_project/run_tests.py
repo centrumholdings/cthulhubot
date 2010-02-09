@@ -13,7 +13,8 @@ import nose
 
 
 # because of buildbot child proccess, we must hack DATABASE_NAME = TEST_DATABASE_NAME
-DJANGO_SETTINGS_MODULE = "test_settings"
+DJANGO_SETTINGS_MODULE = '%s.%s' % (split(abspath(dirname(__file__)))[1], 'settings')
+#DJANGO_SETTINGS_MODULE = "test_settings"
 
 # pythonpath dirs
 PYTHONPATH = [
@@ -27,7 +28,7 @@ for p in PYTHONPATH:
         sys.path.insert(0, p)
 
 # django needs this env variable
-os.environ['DJANGO_SETTINGS_MODULE'] = "test_settings"
+os.environ['DJANGO_SETTINGS_MODULE'] = DJANGO_SETTINGS_MODULE
 
 from nose.plugins import Plugin
 
