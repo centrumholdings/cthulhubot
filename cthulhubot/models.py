@@ -197,6 +197,9 @@ class Project(models.Model):
 
     buildmaster = property(fget=get_buildmaster)
 
+    def get_assignments(self):
+        return [i.get_domain_object() for i in self.jobassignment_set.all()]
+
     def delete(self, *args, **kwargs):
         for master in self.buildmaster_set.all():
             master.delete()

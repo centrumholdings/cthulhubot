@@ -2,13 +2,23 @@
 
 {% block content %}
 
+<p><a href="{% url cthulhubot-create-project %}" id="link-create-project">Create new project</a></p>
+
 <h1>Available projects</h1>
 <ul id="projects-list" class="projects-list">
 {% for project in projects %}
-    <li><a href="{{ project.get_absolute_url }} ">{{ project.name }}</a></li>
+    <li><a href="{{ project.get_absolute_url }} ">{{ project.name }}</a>
+        {% for assignment in project.get_assignments %}
+            {% if forloop.first %}
+                <ul>
+            {% endif %}
+            <li>{{ assignment.job.model.slug }}-at-{{ assignment.computer.slug }} Status: {{ assignment.get_text_status }} Last build: {{ assignment.get_last_build_status }}</li>
+            {% if forloop.last %}
+                </ul>
+            {% endif %}
+        {% endfor %}
+    </li>
 {% endfor %}
 </ul>
-
-<p><a href="{% url cthulhubot-create-project %}" id="link-create-project">Create new project</a></p>
 
 {% endblock %}
