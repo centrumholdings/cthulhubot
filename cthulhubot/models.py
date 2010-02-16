@@ -432,7 +432,7 @@ class Buildmaster(models.Model):
 
     def generate_new_port(self, attr, settings_attr, settings_default):
         objs = self.__class__.objects.all().order_by('-%s' % attr)
-        if len(objs) == 1 and getattr(objs[0], attr, None):
+        if len(objs) > 0 and getattr(objs[0], attr, None):
             return getattr(objs[0], attr)+1
         else:
             return getattr(settings, settings_attr, settings_default)
