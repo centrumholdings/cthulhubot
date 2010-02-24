@@ -78,11 +78,8 @@ class Command(object):
         if len(params) > 0:
             raise UnconfiguredCommandError("Parameters %s required to be present in config" % (','.join(params),))
 
-    def get_command(self):
-        return self.get_shell_command()
 
-    def get_shell_command(self, config=None, **kwargs):
-        command = []
+    def get_config_for_shell_command(self, config):
         self.check_config(config=config)
         if config:
             orig_config = copy(self.config)
@@ -91,15 +88,26 @@ class Command(object):
         else:
             config = self.config
 
-        for arg in self.command:
+        return config
+
+    def substitute_command(self, command, config):
+        substitued_command = []
+        for arg in command:
             try:
                 cmd = str(arg) % config
-                command.append(cmd)
+                substitued_command.append(cmd)
             except KeyError:
-                command.append(arg)
+                substitued_command.append(arg)
+        
+        return substitued_command
 
-        return command
 
+    def get_command(self):
+        return self.get_shell_command()
+
+    def get_shell_command(self, config=None, **kwargs):
+        config = self.get_config_for_shell_command(config)
+        return self.substitute_command(self.command, config)
     
     def get_buildbot_command(self, config=None, **kwargs):
         return ShellCommand(command=self.get_shell_command(config=config, **kwargs))
