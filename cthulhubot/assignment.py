@@ -21,11 +21,12 @@ from cthulhubot.builds import Build, BUILD_RESULTS_DICT
 
 log = logging.getLogger("cthulhubot.assignment")
 
-from buildbot.scheduler import Periodic
+from buildbot.scheduler import Periodic, Nightly
 
 SCHEDULER_CLASS_MAP = {
     "after_push" : Scheduler,
     "periodic" : Periodic,
+    "nightly" : Nightly,
 }
 
 

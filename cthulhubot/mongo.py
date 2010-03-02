@@ -66,12 +66,11 @@ def get_database_info():
 
 def get_new_database_connection():
     db_info = get_database_info()
-
     try:
         connection = Connection(db_info['host'], db_info['port'])
     except ConnectionFailure, e:
         raise ImproperlyConfigured(e)
-    
+
     database = connection[db_info['database']]
 
     database.add_son_manipulator(NamespaceInjector())

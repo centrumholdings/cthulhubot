@@ -4,9 +4,12 @@ from mock import Mock
 from django.http import QueryDict
 from django.forms import ValidationError
 from django.utils.simplejson import dumps, loads
+from django.forms import Form, ValidationError
 
 from cthulhubot.assignment import Assignment
 from cthulhubot.forms import get_scheduler_form
+from cthulhubot.forms import IntegerOrStarField
+
 
 from buildbot.scheduler import Scheduler, AnyBranchScheduler
 
@@ -60,6 +63,27 @@ class TestSchedulerForms(UnitTestCase):
         }
 
         self.assert_equals(expected_json, form.get_configuration_dict())
+
+
+class SimpleNightlyForm(Form):
+    field = IntegerOrStarField()
+
+
+class TestNighlyForm(UnitTestCase):
+
+    def test_star_passes(self):
+        form = SimpleNightlyForm({'field' : '*'})
+        self.assert_true(form.is_valid())
+        self.assert_equals('*', form.cleaned_data['field'])
+
+    def test_integer_normalized(self):
+        form = SimpleNightlyForm({'field' : '5'})
+        self.assert_true(form.is_valid())
+        self.assert_equals(5, form.cleaned_data['field'])
+
+    def test_arbitrary_text_not_valid(self):
+        form = SimpleNightlyForm({'field' : 'Ftahng!'})
+        self.assert_false(form.is_valid())
 
 class TestBuildbotSchedulersGeneratedFromConfigAssignment(UnitTestCase):
     def setUp(self):

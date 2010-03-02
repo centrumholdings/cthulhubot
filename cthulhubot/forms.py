@@ -36,7 +36,27 @@ class BranchField(CharField):
             value = None
         return value
 
+class IntegerOrStarField(CharField):
+    """
+    Field for nighly scheduler: empty string or '*' normalizes to '*' string,
+    otherwise normalizes to integer or raises validation error. 
+    """
+
+    def clean(self, *args, **kwargs):
+        value = super(IntegerOrStarField, self).clean(*args, **kwargs)
+        if not value or value == '*':
+            return '*'
+
+        try:
+            return int(str(value))
+        except (ValueError, TypeError):
+            raise ValidationError("Value must be integer or star (*)")
+
+
 #TODO: Do metaprogramming for the field name prefixes. Find a way to chain after DeclarativeFieldsMetaclass. See #
+
+# To create new Scheduler form, do form as following ones, add to SCHEDULER_SUBFORMS
+# and SchedulerForm attributes. Also don't foget to add it to assignment.SCHEDULER_CLASS_MAP
 
 class SchedulerSubForm(Form):
     scheduler = "after_push"
@@ -48,10 +68,20 @@ class PeriodicSubForm(Form):
     periodic_branch = BranchField(label="branch", required=False)
     periodic_periodicBuildTimer = IntegerField(label="Interval (in seconds)", initial=1)
 
-SCHEDULER_SUBFORMS = [SchedulerSubForm, PeriodicSubForm]
+class NightlySubForm(Form):
+    scheduler = "nightly"
+    nightly_branch = BranchField(label="branch", required=False)
+    nightly_minute = IntegerOrStarField(label="When to run (minute)", initial=0)
+    nightly_hour = IntegerOrStarField(label="When to run (hour)", initial='*')
+    nightly_dayOfMonth = IntegerOrStarField(label="When to run (day of month)", initial='*')
+    nightly_month = IntegerOrStarField(label="When to run (month)", initial='*')
+    nightly_dayOfWeek = IntegerOrStarField(label="When to run (day of month)", initial='*')
+
+SCHEDULER_SUBFORMS = [SchedulerSubForm, PeriodicSubForm, NightlySubForm]
 
 class SchedulerForm(Form):
     periodic = BooleanField(required=False)
+    nightly = BooleanField(required=False)
     after_push = BooleanField(required=False)
 
     def __init__(self, *args, **kwargs):
