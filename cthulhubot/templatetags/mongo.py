@@ -5,7 +5,7 @@ register = Library()
 @register.tag
 def mongoid(parser, token):
     """
-    Print mongo's _id attribute. 
+    Print mongo's _id attribute or store it in variable.
 
     Usage:
         {% mongoid <variable> %}
@@ -40,7 +40,7 @@ class MongoIdentifierNode(Node):
     def render(self, context):
         var = Variable(self.var_name).resolve(context)
 
-        if not '_id' in var:
+        if not var or not '_id' in var:
             id = ''
         else:
             id = var['_id']

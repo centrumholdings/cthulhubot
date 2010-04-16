@@ -13,13 +13,22 @@
         <ul>
             {% for step in build.steps %}
                 {% mongoid step as step_id %}
-                <li>{{ step.name }} <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stdout" %}">stdout</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stderr" %}">stderr</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="headers" %}">headers</a>
-                {% if step.successful %}
-                    Successful
+                {% if not step_id %}
+                    <li>Cannot retrieve step {{ step }}</li>
                 {% else %}
-                    Failed
+                    <li>{{ step.name }} <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stdout" %}">stdout</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="stderr" %}">stderr</a> <a href="{% url cthulhubot-step-part-detail step=step_id detail_name="headers" %}">headers</a>
+
+                        {% if step.successful %}
+                            Successful
+                        {% else %}
+                            {% ifequal step.successful None %}
+                                Running
+                            {% else %}
+                                Failed
+                            {% endifequal %}
+                        {% endif %}
+                    </li>
                 {% endif %}
-                </li>
             {% endfor %}
         </ul>
     </li>

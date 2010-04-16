@@ -8,7 +8,7 @@ BUILD_RESULTS_DICT = {
     FAILURE : "Failure",
     SKIPPED : "Skipped",
     EXCEPTION : "Exception",
-    None : "No result yet",
+    None : "Running",
 }
 
 
@@ -31,7 +31,7 @@ class Build(object):
                     if priorities.index(step['result']) > priorities.index(result):
                         result = step['result']
             else:
-                return "Not finished yet"
+                return "Running"
 
         return BUILD_RESULTS_DICT[result]
 
