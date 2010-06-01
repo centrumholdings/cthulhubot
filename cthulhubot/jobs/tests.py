@@ -16,3 +16,41 @@ class BareNoseTests(Job):
         }
     ]
 
+class PaverVirtualTests(Job):
+    identifier = 'cthulhubot-paver-virtual-tests'
+    name = u'Run tests inside virtualenv using paver'
+
+    commands = [
+        {
+            'command' : 'cthulhubot-git',
+        },
+        {
+            'command' : 'cthulhubot-paver-bootstrap',
+        },
+        {
+            'command' : 'cthulhubot-paver-prepare',
+        },
+        {
+            'command' : 'cthulhubot-paver-test',
+        }
+    ]
+
+class PaverVirtualUnitTests(Job):
+    identifier = 'cthulhubot-paver-virtual-tests'
+    name = u'Run tests inside virtualenv using paver'
+
+    commands = [
+        {
+            'command' : 'cthulhubot-git',
+        },
+        {
+            'command' : 'cthulhubot-paver-bootstrap',
+        },
+        {
+            'command' : 'cthulhubot-paver-prepare',
+        },
+        {
+            'command' : 'cthulhubot-paver-unit',
+        }
+    ]
+
