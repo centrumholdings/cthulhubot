@@ -31,6 +31,9 @@ class PaverVirtualTests(Job):
             'command' : 'cthulhubot-git',
         },
         {
+            'command' : 'cthulhubot-git-associate',
+        },
+        {
             'command' : 'cthulhubot-paver-bootstrap',
         },
         {
@@ -54,6 +57,9 @@ class PaverVirtualUnitTests(Job):
     commands = [
         {
             'command' : 'cthulhubot-git',
+        },
+        {
+            'command' : 'cthulhubot-git-associate',
         },
         {
             'command' : 'cthulhubot-paver-bootstrap',
