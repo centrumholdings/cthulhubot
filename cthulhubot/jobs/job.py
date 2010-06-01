@@ -21,6 +21,8 @@ class Job(object):
     name = u"I'm a job - a predefined set of commands"
     register_as_job = True
 
+    buildbot_commands_kwargs = {}
+
     global_command_parameters = {}
 #    commands = [
 #        {
@@ -123,7 +125,7 @@ class Job(object):
         self.check_command_configuration(commands)
 
         return [
-            get_command(command_dict['command'])(config=command_dict['parameters'])
+            get_command(command_dict['command'])(config=command_dict['parameters'], job=self)
             for command_dict in commands
         ]
 

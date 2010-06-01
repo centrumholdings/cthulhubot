@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 
 from cthulhubot.err import UnconfiguredCommandError
 
@@ -33,11 +33,13 @@ class Command(object):
 
     parameters = {}
     command = []
+    buildbot_commands_kwargs = {}
 
-    def __init__(self, config=None, **kwargs):
+    def __init__(self, config=None, job=None, **kwargs):
         super(Command, self).__init__()
 
         self.config = copy(config) or {}
+        self.job = job
         self.get_initial_parameters()
 
         self.fill_default_values()
@@ -102,6 +104,14 @@ class Command(object):
         return substitued_command
 
 
+    def get_buildbot_kwargs(self):
+        kwargs = deepcopy(self.buildbot_commands_kwargs)
+        if self.job:
+            kwargs.update(deepcopy(getattr(self.job, "buildbot_commands_kwargs", {})))
+
+        return kwargs
+
+
     def get_command(self):
         return self.get_shell_command()
 
@@ -110,4 +120,4 @@ class Command(object):
         return self.substitute_command(self.command, config)
     
     def get_buildbot_command(self, config=None, **kwargs):
-        return ShellCommand(command=self.get_shell_command(config=config, **kwargs))
+        return ShellCommand(command=self.get_shell_command(config=config, **kwargs), **self.get_buildbot_kwargs())
