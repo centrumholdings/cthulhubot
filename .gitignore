@@ -1,10 +1,21 @@
 *.py[co]
 .*.sw?
 *~
+.tmp*
+.project
+.pydevproject
+*egg-info*
+tests/*project/settings/local.py
+
 *\.coverage
 build
 build_doc
 nbproject
-tests/unit_project/settings/local.py
-tests/example_project/settings/local.py
+
+
+bin
+bootstrap.py
+include
+lib
+lib64
 
