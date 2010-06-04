@@ -1,5 +1,5 @@
 Django>=1.1
-buildbot>=0.7.11
+buildbot>=0.8.0
 paramiko
 djangohttpdigest
 djangosanetesting
