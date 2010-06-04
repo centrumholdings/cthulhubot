@@ -1,7 +1,5 @@
-Django>=1.1
-buildbot>=0.8.0
+Django>=1.1,<1.2
 paramiko
-djangohttpdigest
 djangosanetesting
 # cpserver is not denoting CP requirement
 CherryPy
@@ -9,5 +7,7 @@ django-cpserver
 pymongo
 south
 
--e git://github.com/ella/buildbot-mongodb-status.git#egg=bbmongostatus
--e git://github.com/ella/cthylla.git#egg=cthyla
+hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
+
+git+http://github.com/ella/buildbot-mongodb-status.git#egg=bbmongostatus
+git+http://github.com/ella/cthylla.git#egg=cthyla

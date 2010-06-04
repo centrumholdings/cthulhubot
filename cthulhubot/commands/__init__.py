@@ -3,6 +3,7 @@ import pkg_resources
 
 ENTRYPOINT = "chtulhubot.commands"
 
+from cthulhubot.commands.build import *
 from cthulhubot.commands.config import *
 from cthulhubot.commands.package import *
 from cthulhubot.commands.sleep import *
