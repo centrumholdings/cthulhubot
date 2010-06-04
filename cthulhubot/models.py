@@ -37,6 +37,7 @@ from django.conf import settings
 DEFAULT_BUILDMASTER_BASEDIR = gettempdir()
 log = logging.getLogger("cthulhubot.models")
 
+BUILDBOT_DEFAULT_DB = "sqlite:///state.sqlite"
 
 class BuildComputer(models.Model):
     """
@@ -533,6 +534,8 @@ class Buildmaster(models.Model):
 
     def start(self, env=None):
         e = self.get_buildbot_environment(env)
+        check_call(["buildbot", "upgrade-master", "--db=%s" % getattr(settings, "BUILDBOT_DB_URL", BUILDBOT_DEFAULT_DB), self.directory], env=e, cwd=self.directory,
+            stdout=PIPE, stderr=PIPE)
         check_call(["buildbot", "start", self.directory], env=e, cwd=self.directory,
             stdout=PIPE, stderr=PIPE)
 
@@ -630,7 +633,11 @@ class Buildmaster(models.Model):
             ],
             'projectName' : self.project.name,
             'projectURL' : self.project.tracker_uri,
-            'buildbotURL' : self.get_webstatus_uri()
+            'buildbotURL' : self.get_webstatus_uri(),
+
+            'multiMaster' : True,
+            'db_poll_interval' : getattr(settings, "BUILDBOT_DB_POLL_INTERVAL", 60),
+            'db_url' : getattr(settings, "BUILDBOT_DB_URL", BUILDBOT_DEFAULT_DB),
         }
         return config
 
