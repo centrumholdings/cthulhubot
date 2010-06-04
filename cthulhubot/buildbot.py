@@ -12,15 +12,11 @@ from django.utils.simplejson import loads, dumps
 
 
 from twisted.application import strports
-from twisted.spread import pb
-from twisted.cred import credentials
-from twisted.internet import reactor as twsited_default_reactor
 from twisted.python import log as twisted_log
 from twisted.web import http
 
-from buildbot.clients.sendchange import Sender
-from buildbot.scheduler import BaseScheduler
-from buildbot.buildset import BuildSet
+from buildbot.schedulers.base import BaseScheduler
+
 from buildbot.sourcestamp import SourceStamp
 
 from cthulhubot.models import Buildmaster, Project
@@ -73,7 +69,7 @@ class HttpApi(BaseScheduler):
     """Opens a HTTP port to expose custom CthulhuBot API inside of a Buildmaster"""
 
     def __init__(self, name, port, builders, userpass=None, properties=None):
-        BaseScheduler.__init__(self, name, properties or {})
+        BaseScheduler.__init__(self, name=name, builderNames=builders, properties=properties or {})
         twisted_log.msg('http api initialized')
         if type(port) is int:
             port = "tcp:%d" % port
@@ -87,16 +83,20 @@ class HttpApi(BaseScheduler):
         s.setServiceParent(self)
 
     def messageReceived(self, changeset, builder):
-        return self.submitForceRequest(changeset, builder)
-
-    def submitForceRequest(self, changeset, builder):
-        reason = "%s force build" % builder
-        bs = BuildSet([builder], SourceStamp(revision=changeset), reason=reason)
-        self.parent.submitBuildSet(bs)
+        ss = SourceStamp(revision=changeset)
+        reason = "%s force build" % str(builder)
+        self.parent.db.runInteraction(self.submitForceRequest, ss, builderNames=[builder], reason=reason)
         return http.OK
+
+    def submitForceRequest(self, t, ss, builderNames, reason):
+        ssid = self.parent.db.get_sourcestampid(ss, t)
+        return self.create_buildset(ssid=ssid, reason=reason, t=t, builderNames=builderNames)
 
     def listBuilderNames(self):
         return self.builders
+
+    def run(self):
+        return None
 
 class BuildForcer(object):
     def __init__(self, master, assignment):
