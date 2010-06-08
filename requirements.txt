@@ -6,6 +6,7 @@ CherryPy
 django-cpserver
 pymongo
 south
+nose
 
 hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
 
