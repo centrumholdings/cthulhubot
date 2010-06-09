@@ -9,6 +9,10 @@ BUILD_RESULTS_DICT = {
     SKIPPED : "Skipped",
     EXCEPTION : "Exception",
     None : "Running",
+    # find a better magic value for "no build found"
+    # False cannot be used, because False == 0,
+    # so it would override SUCCESS
+    "no-result" : "No result yet"
 }
 
 
@@ -23,6 +27,8 @@ class Build(object):
         result = None
         priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
 
+        # if not result
+
         for step in self.data['steps']:
             if step.get('time_end', None):
                 if not result:
@@ -31,8 +37,7 @@ class Build(object):
                     if priorities.index(step['result']) > priorities.index(result):
                         result = step['result']
             else:
-                return "Running"
-
+                return BUILD_RESULTS_DICT[None]
         return BUILD_RESULTS_DICT[result]
 
     def id(self):

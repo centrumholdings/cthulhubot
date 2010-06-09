@@ -269,7 +269,7 @@ class TestResults(DatabaseTestCase):
             time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00)
 
         if time_end is False:
-            time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
+            time_end = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
 
         build = {
             'builder' : str(self.assignment.get_identifier()),
@@ -287,11 +287,11 @@ class TestResults(DatabaseTestCase):
         if result is False:
             result = FAILURE
 
-        if time_end is False:
-            time_end = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
-
         if time_start is False:
             time_start = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=00)
+
+        if time_end is False:
+            time_end = datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01)
 
         step = {
             'time_start' : time_start,
@@ -311,7 +311,7 @@ class TestResults(DatabaseTestCase):
         self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
 
     def test_build_results_before_first_run_ended(self):
-        self.insert_build()
+        self.insert_build(time_end=None)
         self.assert_equals(u"No result yet", self.assignment.get_last_build_status())
 
     def test_failed_result(self):
@@ -331,7 +331,7 @@ class TestResults(DatabaseTestCase):
         self.assert_equals(u"Failure", self.assignment.get_last_build_status())
 
     def test_simple_success(self):
-        build = self.insert_build(time_end=datetime(year=2009, month=01, day=01, hour=12, minute=00, second=01))
+        build = self.insert_build()
         self.insert_step(build, result=SUCCESS)
         self.assert_equals(u"Success", self.assignment.get_last_build_status())
 

@@ -128,7 +128,7 @@ class Assignment(object):
         try:
             build = Build(db.builds.find({'builder' : self.get_identifier(), 'time_end' : {'$ne' : None}}).sort([("time_end", -1)]).limit(1).next())
         except StopIteration:
-            return BUILD_RESULTS_DICT[None]
+            return BUILD_RESULTS_DICT["no-result"]
 
         return build.get_text_result()
 
@@ -163,7 +163,7 @@ class Assignment(object):
         config = loads(self.model.config)
         if not 'schedule' in config:
             return [
-                    AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), branches=None, treeStableTimer=1, builderNames=[self.get_identifier()])
+                AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), branches=None, treeStableTimer=1, builderNames=[self.get_identifier()])
             ]
 
         else:
