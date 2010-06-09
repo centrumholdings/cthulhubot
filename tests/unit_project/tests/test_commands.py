@@ -88,4 +88,4 @@ class TestGit(DatabaseTestCase):
         cmd = get_command('cthulhubot-git')()
         cmd.update_config(config={'repository' : '/tmp/repo'})
 
-        self.assert_equals('/tmp/repo', cmd.get_buildbot_command().args['repourl'])
+        self.assert_equals('/tmp/repo', cmd.get_buildbot_command().repourl)

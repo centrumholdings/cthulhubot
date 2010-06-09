@@ -44,20 +44,20 @@ class TestGit(UnitTestCase):
         self.assert_equals('export', self.sub_command.get_buildbot_command().args['mode'])
 
     def test_overwritten_arg_taken_over_default(self):
-        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command().args['repourl'])
+        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command().repourl)
 
     def test_overwritten_arg_taken_over_default_when_parent_has_none(self):
         self.assert_equals('automation', self.sub_command.get_buildbot_command().args['branch'])
 
     def test_given_args_takes_precedence_over_class_defaults(self):
         repo = 'ssh://our.server.tld/GIT/myrepo.git'
-        self.assert_equals(repo, self.sub_command.get_buildbot_command(config={'repository' : repo}).args['repourl'])
+        self.assert_equals(repo, self.sub_command.get_buildbot_command(config={'repository' : repo}).repourl)
 
     def test_git_uri_taken_from_project_by_default(self):
-        self.assert_equals(self.repository_uri, self.command.get_buildbot_command(project=self.project).args['repourl'])
+        self.assert_equals(self.repository_uri, self.command.get_buildbot_command(project=self.project).repourl)
 
     def test_git_uri_hierarchically_parent_first(self):
-        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command(project=self.project).args['repourl'])
+        self.assert_equals('ssh://our.server.tld/GIT/$name', self.sub_command.get_buildbot_command(project=self.project).repourl)
 
 class TestUpdateRepositoryInformation(UnitTestCase):
 
