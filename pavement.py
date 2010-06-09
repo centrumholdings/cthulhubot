@@ -65,15 +65,15 @@ def test():
 @consume_args
 def unit(args):
     """ Run unittests """
-    command = ["python", "run_tests.py"]+args
-    sh(' '.join(command), cwd=os.path.join("tests", "unit_project"), capture=True)
+    command = ["python", os.path.join("tests", "unit_project", "run_tests.py")]+args
+    sh(' '.join(command), capture=True)
 
 @task
 @consume_args
 def integrate(args):
     """ Run integration tests """
-    command = ["python", "run_tests.py"]+args
-    sh(' '.join(command), cwd=os.path.join("tests", "example_project"), capture=True)
+    command = ["python", os.path.join("tests", "example_project", "run_tests.py")]+args
+    sh(' '.join(command), capture=True)
 
 @task
 def install_dependencies():
