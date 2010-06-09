@@ -7,6 +7,7 @@ django-cpserver
 pymongo
 south
 nose
+mock
 buildbot>=0.8.0
 
 hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
