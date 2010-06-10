@@ -7,9 +7,9 @@ __versionstr__ = '.'.join(map(str, VERSION))
 setup(
     name = 'cthulhubot',
     version = __versionstr__,
-    description = 'Django Massive Buildbot',
+    description = 'Django frontend for Buildbot management',
     long_description = '\n'.join((
-        'Django Massive Buildbot',
+        'Tool for managing larger BuildBot installations',
         '',
     )),
     author = 'centrum holdings s.r.o',
