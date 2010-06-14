@@ -163,7 +163,7 @@ class Assignment(object):
         config = loads(self.model.config)
         if not 'schedule' in config:
             return [
-                AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), branches=None, treeStableTimer=1, builderNames=[self.get_identifier()])
+                AnyBranchScheduler(name="%s-scheduler" % self.get_identifier(), treeStableTimer=1, builderNames=[self.get_identifier()])
             ]
 
         else:
