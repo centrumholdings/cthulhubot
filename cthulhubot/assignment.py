@@ -176,7 +176,6 @@ class Assignment(object):
                 ):
                     klass = AnyBranchScheduler
                     del scheduler['parameters']['branch']
-                    scheduler['parameters']['branches'] = None
                 else:
                     klass = SCHEDULER_CLASS_MAP[scheduler['identifier']]
 
