@@ -45,8 +45,8 @@ class PaverVirtualTests(Job):
     ]
 
 class PaverVirtualUnitTests(Job):
-    identifier = 'cthulhubot-paver-virtual-tests'
-    name = u'Run tests inside virtualenv using paver'
+    identifier = 'cthulhubot-paver-virtual-unit-tests'
+    name = u'Run unittests tests inside virtualenv using paver'
 
     buildbot_commands_kwargs = {
         'env' : {
@@ -69,6 +69,34 @@ class PaverVirtualUnitTests(Job):
         },
         {
             'command' : 'cthulhubot-paver-unit',
+        }
+    ]
+
+class PaverVirtualIntegrationTests(Job):
+    identifier = 'cthulhubot-paver-virtual-integration-tests'
+    name = u'Run integration tests inside virtualenv using paver'
+
+    buildbot_commands_kwargs = {
+        'env' : {
+            'PATH': "bin:${PATH}"
+        }
+    }
+
+    commands = [
+        {
+            'command' : 'cthulhubot-git',
+        },
+        {
+            'command' : 'cthulhubot-git-associate',
+        },
+        {
+            'command' : 'cthulhubot-paver-bootstrap',
+        },
+        {
+            'command' : 'cthulhubot-paver-prepare',
+        },
+        {
+            'command' : 'cthulhubot-paver-integrate',
         }
     ]
 

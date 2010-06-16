@@ -39,3 +39,16 @@ class PaverUnitTests(Command):
 
     command = ["paver", "unit"]
 
+class PaverIntegrationTests(Command):
+    identifier = 'cthulhubot-paver-integrate'
+    name = {
+        'basic' : u"Run integration tests",
+        'running' : u'Running integration tests',
+        'succeeded' : u'Tested',
+        'failed' : u'Integration tests failed',
+    }
+
+    parameters = {}
+
+    command = ["paver", "integrate"]
+
