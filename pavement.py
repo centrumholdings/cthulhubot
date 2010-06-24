@@ -56,40 +56,16 @@ setup(
 
 )
 
+options(
+    citools = Bunch(
+        rootdir = abspath(dirname(__file__))
+    ),
+)
 
-@task
-@consume_args
-@needs('unit', 'integrate')
-def test():
-    """ Run whole testsuite """
-
-@task
-@consume_args
-def unit(args):
-    """ Run unittests """
-    import nose
-
-    sys.path.insert(1, abspath(join( dirname(__file__), "tests")))
-    sys.path.insert(1, abspath(join( dirname(__file__), "tests", "unit_project")))
-
-    os.environ['DJANGO_SETTINGS_MODULE'] = "unit_project.settings"
-
-    for i in ['--with-django',]:
-        if i not in sys.argv:
-            sys.argv.insert(1, i)
-
-    nose.run_exit(
-        defaultTest=dirname(__file__),
-    )
-
-@task
-@consume_args
-def integrate(args):
-    """ Run integration tests """
-    command = ["python", os.path.join("tests", "example_project", "run_tests.py")]+args
-    
-            
-
+try:
+    from citools.pavement import *
+except ImportError:
+    pass
 
 @task
 def install_dependencies():
