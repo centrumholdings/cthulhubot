@@ -67,10 +67,9 @@ try:
 except ImportError:
     pass
 
-@task
-@consume_args
-def unit(args):
+def get_plugin():
     from nose.plugins import Plugin
+
     class MongoDatabasePlugin(Plugin):
         activate = '--with-mongo-database'
         name = 'mongo-database'
@@ -95,12 +94,26 @@ def unit(args):
         def stopTest(self, test):
             self._drop_database()
 
+    return MongoDatabasePlugin()
 
+@task
+@consume_args
+def unit(args):
     from citools.pavement import run_tests
 
     args.append('--with-mongo-database')
 
-    run_tests(test_project_module="unit_project", nose_args=args, nose_run_kwargs={'addplugins' : [MongoDatabasePlugin()]})
+    run_tests(test_project_module="unit_project", nose_args=args, nose_run_kwargs={'addplugins' : [get_plugin()]})
+
+@task
+@consume_args
+def integrate(args):
+    from citools.pavement import run_tests
+
+    args.extend(['--with-selenium', '--with-cherrypyliveserver', '--with-django', '--with-mongo-database'])
+
+    run_tests(test_project_module="example_project", nose_args=args, nose_run_kwargs={'addplugins' : [get_plugin()]})
+
 
 @task
 def install_dependencies():
