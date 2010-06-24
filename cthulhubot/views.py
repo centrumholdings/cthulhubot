@@ -1,29 +1,25 @@
-from pymongo.objectid import ObjectId
-from pymongo import DESCENDING
-
-from django.http import HttpResponse, HttpResponseNotFound
-from pickle import dumps as pickle_dumps
-
-from cthulhubot.models import Buildmaster
-from cthulhubot.models import JobAssignment
-from django.http import Http404
+from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
 
-from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data, get_scheduler_form
-from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient
-from cthulhubot.project import create_project
-from cthulhubot.utils import dispatch_post
-from cthulhubot.bbot import create_master
-from cthulhubot.commands import get_undiscovered_commands
-from cthulhubot.jobs import get_undiscovered_jobs
-from cthulhubot.mongo import get_database_connection
+from pymongo.objectid import ObjectId
+from pymongo import DESCENDING
+
+from pickle import dumps as pickle_dumps
 
 from djangohttpdigest.decorators import protect_digest_model
+
+from cthulhubot.bbot import create_master
+from cthulhubot.commands import get_undiscovered_commands
+from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data, get_scheduler_form
+from cthulhubot.jobs import get_undiscovered_jobs
+from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient, Buildmaster
+from cthulhubot.mongo import get_database_connection
+from cthulhubot.project import create_project
+from cthulhubot.utils import dispatch_post
 
 ########### Helper controller-model dispatchers
 
