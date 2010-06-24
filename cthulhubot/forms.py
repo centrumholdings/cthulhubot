@@ -97,12 +97,10 @@ class SchedulerForm(Form):
 
     def clean(self):
         schedulers_enabled = [scheduler for scheduler in self.cleaned_data if self.cleaned_data[scheduler]]
-        if len(schedulers_enabled) == 0:
-            raise ValidationError("At least one scheduler must be enabled")
 
         for scheduler in schedulers_enabled:
             if not self.fields[scheduler].subform.is_valid():
-                raise ValidationError("Settings are not valid")
+                raise ValidationError("Settings for scheduler are not valid")
 
         return self.cleaned_data
 
