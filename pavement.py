@@ -68,6 +68,41 @@ except ImportError:
     pass
 
 @task
+@consume_args
+def unit(args):
+    from nose.plugins import Plugin
+    class MongoDatabasePlugin(Plugin):
+        activate = '--with-mongo-database'
+        name = 'mongo-database'
+        score = 79
+        enabled = True
+
+        def options(self, parser, env=os.environ):
+            Plugin.options(self, parser, env)
+
+        def configure(self, options, config):
+            Plugin.configure(self, options, config)
+
+        def _drop_database(self):
+            from cthulhubot.mongo import get_database_connection
+            db = get_database_connection()
+            conn = db.connection()
+            conn.drop_database(db)
+
+        def begin(self):
+            self._drop_database()
+
+        def stopTest(self, test):
+            self._drop_database()
+
+
+    from citools.pavement import run_tests
+
+    args.append('--with-mongo-database')
+
+    run_tests(test_project_module="unit_project", nose_args=args, nose_run_kwargs={'addplugins' : [MongoDatabasePlugin()]})
+
+@task
 def install_dependencies():
     sh('pip install --upgrade -r requirements.txt')
 
