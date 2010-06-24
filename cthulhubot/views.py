@@ -18,7 +18,7 @@ from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer
 from cthulhubot.models import BuildComputer, Project, Job, Command, JobAssignment, ProjectClient
 from cthulhubot.project import create_project
 from cthulhubot.utils import dispatch_post
-from cthulhubot.buildbot import create_master
+from cthulhubot.bbot import create_master
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.jobs import get_undiscovered_jobs
 from cthulhubot.mongo import get_database_connection

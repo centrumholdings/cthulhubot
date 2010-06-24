@@ -11,7 +11,7 @@ from django.core.urlresolvers import get_script_prefix
 from bbmongostatus.status import MongoDb
 
 from cthulhubot.assignment import Assignment
-from cthulhubot.buildbot import get_buildmaster_config
+from cthulhubot.bbot import get_buildmaster_config
 from cthulhubot.models import BuildComputer, JobAssignment, Job, Command, ProjectClient
 from cthulhubot.views import create_project, create_job_assignment
 

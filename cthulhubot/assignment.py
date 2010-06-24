@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 
 from cthulhubot.err import RemoteCommandError
 from cthulhubot.mongo import get_database_connection
-from cthulhubot.buildbot import BuildForcer
+from cthulhubot.bbot import BuildForcer
 from cthulhubot.models import ProjectClient
 from cthulhubot.builds import Build, BUILD_RESULTS_DICT
 

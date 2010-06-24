@@ -1,5 +1,5 @@
 from cthulhubot.models import Project
-from cthulhubot.buildbot import create_master
+from cthulhubot.bbot import create_master
 
 def create_project(name, tracker_uri, repository_uri, webstatus_port=None, buildmaster_port=None, master_directory=None):
     """

@@ -599,7 +599,7 @@ class Buildmaster(models.Model):
         db_info = get_database_info()
 
         #FIXME
-        from cthulhubot.buildbot import HttpApi
+        from cthulhubot.bbot import HttpApi
 
         builders = [
                 {
