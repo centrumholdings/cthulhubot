@@ -1,9 +1,11 @@
-from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseRedirect, HttpResponseBadRequest
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.views.generic.simple import direct_to_template
+
+from anyjson import serialize, deserialize
 
 from pymongo.objectid import ObjectId
 from pymongo import DESCENDING
@@ -12,7 +14,7 @@ from pickle import dumps as pickle_dumps
 
 from djangohttpdigest.decorators import protect_digest_model
 
-from cthulhubot.bbot import create_master
+from cthulhubot.bbot import create_master, BuildForcer
 from cthulhubot.commands import get_undiscovered_commands
 from cthulhubot.forms import CreateProjectForm, ComputerForm, get_build_computer_selection_form, get_job_configuration_form, get_command_params_from_form_data, get_scheduler_form
 from cthulhubot.jobs import get_undiscovered_jobs
@@ -377,6 +379,25 @@ def job_assigment_detail(request, assignment_id):
 def api_buildmaster_config(request, identifier):
     master = get_object_or_404(Buildmaster, pk=identifier)
     return HttpResponse(pickle_dumps(master.get_config()))
+
+#TODO: Authentication?
+def api_force_build(request, assignment_id):
+    if request.method != "POST":
+        return HttpResponseBadRequest(["POST"])
+
+    assignment = get_object_or_404(JobAssignment, pk=assignment_id).get_domain_object()
+    
+    master = assignment.project.get_buildmaster()
+
+    from urllib import unquote_plus
+
+    data = deserialize(unquote_plus(request.POST.get("data")))
+
+    forcer = BuildForcer(assignment=assignment, master=master, buildbot_data=data)
+    forcer.run()
+
+    #TODO: maybe return some status, like build number
+    return HttpResponse('{}')
 
 @login_required
 def step_part_detail(request, step, detail_name):

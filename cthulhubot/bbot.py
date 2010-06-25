@@ -1,7 +1,8 @@
 from __future__ import absolute_import
 
-import os
+from httplib import BadStatusLine
 import logging
+import os
 from urllib2 import urlopen, HTTPError
 
 from pickle import loads
@@ -35,6 +36,16 @@ class TryJobHTTPRequest(http.Request):
         twisted_log.msg('http request')
 
     def process(self):
+        """
+        On URI /force_build, accept JSON dict in format:
+        {
+            builder : 'name of the builder to build on',
+            changeset : 'revision/changeset ID to build (may be symbolic, like FETCH_HEAD',
+        }
+
+        Those are mandatory. Any other keys may be provided and they are then passed
+        as arguments to buildbot's SourceStamp constructor.
+        """
         twisted_log.msg('process')
         try:
             # Support only one URI for now.
@@ -46,10 +57,7 @@ class TryJobHTTPRequest(http.Request):
             try:
                 self.content.seek(0)
                 args = loads(self.content.read())
-                self.code = self.channel.factory.parent.messageReceived(
-                    changeset = args['changeset'],
-                    builder = args['builder']
-                )
+                self.code = self.channel.factory.parent.messageReceived(**args)
             except Exception:
                 self.code = http.INTERNAL_SERVER_ERROR
                 raise
@@ -82,8 +90,8 @@ class HttpApi(BaseScheduler):
         s = strports.service(port, f)
         s.setServiceParent(self)
 
-    def messageReceived(self, changeset, builder):
-        ss = SourceStamp(revision=changeset)
+    def messageReceived(self, changeset, builder, **kwargs):
+        ss = SourceStamp(revision=changeset, **kwargs)
         reason = "%s force build" % str(builder)
         self.parent.db.runInteraction(self.submitForceRequest, ss, builderNames=[builder], reason=reason)
         return http.OK
@@ -99,23 +107,22 @@ class HttpApi(BaseScheduler):
         return None
 
 class BuildForcer(object):
-    def __init__(self, master, assignment):
+    def __init__(self, master, assignment, buildbot_data=None):
         super(BuildForcer, self).__init__()
 
         self.master = master
         self.assignment = assignment
 
+        self.buildbot_data = buildbot_data or {}
+
     def run(self):
         uri = "http://%s:%s/force_build" % (settings.BUILDMASTER_NETWORK_NAME, self.master.api_port)
 
-        data = {
-            'changeset' : 'FETCH_HEAD',
-            'builder' : self.assignment.get_identifier()
-        }
-
+        self.buildbot_data.setdefault("changeset", "FETCH_HEAD")
+        self.buildbot_data.setdefault("builder", self.assignment.get_identifier())
 
         try:
-            response = urlopen(uri, data=dumps(data))
+            response = urlopen(uri, data=dumps(self.buildbot_data))
         except HTTPError, err:
             if err.fp:
                 error = ": %s" % err.fp.read()
@@ -123,6 +130,7 @@ class BuildForcer(object):
                 error = ''
             logging.error("Error occured while opening HTTP %s" % error)
             raise
+
         response_json = response.read()
         response.close()
 

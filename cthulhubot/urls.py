@@ -6,7 +6,7 @@ from cthulhubot.views import (
     computers, computers_create, computer_detail, computer_edit,
     commands, commands_discover,
     jobs, jobs_configure, job_add, job_assigment, job_assigment_config, job_assigment_detail, step_part_detail,
-    api_buildmaster_config
+    api_buildmaster_config, api_force_build,
 )
 
 urlpatterns = patterns('',
@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url(r'^project/(?P<project>[\w\-]+)/changesets/$', project_changeset_view, name='cthulhubot-project-changeset-view'),
     
     url(r'^assigment/(?P<assignment_id>[\d]+)/$', job_assigment_detail, name='cthulhubot-job-assignment-detail'),
+    url(r'^assigment/(?P<assignment_id>[\d]+)/force/$', api_force_build, name='cthulhubot-job-assignment-api-force-build'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/(?P<job>[\w\-]+)/$', job_assigment_config, name='cthulhubot-job-assigment-add'),
     url(r'^job-assigment/(?P<project>[\w\-]+)/$', job_assigment, name='cthulhubot-job-assigment'),
 

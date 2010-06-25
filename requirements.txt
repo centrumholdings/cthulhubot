@@ -1,4 +1,4 @@
-Django>=1.1,<1.2
+Django>=1.1
 paramiko
 djangosanetesting
 # cpserver is not denoting CP requirement
@@ -9,6 +9,7 @@ south
 nose
 mock
 buildbot>=0.8.0
+anyjson
 
 hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
 
