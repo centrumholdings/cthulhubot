@@ -11,7 +11,10 @@ mock
 buildbot>=0.8.0
 anyjson
 
-hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
+#hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
+git+http://github.com/ella/citools.git#egg=citools
 
 git+http://github.com/ella/buildbot-mongodb-status.git#egg=bbmongostatus
 git+http://github.com/ella/cthylla.git#egg=cthyla
+
+
