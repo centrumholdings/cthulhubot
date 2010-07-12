@@ -85,7 +85,7 @@ def get_plugin():
         def _drop_database(self):
             from cthulhubot.mongo import get_database_connection
             db = get_database_connection()
-            conn = db.connection()
+            conn = db.connection
             conn.drop_database(db)
 
         def begin(self):
