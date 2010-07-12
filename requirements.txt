@@ -5,7 +5,7 @@ CherryPy
 django-cpserver
 pymongo
 south
-nose
+nose>=0.11
 mock
 buildbot>=0.8.0
 anyjson
