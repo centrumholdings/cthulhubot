@@ -1,4 +1,4 @@
-<mockup version="1.0" skin="sketch" measuredW="1421" measuredH="686" mockupW="1389" mockupH="646">
+<mockup version="1.0" skin="sketch" measuredW="1421" measuredH="726" mockupW="1389" mockupH="686">
   <controls>
     <control controlID="0" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="388" y="30" w="1023" h="602" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
       <controlProperties>
@@ -23,18 +23,13 @@
       </controlProperties>
     </control>
     <control controlID="4" controlTypeID="com.balsamiq.mockups::Arrow" x="328" y="114" w="159" h="38" measuredW="150" measuredH="100" zOrder="4" locked="false" isInGroup="-1"/>
-    <control controlID="5" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="397" y="191" w="-1" h="-1" measuredW="200" measuredH="144" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="397" y="191" w="-1" h="-1" measuredW="200" measuredH="169" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>none</borderStyle>
-        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2C</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22375%2C181%2C451%2C214%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%225_0%22/%3E%0A</map>
+        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin-project%26bm%3Bcthulhubot-admin-project.bmml%26bm%3Bcthulhubot-admin-project.bmml%26bm%3Bcthulhubot-admin-project.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22375%2C181%2C451%2C214%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%225_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22375%2C214%2C451%2C247%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%225_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22375%2C247%2C451%2C280%22%20href%3D%22cthulhubot-admin-project.bmml%22%20alt%3D%22cthulhubot-admin-project%22%20id%3D%225_2%22/%3E%0A</map>
         <selectedIndex>1</selectedIndex>
-        <text>Dashboard%0AProjects</text>
-      </controlProperties>
-    </control>
-    <control controlID="9" controlTypeID="com.balsamiq.mockups::StickyNote" x="469" y="522" w="109" h="154" measuredW="109" measuredH="123" zOrder="17" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Where%20to%20put%20the%20%22Admin%20area%22%20control%3F</text>
+        <text>Dashboard%0AProjects%0AAdmin</text>
       </controlProperties>
     </control>
     <control controlID="10" controlTypeID="com.balsamiq.mockups::StickyNote" x="47" y="176" w="109" h="231" measuredW="109" measuredH="123" zOrder="6" locked="false" isInGroup="-1">
@@ -82,27 +77,29 @@
         <text>Stop</text>
       </controlProperties>
     </control>
-    <control controlID="33" controlTypeID="com.balsamiq.mockups::LinkBar" x="590" y="544" w="-1" h="-1" measuredW="231" measuredH="25" zOrder="15" locked="false" isInGroup="-1">
+    <control controlID="33" controlTypeID="com.balsamiq.mockups::LinkBar" x="590" y="544" w="-1" h="-1" measuredW="227" measuredH="25" zOrder="15" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Assign%20a%20new%20job%2C%20Delete%20project</text>
       </controlProperties>
     </control>
     <control controlID="34" controlTypeID="com.balsamiq.mockups::LinkBar" x="1033" y="194" w="-1" h="-1" measuredW="245" measuredH="25" zOrder="16" locked="false" isInGroup="-1">
       <controlProperties>
+        <hrefs>cthulhubot-changeset-view%26bm%3Bcthulhubot-changeset-view.bmml%26bm%3Bcthulhubot-changeset-view.bmml%26bm%3Bcthulhubot-changeset-view.bmml%2C</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%221011%2C164%2C1170%2C189%22%20href%3D%22cthulhubot-changeset-view.bmml%22%20alt%3D%22cthulhubot-changeset-view%22%20id%3D%2234_0%22/%3E%0A</map>
         <text>Changeset-oriented%20view%2C%20Waterfall</text>
       </controlProperties>
     </control>
-    <control controlID="35" controlTypeID="com.balsamiq.mockups::Label" x="510" y="346" w="-1" h="-1" measuredW="184" measuredH="25" zOrder="18" locked="false" isInGroup="-1">
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::Label" x="510" y="346" w="-1" h="-1" measuredW="63" measuredH="25" zOrder="17" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Last%20run%3A%20Failure%202%20days%20ago</text>
+        <text>Last%20run%3A</text>
       </controlProperties>
     </control>
-    <control controlID="36" controlTypeID="com.balsamiq.mockups::Label" x="517" y="270" w="192" h="50" measuredW="281" measuredH="25" zOrder="19" locked="false" isInGroup="-1">
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::Label" x="517" y="270" w="192" h="50" measuredW="281" measuredH="25" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Current%20status%3A%20building%20since%202%20minutes%20ago</text>
       </controlProperties>
     </control>
-    <control controlID="38" controlTypeID="__group__" x="981" y="296" w="-1" h="-1" measuredW="391" measuredH="308" zOrder="20" locked="false" isInGroup="-1">
+    <control controlID="38" controlTypeID="__group__" x="981" y="296" w="-1" h="-1" measuredW="391" measuredH="308" zOrder="19" locked="false" isInGroup="-1">
       <groupChildrenDescriptors>
         <control controlID="19" controlTypeID="com.balsamiq.mockups::Canvas" x="0" y="0" w="333" h="211" measuredW="100" measuredH="70" zOrder="0" locked="false" isInGroup="38"/>
         <control controlID="20" controlTypeID="com.balsamiq.mockups::Label" x="11" y="38" w="229" h="25" measuredW="229" measuredH="25" zOrder="1" locked="false" isInGroup="38">
@@ -121,9 +118,9 @@
             <text>Shown%20as%20AJAX-%0A-loaded%20hover%0Aover%20%22Last%20run%22</text>
           </controlProperties>
         </control>
-        <control controlID="27" controlTypeID="com.balsamiq.mockups::Label" x="22" y="63" w="108" h="25" measuredW="108" measuredH="25" zOrder="4" locked="false" isInGroup="38">
+        <control controlID="27" controlTypeID="com.balsamiq.mockups::Label" x="22" y="63" w="108" h="25" measuredW="109" measuredH="25" zOrder="4" locked="false" isInGroup="38">
           <controlProperties>
-            <text>Commit%3A%20abcf84g</text>
+            <text>Commit%3A%20abcf842</text>
           </controlProperties>
         </control>
         <control controlID="28" controlTypeID="com.balsamiq.mockups::Label" x="13" y="93" w="304" h="25" measuredW="304" measuredH="25" zOrder="5" locked="false" isInGroup="38">
@@ -143,24 +140,49 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="40" controlTypeID="com.balsamiq.mockups::FieldSet" x="751" y="209" w="224" h="170" measuredW="200" measuredH="170" zOrder="21" locked="false" isInGroup="-1">
+    <control controlID="40" controlTypeID="com.balsamiq.mockups::FieldSet" x="751" y="209" w="224" h="170" measuredW="200" measuredH="170" zOrder="20" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Run%20nose%20tests</text>
       </controlProperties>
     </control>
-    <control controlID="41" controlTypeID="com.balsamiq.mockups::TextInput" x="807" y="234" w="81" h="-1" measuredW="81" measuredH="29" zOrder="22" locked="false" isInGroup="-1">
+    <control controlID="41" controlTypeID="com.balsamiq.mockups::TextInput" x="807" y="234" w="81" h="-1" measuredW="81" measuredH="29" zOrder="21" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Force%20build</text>
       </controlProperties>
     </control>
-    <control controlID="42" controlTypeID="com.balsamiq.mockups::Label" x="754" y="345" w="197" h="25" measuredW="197" measuredH="25" zOrder="23" locked="false" isInGroup="-1">
+    <control controlID="42" controlTypeID="com.balsamiq.mockups::Label" x="754" y="345" w="197" h="25" measuredW="197" measuredH="25" zOrder="22" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Last%20run%3A%20Success%202%20hours%20ago</text>
       </controlProperties>
     </control>
-    <control controlID="43" controlTypeID="com.balsamiq.mockups::Label" x="758" y="265" w="211" h="25" measuredW="211" measuredH="25" zOrder="24" locked="false" isInGroup="-1">
+    <control controlID="43" controlTypeID="com.balsamiq.mockups::Label" x="758" y="265" w="211" h="25" measuredW="211" measuredH="25" zOrder="23" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Current%20status%3A%20computer%20offline</text>
+      </controlProperties>
+    </control>
+    <control controlID="45" controlTypeID="com.balsamiq.mockups::StickyNote" x="181" y="213" w="186" h="135" measuredW="109" measuredH="123" zOrder="24" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Close%20button%20to%20define%20which%20projects%20to%20view</text>
+      </controlProperties>
+    </control>
+    <control controlID="46" controlTypeID="com.balsamiq.mockups::StickyNote" x="780" y="409" w="134" h="144" measuredW="109" measuredH="123" zOrder="25" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Probably%20remove%20to%20separate%20admin%20panel%20on%20the%20side</text>
+      </controlProperties>
+    </control>
+    <control controlID="47" controlTypeID="com.balsamiq.mockups::StickyNote" x="168" y="553" w="160" h="163" measuredW="109" measuredH="123" zOrder="26" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Leads%20to%20admin%20panel%20of%20the%20same%20project</text>
+      </controlProperties>
+    </control>
+    <control controlID="48" controlTypeID="com.balsamiq.mockups::Arrow" x="290" y="305" w="122" h="264" measuredW="150" measuredH="100" zOrder="27" locked="false" isInGroup="-1">
+      <controlProperties>
+        <direction>bottom</direction>
+      </controlProperties>
+    </control>
+    <control controlID="49" controlTypeID="com.balsamiq.mockups::Link" x="575" y="345" w="-1" h="-1" measuredW="122" measuredH="25" zOrder="28" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Failure%202%20days%20ago</text>
       </controlProperties>
     </control>
   </controls>

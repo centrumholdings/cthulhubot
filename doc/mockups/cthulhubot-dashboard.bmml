@@ -5,13 +5,13 @@
         <text>Dashboard%0Ahttp%3A//cthulhubot</text>
       </controlProperties>
     </control>
-    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="144" zOrder="1" locked="false" isInGroup="-1">
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="169" zOrder="1" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>square</borderStyle>
-        <hrefs>%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C192%2C117%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_0%22/%3E%0A</map>
+        <hrefs>%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C192%2C118%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C225%2C118%2C258%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%222_1%22/%3E%0A</map>
         <selectedIndex>0</selectedIndex>
-        <text>Dashboard%0AProjects</text>
+        <text>Dashboard%0AProjects%0AAdmin</text>
       </controlProperties>
     </control>
     <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="775" y="118" w="-1" h="-1" measuredW="209" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
@@ -19,24 +19,57 @@
         <text>Dashboard</text>
       </controlProperties>
     </control>
-    <control controlID="5" controlTypeID="com.balsamiq.mockups::FieldSet" x="538" y="229" w="-1" h="-1" measuredW="200" measuredH="170" zOrder="3" locked="false" isInGroup="-1">
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::FieldSet" x="511" y="204" w="333" h="207" measuredW="200" measuredH="170" zOrder="3" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Cthulhubot</text>
       </controlProperties>
     </control>
-    <control controlID="6" controlTypeID="com.balsamiq.mockups::FieldSet" x="784" y="229" w="-1" h="-1" measuredW="200" measuredH="170" zOrder="4" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>R%27lyeh</text>
-      </controlProperties>
-    </control>
-    <control controlID="7" controlTypeID="com.balsamiq.mockups::FieldSet" x="1051" y="229" w="-1" h="-1" measuredW="200" measuredH="170" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="7" controlTypeID="com.balsamiq.mockups::FieldSet" x="885" y="216" w="230" h="195" measuredW="200" measuredH="170" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
         <text>citools</text>
       </controlProperties>
     </control>
-    <control controlID="8" controlTypeID="com.balsamiq.mockups::FieldSet" x="539" y="415" w="-1" h="-1" measuredW="200" measuredH="170" zOrder="6" locked="false" isInGroup="-1">
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::FieldSet" x="511" y="411" w="329" h="184" measuredW="200" measuredH="170" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Czechtile</text>
+      </controlProperties>
+    </control>
+    <control controlID="9" controlTypeID="com.balsamiq.mockups::Label" x="1163" y="126" w="-1" h="-1" measuredW="82" measuredH="25" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Logged%20in%20as</text>
+      </controlProperties>
+    </control>
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="121" measuredH="25" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>cthulhubot-user-profile%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%2Ccthulhubot-settings%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C921%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22941%2C86%2C999%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
+        <text>Almad%2C%20Settings</text>
+      </controlProperties>
+    </control>
+    <control controlID="11" controlTypeID="com.balsamiq.mockups::StickyNote" x="937" y="240" w="163" h="132" measuredW="109" measuredH="123" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>TODO%3A%20Better%20content%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::List" x="550" y="256" w="269" h="128" measuredW="100" measuredH="126" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <text>Last%20build%3A%20running%20since%2012%3A00%20ETA%2012%3A04%0ALast%20commit%3A%20abc123%20by%20Jakub%20Vysok%FD%0A%20%0AMy%20last%20build%3A%20success%0AMy%20last%20commit%3A%20123ac%20at%201.1.2010</text>
+      </controlProperties>
+    </control>
+    <control controlID="15" controlTypeID="com.balsamiq.mockups::StickyNote" x="760" y="180" w="143" h="147" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Configure%20which%20job%20assignments%20should%20be%20displayed%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::ColorPicker" x="518" y="327" w="-1" h="-1" measuredW="26" measuredH="28" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>40463</color>
+      </controlProperties>
+    </control>
+    <control controlID="17" controlTypeID="com.balsamiq.mockups::ColorPicker" x="518" y="256" w="-1" h="-1" measuredW="26" measuredH="28" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>16776960</color>
       </controlProperties>
     </control>
   </controls>
