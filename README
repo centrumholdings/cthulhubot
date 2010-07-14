@@ -3,18 +3,12 @@ CthulhuBot
 
 Slightly more evil tentacles of Cthulhu, ruling over poor buildbot slaves.
 
-Project for managing large number of buildbots for web development, with some useful whistles. WIP, site & docs coming soon.
+Django reusable application for managing large number of buildbots for web development, with some useful whistles. WIP, site & docs coming soon.
+
+Example project used for testing, see tests/example_project.
 
 Trac is located at http://devel.almad.net/trac/cthulhubot , mailing list on librelist (cthulhubot@librelist.com).
 
-Dependencies for running:
- * Buildbot 0.7.11
- * buildbot-mongodb-status 0.3
- * paramiko
- * django-http-digest
-
-For development
- * django-sane-testing for tests (http://pypi.python.org/pypi/djangosanetesting/)
- * django-cpserver (http://github.com/lincolnloop/django-cpserver/) as usual devserver will not work
+Dependencies are specified in requirements.txt
 
 
