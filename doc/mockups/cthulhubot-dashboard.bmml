@@ -5,15 +5,6 @@
         <text>Dashboard%0Ahttp%3A//cthulhubot</text>
       </controlProperties>
     </control>
-    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="169" zOrder="1" locked="false" isInGroup="-1">
-      <controlProperties>
-        <borderStyle>square</borderStyle>
-        <hrefs>%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C192%2C118%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C225%2C118%2C258%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%222_1%22/%3E%0A</map>
-        <selectedIndex>0</selectedIndex>
-        <text>Dashboard%0AProjects%0AAdmin</text>
-      </controlProperties>
-    </control>
     <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="775" y="118" w="-1" h="-1" measuredW="209" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Dashboard</text>
@@ -39,10 +30,10 @@
         <text>Logged%20in%20as</text>
       </controlProperties>
     </control>
-    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="121" measuredH="25" zOrder="7" locked="false" isInGroup="-1">
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="119" measuredH="25" zOrder="7" locked="false" isInGroup="-1">
       <controlProperties>
         <hrefs>cthulhubot-user-profile%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%2Ccthulhubot-settings%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C921%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22941%2C86%2C999%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C920%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22940%2C86%2C997%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
         <text>Almad%2C%20Settings</text>
       </controlProperties>
     </control>
@@ -70,6 +61,31 @@
     <control controlID="17" controlTypeID="com.balsamiq.mockups::ColorPicker" x="518" y="256" w="-1" h="-1" measuredW="26" measuredH="28" zOrder="12" locked="false" isInGroup="-1">
       <controlProperties>
         <color>16776960</color>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::TabBar" x="490" y="168" w="848" h="436" measuredW="283" measuredH="100" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22137%2C127%2C213%2C156%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%2218_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22213%2C127%2C276%2C156%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%2218_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22276%2C127%2C326%2C156%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%2218_2%22/%3E%0A</map>
+        <selectedIndex>0</selectedIndex>
+        <text>Dashboard%2C%20Projects%2C%20Admin</text>
+      </controlProperties>
+    </control>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="412" y="195" w="920" h="407" measuredW="200" measuredH="194" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <selectedIndex>-1</selectedIndex>
+        <text>Cthulhubot%0AR%27lyeh%0Acitools%0ACzechtile</text>
+      </controlProperties>
+    </control>
+    <control controlID="20" controlTypeID="com.balsamiq.mockups::StickyNote" x="869" y="420" w="177" h="157" measuredW="109" measuredH="123" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Hudson-like%20weather%20statuses%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="21" controlTypeID="com.balsamiq.mockups::StickyNote" x="1100" y="420" w="201" h="157" measuredW="109" measuredH="123" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Ways%20to%20filter%3F%0ADisplay%20only%20projects/builders%20tagged%20as%20X</text>
       </controlProperties>
     </control>
   </controls>

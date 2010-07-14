@@ -1,29 +1,13 @@
-<mockup version="1.0" skin="sketch" measuredW="1563" measuredH="652" mockupW="1443" mockupH="601">
+<mockup version="1.0" skin="sketch" measuredW="1563" measuredH="652" mockupW="1443" mockupH="642">
   <controls>
     <control controlID="1" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="373" y="41" w="1022" h="601" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Dashboard%0Ahttp%3A//cthulhubot/admin/project/cthulhubot/</text>
       </controlProperties>
     </control>
-    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="169" zOrder="1" locked="false" isInGroup="-1">
-      <controlProperties>
-        <borderStyle>square</borderStyle>
-        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22304%2C159%2C380%2C192%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22304%2C192%2C380%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22304%2C225%2C380%2C258%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%222_2%22/%3E%0A</map>
-        <selectedIndex>2</selectedIndex>
-        <text>Dashboard%0AProjects%0AAdmin</text>
-      </controlProperties>
-    </control>
-    <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="775" y="118" w="-1" h="-1" measuredW="121" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="775" y="118" w="-1" h="-1" measuredW="121" measuredH="62" zOrder="3" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Admin</text>
-      </controlProperties>
-    </control>
-    <control controlID="4" controlTypeID="com.balsamiq.mockups::TabBar" x="490" y="157" w="891" h="453" measuredW="371" measuredH="100" zOrder="3" locked="false" isInGroup="-1">
-      <controlProperties>
-        <borderStyle>square</borderStyle>
-        <selectedIndex>1</selectedIndex>
-        <text>All%2C%20Cthulhubot%2C%20R%27lyeh%2C%20citools%2C%20Czechtile</text>
       </controlProperties>
     </control>
     <control controlID="5" controlTypeID="com.balsamiq.mockups::FieldSet" x="504" y="195" w="271" h="369" measuredW="200" measuredH="170" zOrder="4" locked="false" isInGroup="-1">
@@ -122,10 +106,25 @@
         <text>Copy</text>
       </controlProperties>
     </control>
-    <control controlID="25" controlTypeID="com.balsamiq.mockups::Arrow" x="337" y="82" w="388" h="133" measuredW="150" measuredH="100" zOrder="23" locked="false" isInGroup="-1"/>
-    <control controlID="26" controlTypeID="com.balsamiq.mockups::StickyNote" x="110" y="47" w="204" h="153" measuredW="109" measuredH="123" zOrder="24" locked="false" isInGroup="-1">
+    <control controlID="25" controlTypeID="com.balsamiq.mockups::Arrow" x="314" y="43" w="411" h="152" measuredW="150" measuredH="100" zOrder="23" locked="false" isInGroup="-1"/>
+    <control controlID="26" controlTypeID="com.balsamiq.mockups::StickyNote" x="110" y="0" w="204" h="153" measuredW="109" measuredH="123" zOrder="24" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Copy%20master%20string%20to%20clipboard%20%28doable%20without%20flash%3F%29</text>
+      </controlProperties>
+    </control>
+    <control controlID="27" controlTypeID="com.balsamiq.mockups::TabBar" x="460" y="147" w="848" h="462" measuredW="280" measuredH="100" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22370%2C147%2C445%2C176%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%2227_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22445%2C147%2C508%2C176%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%2227_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22508%2C147%2C556%2C176%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%2227_2%22/%3E%0A</map>
+        <selectedIndex>2</selectedIndex>
+        <text>Dashboard%2C%20Projects%2C%20Admin</text>
+      </controlProperties>
+    </control>
+    <control controlID="28" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="388" y="173" w="920" h="436" measuredW="200" measuredH="219" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <selectedIndex>1</selectedIndex>
+        <text>All%0ACthulhubot%0AR%27lyeh%0Acitools%0ACzechtile</text>
       </controlProperties>
     </control>
   </controls>

@@ -1,17 +1,8 @@
-<mockup version="1.0" skin="sketch" measuredW="1405" measuredH="652" mockupW="1022" mockupH="601">
+<mockup version="1.0" skin="sketch" measuredW="1488" measuredH="652" mockupW="1105" mockupH="601">
   <controls>
     <control controlID="1" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="373" y="41" w="1022" h="601" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Dashboard%0Ahttp%3A//cthulhubot/user/Almad</text>
-      </controlProperties>
-    </control>
-    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="169" zOrder="1" locked="false" isInGroup="-1">
-      <controlProperties>
-        <borderStyle>square</borderStyle>
-        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C159%2C118%2C192%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C192%2C118%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C225%2C118%2C258%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%222_2%22/%3E%0A</map>
-        <selectedIndex>-1</selectedIndex>
-        <text>Dashboard%0AProjects%0AAdmin</text>
+        <text>Dashboard%0Ahttp%3A//cthulhubot/user/Almad/</text>
       </controlProperties>
     </control>
     <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="662" y="118" w="-1" h="-1" measuredW="443" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
@@ -24,10 +15,10 @@
         <text>Logged%20in%20as</text>
       </controlProperties>
     </control>
-    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="121" measuredH="25" zOrder="4" locked="false" isInGroup="-1">
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="119" measuredH="25" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
         <hrefs>cthulhubot-user-profile%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%2Ccthulhubot-settings%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C921%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22941%2C86%2C999%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C920%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22940%2C86%2C997%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
         <text>Almad%2C%20Settings</text>
       </controlProperties>
     </control>
@@ -54,6 +45,18 @@
     <control controlID="17" controlTypeID="com.balsamiq.mockups::Label" x="558" y="328" w="-1" h="-1" measuredW="231" measuredH="25" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Passed%20test%20with%20builder%20Unit%20Tests</text>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::TabBar" x="484" y="166" w="885" h="440" measuredW="281" measuredH="100" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22131%2C125%2C207%2C154%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%2218_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22207%2C125%2C270%2C154%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%2218_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22270%2C125%2C318%2C154%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%2218_2%22/%3E%0A</map>
+        <text>Dashboard%2C%20Projects%2C%20Admin</text>
+      </controlProperties>
+    </control>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::StickyNote" x="1369" y="151" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>How%20to%20highlight%3F</text>
       </controlProperties>
     </control>
   </controls>

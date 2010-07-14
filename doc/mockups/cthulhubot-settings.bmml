@@ -2,16 +2,7 @@
   <controls>
     <control controlID="1" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="373" y="41" w="1022" h="601" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Dashboard%0Ahttp%3A//cthulhubot/user/Almad</text>
-      </controlProperties>
-    </control>
-    <control controlID="2" controlTypeID="com.balsamiq.mockups::VerticalTabBar" x="414" y="180" w="966" h="422" measuredW="200" measuredH="169" zOrder="1" locked="false" isInGroup="-1">
-      <controlProperties>
-        <borderStyle>square</borderStyle>
-        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C159%2C118%2C192%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C192%2C118%2C225%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%222_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2241%2C225%2C118%2C258%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%222_2%22/%3E%0A</map>
-        <selectedIndex>-1</selectedIndex>
-        <text>Dashboard%0AProjects%0AAdmin</text>
+        <text>Dashboard%0Ahttp%3A//cthulhubot/settings/</text>
       </controlProperties>
     </control>
     <control controlID="3" controlTypeID="com.balsamiq.mockups::Title" x="804" y="118" w="-1" h="-1" measuredW="166" measuredH="62" zOrder="2" locked="false" isInGroup="-1">
@@ -24,10 +15,10 @@
         <text>Logged%20in%20as</text>
       </controlProperties>
     </control>
-    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="121" measuredH="25" zOrder="4" locked="false" isInGroup="-1">
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::LinkBar" x="1251" y="127" w="-1" h="-1" measuredW="119" measuredH="25" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
         <hrefs>cthulhubot-user-profile%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%26bm%3Bcthulhubot-user-profile.bmml%2Ccthulhubot-settings%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml%26bm%3Bcthulhubot-settings.bmml</hrefs>
-        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C921%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22941%2C86%2C999%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22878%2C86%2C920%2C111%22%20href%3D%22cthulhubot-user-profile.bmml%22%20alt%3D%22cthulhubot-user-profile%22%20id%3D%2210_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22940%2C86%2C997%2C111%22%20href%3D%22cthulhubot-settings.bmml%22%20alt%3D%22cthulhubot-settings%22%20id%3D%2210_1%22/%3E%0A</map>
         <text>Almad%2C%20Settings</text>
       </controlProperties>
     </control>
@@ -46,6 +37,13 @@
         <borderStyle>none</borderStyle>
         <text>CthulhuBot%20via%20e-mail%20channel%20bugs@almad.net%0AR%27lyeh%20via%20e-mail%20channel%20bugs@almad.net</text>
         <verticalScrollbar>false</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="22" controlTypeID="com.balsamiq.mockups::TabBar" x="488" y="157" w="892" h="445" measuredW="281" measuredH="100" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>cthulhubot-dashboard%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%26bm%3Bcthulhubot-dashboard.bmml%2Ccthulhubot-projects%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%26bm%3Bcthulhubot-projects.bmml%2Ccthulhubot-admin%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml%26bm%3Bcthulhubot-admin.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22135%2C116%2C211%2C145%22%20href%3D%22cthulhubot-dashboard.bmml%22%20alt%3D%22cthulhubot-dashboard%22%20id%3D%2222_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22211%2C116%2C274%2C145%22%20href%3D%22cthulhubot-projects.bmml%22%20alt%3D%22cthulhubot-projects%22%20id%3D%2222_1%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22274%2C116%2C322%2C145%22%20href%3D%22cthulhubot-admin.bmml%22%20alt%3D%22cthulhubot-admin%22%20id%3D%2222_2%22/%3E%0A</map>
+        <text>Dashboard%2C%20Projects%2C%20Admin</text>
       </controlProperties>
     </control>
   </controls>
