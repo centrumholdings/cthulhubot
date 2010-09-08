@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION
+from buildbot.status.builder import SUCCESS, WARNINGS, FAILURE, SKIPPED, EXCEPTION, RETRY
 
 BUILD_RESULTS_DICT = {
     SUCCESS : "Success",
@@ -8,6 +8,7 @@ BUILD_RESULTS_DICT = {
     FAILURE : "Failure",
     SKIPPED : "Skipped",
     EXCEPTION : "Exception",
+    RETRY : "Retrying",
     None : "Running",
     # find a better magic value for "no build found"
     # False cannot be used, because False == 0,
