@@ -216,9 +216,8 @@ def create_master(project, webstatus_port=None, buildmaster_port=None, master_di
     )
 
 
-
-    uri = "%s%s" % ((settings.NETWORK_ROOT), reverse("cthulhubot-api-project-master-configuration", kwargs={
+    uri = "%s/%s" % ((settings.NETWORK_ROOT.rstrip("/")), reverse("cthulhubot-api-project-master-configuration", kwargs={
         "identifier" : int(master.pk)
-    }))
+    }).strip("/"))
 
     create_buildmaster_directory_structure(slug=master.project.slug, directory=master.directory, password=master.password, uri=uri, username=int(master.buildmaster_port), webstatus_port=master.webstatus_port)

@@ -14,11 +14,11 @@ class TestRemoteComputer(DestructiveDatabaseTestCase):
 
         self.key = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_KEY", None)
         if not self.key:
-            raise self.SkipTest()
+            raise self.SkipTest("Cannot test remote commands without configured key")
 
         self.host = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_HOST")
         if not self.host:
-            raise self.SkipTest()
+            raise self.SkipTest("Cannot test remote commands without configured host")
 
         self.user = getattr(settings, "TEST_CTHULHUBOT_BUILD_COMPUTER_USERNAME", "buildbot")
 

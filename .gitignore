@@ -5,6 +5,7 @@
 .project
 .pydevproject
 *egg-info*
+*.egg
 tests/*project/settings/local.py
 
 *\.coverage
@@ -13,9 +14,9 @@ build_doc
 nbproject
 
 
-bin
-bootstrap.py
-include
-lib
-lib64
-
+/bin
+/bootstrap.py
+/include
+/lib
+/lib64
+/src

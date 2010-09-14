@@ -7,8 +7,9 @@ pymongo
 south
 nose>=0.11
 mock
-buildbot>=0.8.0
 anyjson
+
+git+http://github.com/centrumholdings/buildbot.git#egg=buildbot
 
 hg+https://Almad@bitbucket.org/Almad/django-http-digest#egg=djangohttpdigest
 git+http://github.com/ella/citools.git#egg=citools

@@ -1,7 +1,8 @@
 from subprocess import Popen, PIPE
 
 import os
-from djangosanetesting.cases import SeleniumTestCase
+from djangosanetesting.cases import HttpTestCase, SeleniumTestCase
+from djangosanetesting.utils import get_live_server_path
 from mock import Mock
 from tempfile import mkdtemp
 from shutil import rmtree
@@ -22,14 +23,8 @@ def create_project(case, name=None, tracker_uri=None, repository_uri=None, maste
         master_directory=master_directory
     )
 
-#FIXME: DST should have helper function for this
 def mock_url_root(case):
-    from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
-
-    case.url_root = "http://%s:%s" % (
-        getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
-        getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
-    )
+    case.url_root = get_live_server_path()
 
     case.network_root = settings.NETWORK_ROOT
     settings.NETWORK_ROOT = case.url_root
@@ -173,6 +168,38 @@ def clean_assignment(case):
 # End of git helpers
 #####
 
+class BuildmasterTestCase(HttpTestCase):
+    def setUp(self):
+        super(BuildmasterTestCase, self).setUp()
+
+        self._old_builddir = getattr(settings, "CTHULHUBOT_BUILDMASTER_BASEDIR", None)
+
+        self.base_directory = mkdtemp()
+
+        settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self.base_directory
+
+        self.url_root = get_live_server_path()
+
+        self.network_root = settings.NETWORK_ROOT
+        settings.NETWORK_ROOT = self.url_root
+
+
+        self.project_name = u"project"
+        self.project = create_project(self)
+        self.buildmaster = self.project.buildmaster_set.all()[0]
+
+        self.transaction.commit()
+
+    def tearDown(self):
+        self.buildmaster.stop(ignore_not_running=True)
+        self.buildmaster.delete()
+        self.project.delete()
+        rmtree(self.base_directory)
+
+        settings.NETWORK_ROOT = self.network_root
+        settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self._old_builddir
+
+
 class WebTestCase(SeleniumTestCase):
     elements = {
         'menu' : {
@@ -271,6 +298,8 @@ class AuthenticatedWebTestCase(WebTestCase):
 
         self.user.save()
         self.transaction.commit()
+
+
 
 
 class MockJob(Mock): pass

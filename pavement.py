@@ -108,11 +108,32 @@ def unit(args):
 @task
 @consume_args
 def integrate(args):
-    from citools.pavement import run_tests
+    from citools.pavement import djangonize_test_environment
+    test_project_module="example_project"
 
     args.extend(['--with-selenium', '--with-cherrypyliveserver', '--with-django', '--with-mongo-database'])
 
-    run_tests(test_project_module="example_project", nose_args=args, nose_run_kwargs={'addplugins' : [get_plugin()]})
+    djangonize_test_environment(test_project_module)
+
+    import nose
+
+    os.chdir(join(options.rootdir, "tests", test_project_module))
+
+    from django.conf import settings
+    from djangosanetesting.utils import get_live_server_path, DEFAULT_URL_ROOT_SERVER_ADDRESS
+
+    settings.BUILDMASTER_NETWORK_NAME = getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS)
+
+    settings.NETWORK_NAME = get_live_server_path() + "/"
+
+
+    nose.run_exit(
+        argv = ["nosetests"] + args,
+        defaultTest = test_project_module,
+        addplugins = [get_plugin()]
+    )
+
+
 
 
 @task

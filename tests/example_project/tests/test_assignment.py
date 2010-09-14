@@ -1,4 +1,6 @@
 from djangosanetesting.cases import HttpTestCase
+from djangosanetesting.utils import get_live_server_path
+from tests.helpers import BuildmasterTestCase
 from example_project.tests.helpers import MockJob, MockBuildmaster
 from mock import Mock
 
@@ -16,25 +18,9 @@ from cthulhubot.views import create_job_assignment
 
 from tests.helpers import create_project
 
-class TestBuildDirectory(HttpTestCase):
+class TestBuildDirectory(BuildmasterTestCase):
     def setUp(self):
         super(TestBuildDirectory, self).setUp()
-
-        #FIXME: DST should have helper function for this
-        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
-
-        self.url_root = "http://%s:%s" % (
-            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
-            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
-        )
-
-        self.network_root = settings.NETWORK_ROOT
-        settings.NETWORK_ROOT = self.url_root
-
-
-        self.project_name = u"project"
-        self.project = create_project(self)
-        self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
         self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost", basedir=self.base_directory)
@@ -84,33 +70,9 @@ class TestBuildDirectory(HttpTestCase):
     def test_uri_constructed(self):
         self.assert_true(self.assignment.get_absolute_url() is not None)
 
-    def tearDown(self):
-        settings.NETWORK_ROOT = self.network_root
-
-        self.buildmaster.stop(ignore_not_running=True)
-        self.buildmaster.delete()
-        rmtree(self.base_directory)
-
-        super(TestBuildDirectory, self).tearDown()
-
-class TestAssignmentHandling(HttpTestCase):
+class TestAssignmentHandling(BuildmasterTestCase):
     def setUp(self):
         super(TestAssignmentHandling, self).setUp()
-
-        #FIXME: DST should have helper function for this
-        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
-
-        self.url_root = "http://%s:%s" % (
-            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
-            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
-        )
-
-        self.network_root = settings.NETWORK_ROOT
-        settings.NETWORK_ROOT = self.url_root
-
-        self.project_name = u"project"
-        self.project = create_project(self)
-        self.buildmaster = self.project.buildmaster_set.all()[0]
 
         self.base_directory = mkdtemp()
         self.computer_model = self.computer = BuildComputer.objects.create(hostname = "localhost", basedir=self.base_directory)
@@ -149,13 +111,3 @@ class TestAssignmentHandling(HttpTestCase):
         self.assignment_second.model.delete()
         self.assignment.model.delete()
         self.assert_equals(0, ProjectClient.objects.all().count())
-
-
-    def tearDown(self):
-        settings.NETWORK_ROOT = self.network_root
-
-        self.buildmaster.stop(ignore_not_running=True)
-        self.buildmaster.delete()
-        rmtree(self.base_directory)
-
-        super(TestAssignmentHandling, self).tearDown()

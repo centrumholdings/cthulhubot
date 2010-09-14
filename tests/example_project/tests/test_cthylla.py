@@ -1,4 +1,3 @@
-from djangosanetesting import HttpTestCase
 from pickle import loads
 import urllib2
 import logging
@@ -7,32 +6,20 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from cthulhubot.models import BuildComputer, Job
-from cthulhubot.views import create_project, create_job_assignment
+from cthulhubot.views import create_job_assignment
+
+from tests.helpers import BuildmasterTestCase
 
 """
 Tests for API that Cthylla uses. Be careful with regressions, changing behaivor
 here is extremely troublesome for apps that are already in the wild!
 """
 
-class TestConfigurationRetrieval(HttpTestCase):
+class TestConfigurationRetrieval(BuildmasterTestCase):
 
     def setUp(self):
         super(TestConfigurationRetrieval, self).setUp()
 
-        #FIXME: DST should have helper function for this
-        from djangosanetesting.noseplugins import DEFAULT_URL_ROOT_SERVER_ADDRESS, DEFAULT_LIVE_SERVER_PORT
-
-        self.url_root = "http://%s:%s" % (
-            getattr(settings, "URL_ROOT_SERVER_ADDRESS", DEFAULT_URL_ROOT_SERVER_ADDRESS),
-            getattr(settings, "LIVE_SERVER_PORT", DEFAULT_LIVE_SERVER_PORT)
-        )
-
-        self.network_root = settings.NETWORK_ROOT
-        settings.NETWORK_ROOT = self.url_root
-
-        self.project_name = u"project"
-        self.project = create_project(name=self.project_name, tracker_uri="http://example.com", repository_uri="/tmp/test")
-        self.buildmaster = self.project.buildmaster_set.all()[0]
         self.computer_model = self.computer = BuildComputer.objects.create(name="localhost", hostname="localhost")
         self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
@@ -54,7 +41,7 @@ class TestConfigurationRetrieval(HttpTestCase):
         auth_handler.add_password(self.realm, self.url_root, self.username, self.password)
         opener = urllib2.build_opener(auth_handler)
 
-        request = urllib2.Request(self.url_root+path)
+        request = urllib2.Request(self.url_root.rstrip("/")+"/"+path.lstrip("/"))
         try:
             response = opener.open(request)
         except urllib2.HTTPError, err:
