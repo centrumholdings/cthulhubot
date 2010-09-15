@@ -9,6 +9,7 @@ from subprocess import PIPE, CalledProcessError, Popen
 import sys
 from tempfile import gettempdir
 import traceback
+from traceback import format_exc
 from uuid import uuid4
 
 from django.core.exceptions import ValidationError
@@ -302,6 +303,10 @@ class StatusError(ClientStatus):
     ID = 4
     DEFAULT_STATUS = u"Problem with Client status"
 
+class ClientUnreachable(ClientStatus):
+    ID = 5
+    DEFAULT_STATUS = u"Not reachable, cannot verify"
+
 class ProjectClient(models.Model):
     project = models.ForeignKey(Project)
     computer = models.ForeignKey(BuildComputer)
@@ -385,10 +390,16 @@ class ProjectClient(models.Model):
             return BUILDBOT_CLIENT_STATUS_MAP[builder['status']]()
 
     def get_status(self):
-        if not self.builder_running() and not self.build_directory_exists():
-            status = DirectoryNotCreated()
-        else:
-            status = self.get_status_from_database()
+        try:
+            if not self.builder_running() and not self.build_directory_exists():
+                status = DirectoryNotCreated()
+            else:
+                status = self.get_status_from_database()
+        except Exception:
+            logging.debug("Exception when reading computer status")
+            logging.debug(format_exc())
+            return ClientUnreachable()
+        
         return status
 
     def get_text_status(self):

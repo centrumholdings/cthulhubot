@@ -1,22 +1,13 @@
-from djangosanetesting.cases import HttpTestCase
-from djangosanetesting.utils import get_live_server_path
-from tests.helpers import BuildmasterTestCase
-from example_project.tests.helpers import MockJob, MockBuildmaster
-from mock import Mock
+# -*- coding: utf-8 -*-
+from tests.helpers import BuildmasterTestCase, AuthenticatedWebTestCase
 
 import os, os.path
-from shutil import rmtree
 from tempfile import mkdtemp
 
 from django.conf import settings
-from django.utils.simplejson import dumps, loads
 
-from cthulhubot.assignment import Assignment
-from cthulhubot.err import RemoteCommandError, UnconfiguredCommandError
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
+from cthulhubot.models import Job, JobAssignment, BuildComputer, ProjectClient, Project, ClientUnreachable
 from cthulhubot.views import create_job_assignment
-
-from tests.helpers import create_project
 
 class TestBuildDirectory(BuildmasterTestCase):
     def setUp(self):
@@ -111,3 +102,59 @@ class TestAssignmentHandling(BuildmasterTestCase):
         self.assignment_second.model.delete()
         self.assignment.model.delete()
         self.assert_equals(0, ProjectClient.objects.all().count())
+
+class TestAssignmentDisplay(AuthenticatedWebTestCase):
+
+    def create_project(self):
+        project_name = u"你好, řeřicha"
+        tracker_uri = u"http://example.com"
+        repository_uri = u"/tmp/repo"
+
+        s = self.selenium
+
+        s.click(self.elements['menu']['projects'])
+        s.wait_for_page_to_load(30000)
+
+        s.click(self.elements['projects']['create'])
+        s.wait_for_page_to_load(30000)
+
+        s.type(u"id_name", project_name)
+        s.type(u"id_issue_tracker", tracker_uri)
+        s.type(u"id_repository", repository_uri)
+        s.click(self.elements['projects_create']['submit_form'])
+        s.wait_for_page_to_load(30000)
+
+        s.click(self.elements['menu']['projects'])
+        s.wait_for_page_to_load(30000)
+
+        s.click(self.elements['projects']['project_link_single'])
+        s.wait_for_page_to_load(30000)
+
+    def test_project_page_is_ok_even_when_computer_is_unreachable(self):
+        s = self.selenium
+        self.create_project()
+        #self.assign_to_project()
+
+        self.project = Project.objects.get(slug='rericha')
+
+        self.unreachable_computer = BuildComputer.objects.create(hostname="this.hostname.shall.not.be.down.tld", basedir="/tmp", name="Unreachable")
+        self.job = job = Job.objects.get(slug='cthulhubot-sleep').get_domain_object()
+        self.bad_assignment = create_job_assignment(
+            computer = self.unreachable_computer,
+            job = job,
+            project = self.project,
+        )
+
+        self.transaction.commit()
+
+        # navigate to project
+        s.click(self.elements['menu']['projects'])
+        s.wait_for_page_to_load(30000)
+
+        self.assert_equals(1, int(s.get_xpath_count(self.elements['projects']['list'])))
+
+        s.click(self.elements['projects']['project_link_single'])
+        s.wait_for_page_to_load(30000)
+
+        # verify we have one computer and it's unreachable
+        self.assert_equals(ClientUnreachable.DEFAULT_STATUS, s.get_text(self.elements['project_detail']['single_computer_status']))

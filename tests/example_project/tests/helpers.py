@@ -229,6 +229,8 @@ class WebTestCase(SeleniumTestCase):
             'start_buildmaster' : 'submit-start-master',
             'stop_buildmaster' : 'submit-stop-master',
             'buildmaster_status' : 'buildmaster-status',
+            'computer_status' : "//ul[@class='computers-list']/li[%(position)s]//span[@class='computer-status']",
+            'single_computer_status' : "//ul[@class='computers-list']/li//span[@class='computer-status']",
         },
         'computers' : {
             "create" : "link-add-computer",

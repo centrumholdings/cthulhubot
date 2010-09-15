@@ -20,12 +20,12 @@
 <h2>Computers</h2>
 <p>Project is running on following computers:</p>
 
-<ul>
+<ul class="computers-list">
 {% for client in clients %}
     <li>
         <form action="." method="post">
             <input type="hidden" value="{{ client.get_identifier }}" name="client_id" />
-            <a href="{{ client.computer.get_absolute_url }}">{{ client.computer }}</a> status: {{ client.get_status }} {{ client.get_status_action }}
+            <a href="{{ client.computer.get_absolute_url }}">{{ client.computer }}</a> status: <span class="computer-status">{{ client.get_status }}</span> {{ client.get_status_action }}
         </form>
     </li>
 {% endfor %}
