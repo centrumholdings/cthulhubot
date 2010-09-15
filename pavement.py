@@ -134,6 +134,11 @@ def integrate(args):
     )
 
 
+@task
+def run():
+    """ Run server """
+    os.chdir(os.path.join("tests", "example_project"))
+    sh('./manage.py runcpserver')
 
 
 @task
