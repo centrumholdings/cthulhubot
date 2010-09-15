@@ -1,17 +1,12 @@
-from djangosanetesting.cases import HttpTestCase
-from djangosanetesting.utils import get_live_server_path
-
 from urllib2 import urlopen
 import os
 
 from cthulhubot.views import create_job_assignment
 from django.conf import settings
-from cthulhubot.models import Job, JobAssignment, BuildComputer, Command, ProjectClient
-from tempfile import mkdtemp
-from django.utils.simplejson import dumps, loads
+from cthulhubot.models import Job, BuildComputer, ProjectClient
+from django.utils.simplejson import dumps
 from tests.helpers import BuildmasterTestCase
 
-from shutil import rmtree
 
 class TestMasterApi(BuildmasterTestCase):
     """
