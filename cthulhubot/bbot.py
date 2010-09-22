@@ -33,7 +33,6 @@ REALM = "buildmaster"
 class TryJobHTTPRequest(http.Request):
     def __init__(self, channel, queued):
         http.Request.__init__(self, channel, queued)
-        twisted_log.msg('http request')
 
     def process(self):
         """
@@ -57,12 +56,14 @@ class TryJobHTTPRequest(http.Request):
             try:
                 self.content.seek(0)
                 args = loads(self.content.read())
+                # function args must be bytestrings, not u''
+                args = dict([(str(k), v) for k,v in args.items()])
+                twisted_log.msg('processing with args %s' % str(args))
                 self.code = self.channel.factory.parent.messageReceived(**args)
             except Exception:
                 self.code = http.INTERNAL_SERVER_ERROR
                 raise
         finally:
-            twisted_log.msg('finally')
             self.code_message = http.RESPONSES[self.code]
             self.write(self.code_message)
             self.finish()
