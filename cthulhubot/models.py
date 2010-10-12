@@ -14,7 +14,6 @@ from uuid import uuid4
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
-from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
 
 from django.conf import settings
 from django.template.defaultfilters import slugify
@@ -23,7 +22,7 @@ from django.db import models
 
 from cthulhubot.utils import check_call
 from cthulhubot.commands import get_command
-from cthulhubot.err import UndiscoveredCommandError, CommunicationError, RemoteCommandError
+from cthulhubot.err import RemoteCommandError
 from cthulhubot.jobs import get_job
 from cthulhubot.mongo import get_database_connection, get_database_name, get_database_info
 from cthulhubot.computer import LocalComputerAdapter, RemoteComputerAdapter
@@ -246,8 +245,8 @@ class JobAssignment(models.Model):
 
     def get_absolute_url(self):
         return reverse("cthulhubot-job-assignment-detail", kwargs={
-                "assignment_id" : self.get_identifier(),
-            })
+            "assignment_id" : self.get_identifier(),
+        })
 
     def get_domain_object(self):
         from cthulhubot.assignment import Assignment
