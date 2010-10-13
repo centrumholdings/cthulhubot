@@ -47,6 +47,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'cpserver',
+#    'south',
 
     'cthulhubot',
 )

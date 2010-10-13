@@ -212,6 +212,7 @@ class JobAssignment(models.Model):
     computer = models.ForeignKey(BuildComputer)
     project = models.ForeignKey(Project)
     config = models.TextField()
+    version = models.PositiveIntegerField(default=0)
 
     # config structure:
 #    config = {
@@ -232,10 +233,11 @@ class JobAssignment(models.Model):
     unique_together = (("job", "project", "computer"),)
 
     def __unicode__(self):
-        return "%(job_name)s %(ident)s at %(comp)s" % {
+        return "%(job_name)s version %(version)s as %(ident)s at %(comp)s" % {
             'job_name' : self.job.slug,
             'ident' : self.get_identifier(),
-            'comp' : self.computer.name
+            'comp' : self.computer.name,
+            'version' : self.version,
         }
 
     def get_identifier(self):
@@ -268,8 +270,6 @@ class JobAssignment(models.Model):
 
         if client and JobAssignment.objects.filter(computer=computer, project=project).count() == 0:
             client.delete()
-
-
 
 class ClientStatus(object):
     ID = None

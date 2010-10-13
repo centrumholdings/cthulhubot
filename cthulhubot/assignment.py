@@ -73,15 +73,52 @@ class Assignment(object):
                 "assignment_id" : self.get_identifier(),
             })
 
+    def upgrade_config(self, config):
+        """
+        Iterate through rest of upgrades. No version means 0, = all of 'em.
+        Version is assigned as the lenght of the upgrades list. Thus,
+
+        **********************************************************************
+        *** NEVER REMOVE UPGRADE FUNCTIONS FROM UPGRADE LIST AFTER DEPLOYMENT
+        **********************************************************************
+
+        If You'll do so, upgrades may be reapplied, 500's may be rised and kittens
+        could be eaten.
+
+        It's up to individual upgrades to decide whether they would like to upgrade
+        themselves or not. They must not set layout.changed flag, as version upgrade
+        must be recorded anyway.
+
+        Upgrades MUST return new configuration dictionary, please do not do thing mutably.
+
+        Each job assignment is upgraded separately; it's up to job to decide what
+        to do with it's command minions. When not given, empty upgrades list is assumed.
+        """
+        job_upgrades = getattr(self.job, 'upgrades', [])
+
+        if self.model.version < len(job_upgrades):
+            for upgrade in job_upgrades[self.configuration_version:]:
+                config = upgrade(config)
+
+        self.model.version = len(job_upgrades)
+        self.model.save()
+
+        return config
+
+
+
     def get_factory(self):
         commands = self.job.get_commands()
 
         factory = BuildFactory()
 
         config = None
-        
         if self.model.config:
             config = loads(self.model.config)
+            if self.configuration_version < self.job_version:
+                config = self.upgrade_config(config)
+
+
             # we're interested only in commands here
             if config.has_key('commands'):
                 config = config['commands']
@@ -189,3 +226,12 @@ class Assignment(object):
 
     def delete(self, *args, **kwargs):
         return self.model.delete(*args, **kwargs)
+
+    def get_configuration_version(self):
+        return self.model.version
+
+    def get_job_version(self):
+        return len(getattr(self.job, 'upgrades', []))
+
+    configuration_version = property(fget=get_configuration_version)
+    job_version = property(fget=get_job_version)

@@ -230,6 +230,41 @@ class TestAssignment(UnitTestCase):
 
         self._unmock_resolver()
 
+
+class TestAssignmentUpgrades(UnitTestCase):
+
+    def setUp(self):
+        super(TestAssignmentUpgrades, self).setUp()
+        register_mock_jobs_and_commands()
+
+        self.computer = MockBuildComputer()
+        self.computer.adapter = Mock()
+        self.job = MultipleEchoJob()
+        self.job.model = MockJob()
+        self.job.model.get_domain_object = Mock()
+        self.job.model.get_domain_object.return_value = self.job
+
+        self.project = MockProject()
+
+        self.assignment_model = JobAssignment(pk=1, project=self.project, computer=self.computer, job=self.job.model)
+        self.assignment = Assignment(model=self.assignment_model)
+
+    def test_initial_config_version_is_zero(self):
+        self.assert_equals(0, self.assignment.configuration_version)
+
+    def test_initial_job_version_is_zero(self):
+        self.assert_equals(0, self.assignment.job_version)
+
+    def test_upgrading_job_do_not_touch_assignment_configuration(self):
+        self.assert_equals(0, self.assignment.configuration_version)
+
+    def test_upgrades_affects_job_version(self):
+        self.job.upgrades = [
+            lambda x: x,
+            lambda x: x,
+        ]
+        self.assert_equals(2, self.assignment.job_version)
+
 class TestResults(DatabaseTestCase):
     def setUp(self):
         super(TestResults, self).setUp()

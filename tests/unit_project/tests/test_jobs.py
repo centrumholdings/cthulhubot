@@ -166,4 +166,3 @@ class TestSlotReplacement(UnitTestCase):
     def test_attempt_to_work_with_unconfigured_slot_raises_error(self):
         self.assert_raises(UnconfiguredCommandError, self.job.get_commands)
 
-
