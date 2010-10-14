@@ -1,11 +1,11 @@
-from subprocess import Popen, PIPE
-
-import os
 from djangosanetesting.cases import HttpTestCase, SeleniumTestCase
 from djangosanetesting.utils import get_live_server_path
+
+import os
 from mock import Mock
 from tempfile import mkdtemp
 from shutil import rmtree
+from subprocess import Popen, PIPE
 
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -277,6 +277,10 @@ class WebTestCase(SeleniumTestCase):
 
 class AuthenticatedWebTestCase(WebTestCase):
     def setUp(self, discover=True):
+
+        self.network_root = settings.NETWORK_ROOT
+        settings.NETWORK_ROOT = self.url_root
+
         super(AuthenticatedWebTestCase, self).setUp(discover=discover)
         self.create_user()
 
@@ -300,6 +304,12 @@ class AuthenticatedWebTestCase(WebTestCase):
 
         self.user.save()
         self.transaction.commit()
+
+    def tearDown(self):
+        super(AuthenticatedWebTestCase, self).tearDown()
+
+        settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self._old_builddir
+        
 
 
 

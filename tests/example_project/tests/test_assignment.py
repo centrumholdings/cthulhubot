@@ -125,33 +125,39 @@ class TestAssignmentUpgrades(DatabaseTestCase):
 
         self.computer_model = BuildComputer.objects.create(hostname = "localhost", basedir=self.base_directory)
 
-        self.job = job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
+        self.job = Job.objects.create(slug='cthulhubot-sleep').get_domain_object()
         self.job.auto_discovery()
-
-        self.assignment = create_job_assignment(
-            computer = self.computer_model,
-            job = job,
-            project = self.project,
-        )
-
-        self.assignment_second = create_job_assignment(
-            computer = self.computer_model,
-            job = job,
-            project = self.project,
-        )
-
-        self.project_client = ProjectClient.objects.all()[0]
-
-        self.build_directory = os.path.join(self.base_directory, self.assignment.get_identifier())
 
     def test_retrieving_factory_config_updates_assignment(self):
         self.job.upgrades = [
             lambda x: x,
         ]
 
+        self.assignment = create_job_assignment(
+            computer = self.computer_model,
+            job = self.job,
+            project = self.project,
+        )
+
+
         self.assignment.get_factory()
 
         self.assert_equals(1, self.assignment.configuration_version)
+
+    def test_newly_crated_assignment_has_proper_version(self):
+        self.job.upgrades = [
+            lambda x: x,
+        ]
+
+        self.assignment = create_job_assignment(
+            computer = self.computer_model,
+            job = self.job,
+            project = self.project,
+        )
+
+
+        self.assert_equals(1, self.assignment.configuration_version)
+
 
     def tearDown(self):
         settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self._old_builddir

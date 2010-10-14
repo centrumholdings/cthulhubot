@@ -75,6 +75,7 @@ def create_job_assignment(job, computer, project, params=None):
         computer = computer,
     ).get_domain_object()
     assignment.create_config(params)
+    assignment.model.version = assignment.job_version
     assignment.model.save()
 
     if len(ProjectClient.objects.filter(project=project, computer=computer)) == 0:
