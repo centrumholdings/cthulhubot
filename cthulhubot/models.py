@@ -432,6 +432,12 @@ class Buildmaster(models.Model):
 
     REALM = "buildmaster"
 
+    def __str__(self):
+        return 'Buildmaster for project %s on port %s' % (self.project.name, self.buildmaster_port)
+
+    def __unicode__(self):
+        return u'Buildmaster for project %s on port %s' % (self.project.name, self.buildmaster_port)
+
     def get_master_connection_string(self):
         host = getattr(settings, "BUILDMASTER_NETWORK_NAME", None)
         if not host:
