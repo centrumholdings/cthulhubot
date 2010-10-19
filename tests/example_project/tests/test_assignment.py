@@ -159,6 +159,36 @@ class TestAssignmentUpgrades(DatabaseTestCase):
         self.assert_equals(1, self.assignment.configuration_version)
 
 
+    def test_upgraded_configuration_saved(self):
+        def second_sleep(config):
+            config['commands'][0]['command'] = 'cthulhubot-sleep'
+            config['commands'][0]['parameters'] = {
+                'time' : '1'
+            }
+            return config
+
+
+        self.job.upgrades = []
+
+        self.assignment = create_job_assignment(
+            computer = self.computer_model,
+            job = self.job,
+            project = self.project,
+        )
+
+
+        self.assert_equals([['sleep', '0.02']], self.assignment.get_shell_commands())
+
+        self.job.__class__.upgrades = [
+            second_sleep,
+        ]
+
+        self.assignment = JobAssignment.objects.get(pk = self.assignment.model.pk).get_domain_object()
+        commands = self.assignment.get_shell_commands()
+        self.assert_equals(1, self.assignment.configuration_version)
+        self.assert_equals([['sleep', '1']], commands)
+        
+
     def tearDown(self):
         settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self._old_builddir
         rmtree(self.base_directory)

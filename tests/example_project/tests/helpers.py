@@ -279,7 +279,8 @@ class AuthenticatedWebTestCase(WebTestCase):
     def setUp(self, discover=True):
 
         self.network_root = settings.NETWORK_ROOT
-        settings.NETWORK_ROOT = self.url_root
+        if hasattr(self, 'url_root'):
+            settings.NETWORK_ROOT = self.url_root
 
         super(AuthenticatedWebTestCase, self).setUp(discover=discover)
         self.create_user()
@@ -308,6 +309,7 @@ class AuthenticatedWebTestCase(WebTestCase):
     def tearDown(self):
         super(AuthenticatedWebTestCase, self).tearDown()
 
+        settings.NETWORK_ROOT = self.network_root
         settings.CTHULHUBOT_BUILDMASTER_BASEDIR = self._old_builddir
         
 

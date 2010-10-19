@@ -98,28 +98,31 @@ class Assignment(object):
             for upgrade in job_upgrades[self.configuration_version:]:
                 config = upgrade(config)
 
+        self.model.config = dumps(config)
         self.model.version = len(job_upgrades)
         self.model.save()
 
         return config
 
 
+    def get_config(self):
+        if self.configuration_version < self.job_version:
+            return self.upgrade_config(loads(self.model.config))
+        else:
+            return loads(self.model.config)
 
     def get_factory(self):
         commands = self.job.get_commands()
 
         factory = BuildFactory()
+        config = self.get_config()
 
-        config = None
-        if self.model.config:
-            config = loads(self.model.config)
-            if self.configuration_version < self.job_version:
-                config = self.upgrade_config(config)
-
-
-            # we're interested only in commands here
-            if config.has_key('commands'):
-                config = config['commands']
+        # we're interested only in commands here
+        if config.has_key('commands'):
+            config = config['commands']
+        else:
+            config = None
+            
         i = 0
 
         for command in commands:
@@ -151,7 +154,7 @@ class Assignment(object):
         return factory
 
     def get_shell_commands(self):
-        return self.job.get_configured_shell_commands(loads(self.model.config))
+        return self.job.get_configured_shell_commands(self.get_config())
 
     def force_build(self):
         forcer = BuildForcer(master=self.model.project.buildmaster, assignment=self)

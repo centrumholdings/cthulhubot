@@ -100,7 +100,6 @@ class Command(object):
                 substitued_command.append(cmd)
             except KeyError:
                 substitued_command.append(arg)
-        
         return substitued_command
 
 
