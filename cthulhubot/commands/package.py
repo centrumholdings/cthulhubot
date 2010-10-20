@@ -9,7 +9,7 @@ class CreateStepWithBuildNumber(ShellCommand):
             build_number = self.builder.getProperty("number")
             self.setCommand(["python", "setup.py", "create_debian_package", "--build-number=%s" % build_number])
 
-        super(CreateStepWithBuildNumber, self).start(*args, **kwargs)
+        ShellCommand.start(self, *args, **kwargs)
 
 class BuildDebianPackage(Command):
     identifier = 'cthulhubot-debian-build-debian-package'
