@@ -26,7 +26,7 @@ class Build(object):
 
     def get_text_result(self):
         result = None
-        priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION]
+        priorities = [SKIPPED, SUCCESS, WARNINGS, FAILURE, EXCEPTION, RETRY, None]
 
         # if not result
 
@@ -34,7 +34,7 @@ class Build(object):
             if step.get('time_end', None):
                 if not result:
                     result = step['result']
-                else:
+                elif step['result'] in priorities:
                     if priorities.index(step['result']) > priorities.index(result):
                         result = step['result']
             else:
