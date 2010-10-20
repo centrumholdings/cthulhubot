@@ -1,5 +1,16 @@
 from cthulhubot.commands.interface import Command
 
+from buildbot.steps.shell import ShellCommand
+
+class CreateStepWithBuildNumber(ShellCommand):
+
+    def start(self, *args, **kwargs):
+        if getattr(self, 'builder', None):
+            build_number = self.builder.getProperty("number")
+            self.setCommand(["python", "setup.py", "create_debian_package", "--build-number=%s" % build_number])
+
+        super(CreateStepWithBuildNumber, self).start(*args, **kwargs)
+
 class BuildDebianPackage(Command):
     identifier = 'cthulhubot-debian-build-debian-package'
     name = {
@@ -11,7 +22,8 @@ class BuildDebianPackage(Command):
 
     parameters = {}
 
-    command = ["python", "setup.py", "create_debian_package"]
+    def get_buildbot_command(self, config=None, **kwargs):
+        return CreateStepWithBuildNumber(**self.get_buildbot_kwargs())
 
 class DebianPackageFtpUpload(Command):
     identifier = 'cthulhubot-debian-package-ftp-upload'
