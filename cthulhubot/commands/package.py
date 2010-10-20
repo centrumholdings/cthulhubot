@@ -3,11 +3,13 @@ from cthulhubot.commands.interface import Command
 from buildbot.steps.shell import ShellCommand
 
 class CreateStepWithBuildNumber(ShellCommand):
+    command = ["python", "setup.py", "create_debian_package"]
 
     def start(self, *args, **kwargs):
-        if getattr(self, 'builder', None):
-            build_number = self.builder.getProperty("number")
-            self.setCommand(["python", "setup.py", "create_debian_package", "--build-number=%s" % build_number])
+#        if getattr(self, 'builder', None):
+#            build_number = self.builder.getProperty("number")
+#            self.setCommand(["python", "setup.py", "create_debian_package", "--build-number=%s" % build_number])
+#
 
         ShellCommand.start(self, *args, **kwargs)
 
