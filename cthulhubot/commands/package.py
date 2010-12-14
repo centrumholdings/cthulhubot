@@ -27,6 +27,19 @@ class BuildDebianPackage(Command):
     def get_buildbot_command(self, config=None, **kwargs):
         return CreateStepWithBuildNumber(**self.get_buildbot_kwargs())
 
+class BuildGenericDebianPackage(Command):
+    identifier = 'cthulhubot-debian-build-generic-debian-package'
+    name = {
+        'basic' : u"Build Debian Package",
+        'running' : u'building debian package',
+        'succeeded' : u'Debian package build',
+        'failed' : u'Failed to build debian package',
+    }
+
+    parameters = {}
+
+    command = ['dpkg-buildpackage', '-rfakeroot-tcp', '-us', '-uc']
+
 class DebianPackageFtpUpload(Command):
     identifier = 'cthulhubot-debian-package-ftp-upload'
     name = {

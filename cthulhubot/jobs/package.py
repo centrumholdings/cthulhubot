@@ -25,3 +25,24 @@ class CreateDebianPackage(Job):
         },
     ]
 
+class CreateGenericDebianPackage(Job):
+    identifier = 'cthulhubot-debian-generic-package-creation'
+    name = u'Create Generic Debian package'
+
+    commands = [
+        {
+            'command' : 'cthulhubot-git',
+        },
+        {
+            'command' : 'cthulhubot-debian-build-generic-debian-package',
+        },
+        {
+            'command' : 'cthulhubot-debian-package-ftp-upload',
+            'parameters' : {
+                'ftp_host' : None,
+                'ftp_user' : None,
+                'ftp_password' : None,
+                'ftp_directory' : None,
+            },
+        },
+    ]
