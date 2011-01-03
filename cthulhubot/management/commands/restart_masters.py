@@ -1,3 +1,4 @@
+from traceback import print_exc
 from django.core.management.base import BaseCommand
 
 from cthulhubot.models import Buildmaster
@@ -20,8 +21,10 @@ class Command(BaseCommand):
                 b.stop()
             except:
                 print 'Failed to stop master'
+                print_exc()
             
             try:
                 b.start()
             except:
                 print 'Failed to start master'
+                print_exc()
