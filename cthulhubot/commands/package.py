@@ -75,3 +75,15 @@ class DebianPackageFtpUpload(Command):
     command = ["python", "setup.py", "upload_deb_devel"]
 
 
+class BuildPythonSourcePackage(Command):
+    identifier = 'cthulhubot-python-sdist'
+    command = ["python", "setup.py", "sdist"]
+    name = {
+        'basic' : u"Build Python source package",
+        'running' : u'building python source package',
+        'succeeded' : u'Python source package build',
+        'failed' : u'Failed to build python source package',
+    }
+
+    parameters = {}
+
